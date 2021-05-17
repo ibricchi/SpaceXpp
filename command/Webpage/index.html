@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>
+           Mars Rover
+        </title>
+
+        <link rel="stylesheet" type="text/css" href="CSS/style.css">
+
+        <script src="JS/connection.js"></script>
+        <script src="JS/speed.js"></script>
+
+    </head>
+
+    <body>
+        <div class="container">
+            <h1> SpaceX++ Rover </h1>
+
+            <h2> Mode </h2>
+            <p id="Mode">Mode: Disconected</p>
+
+
+            <button type="button" onclick="connect()"> Connect </button>
+
+            <h2> Speed </h2>
+
+            <div class="slidecontainer" onmousedown="speed()">
+                <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+                <p>Value: <span id="speedVal" ></span></p>
+            </div>
+
+          
+            <h2> Battery </h2>
+
+            <p> Battery Level: <span id="batteryVal"></span></p>
+
+        </div>
+    </body>
+
+
+
+</html>
