@@ -1,0 +1,129 @@
+Info: Starting: Create block symbol file (.bsf)
+Info: qsys-generate /home/ed/stuff/EEE2Rover/DE10_LITE_D8M_VIP_16/Qsys.qsys --block-symbol-file --output-directory=/home/ed/stuff/EEE2Rover/DE10_LITE_D8M_VIP_16/Qsys --family="MAX 10" --part=10M50DAF484C7G
+Progress: Loading DE10_LITE_D8M_VIP_16/Qsys.qsys
+Progress: Reading input file
+Progress: Adding TERASIC_AUTO_FOCUS_0 [TERASIC_AUTO_FOCUS 1.0]
+Progress: Parameterizing module TERASIC_AUTO_FOCUS_0
+Progress: Adding TERASIC_CAMERA_0 [TERASIC_CAMERA 1.0]
+Progress: Parameterizing module TERASIC_CAMERA_0
+Progress: Adding alt_vip_itc_0 [alt_vip_itc 14.0]
+Progress: Parameterizing module alt_vip_itc_0
+Progress: Adding alt_vip_vfb_0 [alt_vip_vfb 13.1]
+Progress: Parameterizing module alt_vip_vfb_0
+Progress: Adding altpll_0 [altpll 16.0]
+Progress: Parameterizing module altpll_0
+Progress: Adding clk_50 [clock_source 16.0]
+Progress: Parameterizing module clk_50
+Progress: Adding i2c_opencores_camera [i2c_opencores 12.0]
+Progress: Parameterizing module i2c_opencores_camera
+Progress: Adding i2c_opencores_mipi [i2c_opencores 12.0]
+Progress: Parameterizing module i2c_opencores_mipi
+Progress: Adding jtag_uart [altera_avalon_jtag_uart 16.0]
+Progress: Parameterizing module jtag_uart
+Progress: Adding key [altera_avalon_pio 16.0]
+Progress: Parameterizing module key
+Progress: Adding led [altera_avalon_pio 16.0]
+Progress: Parameterizing module led
+Progress: Adding mipi_pwdn_n [altera_avalon_pio 16.0]
+Progress: Parameterizing module mipi_pwdn_n
+Progress: Adding mipi_reset_n [altera_avalon_pio 16.0]
+Progress: Parameterizing module mipi_reset_n
+Progress: Adding nios2_gen2 [altera_nios2_gen2 16.0]
+Progress: Parameterizing module nios2_gen2
+Progress: Adding onchip_memory2_0 [altera_avalon_onchip_memory2 16.0]
+Progress: Parameterizing module onchip_memory2_0
+Progress: Adding sdram [altera_avalon_new_sdram_controller 16.0]
+Progress: Parameterizing module sdram
+Progress: Adding sw [altera_avalon_pio 16.0]
+Progress: Parameterizing module sw
+Progress: Adding sysid_qsys [altera_avalon_sysid_qsys 16.0]
+Progress: Parameterizing module sysid_qsys
+Progress: Adding timer [altera_avalon_timer 16.0]
+Progress: Parameterizing module timer
+Progress: Building connections
+Progress: Parameterizing connections
+Progress: Validating
+Progress: Done reading input file
+Info: Qsys.alt_vip_vfb_0: The Frame Buffer will no longer be available after 16.1, please upgrade to Frame Buffer II.
+Info: Qsys.jtag_uart: JTAG UART IP input clock need to be at least double (2x) the operating frequency of JTAG TCK on board
+Info: Qsys.key: PIO inputs are not hardwired in test bench. Undefined values will be read from PIO inputs during simulation.
+Info: Qsys.sw: PIO inputs are not hardwired in test bench. Undefined values will be read from PIO inputs during simulation.
+Info: Qsys.sysid_qsys: System ID is not assigned automatically. Edit the System ID parameter to provide a unique ID
+Info: Qsys.sysid_qsys: Time stamp will be automatically updated when this component is generated.
+Info: qsys-generate succeeded.
+Info: Finished: Create block symbol file (.bsf)
+Info: 
+Info: Starting: Create HDL design files for synthesis
+Info: qsys-generate /home/ed/stuff/EEE2Rover/DE10_LITE_D8M_VIP_16/Qsys.qsys --synthesis=VERILOG --output-directory=/home/ed/stuff/EEE2Rover/DE10_LITE_D8M_VIP_16/Qsys/synthesis --family="MAX 10" --part=10M50DAF484C7G
+Progress: Loading DE10_LITE_D8M_VIP_16/Qsys.qsys
+Progress: Reading input file
+Progress: Adding TERASIC_AUTO_FOCUS_0 [TERASIC_AUTO_FOCUS 1.0]
+Progress: Parameterizing module TERASIC_AUTO_FOCUS_0
+Progress: Adding TERASIC_CAMERA_0 [TERASIC_CAMERA 1.0]
+Progress: Parameterizing module TERASIC_CAMERA_0
+Progress: Adding alt_vip_itc_0 [alt_vip_itc 14.0]
+Progress: Parameterizing module alt_vip_itc_0
+Progress: Adding alt_vip_vfb_0 [alt_vip_vfb 13.1]
+Progress: Parameterizing module alt_vip_vfb_0
+Progress: Adding altpll_0 [altpll 16.0]
+Progress: Parameterizing module altpll_0
+Progress: Adding clk_50 [clock_source 16.0]
+Progress: Parameterizing module clk_50
+Progress: Adding i2c_opencores_camera [i2c_opencores 12.0]
+Progress: Parameterizing module i2c_opencores_camera
+Progress: Adding i2c_opencores_mipi [i2c_opencores 12.0]
+Progress: Parameterizing module i2c_opencores_mipi
+Progress: Adding jtag_uart [altera_avalon_jtag_uart 16.0]
+Progress: Parameterizing module jtag_uart
+Progress: Adding key [altera_avalon_pio 16.0]
+Progress: Parameterizing module key
+Progress: Adding led [altera_avalon_pio 16.0]
+Progress: Parameterizing module led
+Progress: Adding mipi_pwdn_n [altera_avalon_pio 16.0]
+Progress: Parameterizing module mipi_pwdn_n
+Progress: Adding mipi_reset_n [altera_avalon_pio 16.0]
+Progress: Parameterizing module mipi_reset_n
+Progress: Adding nios2_gen2 [altera_nios2_gen2 16.0]
+Progress: Parameterizing module nios2_gen2
+Progress: Adding onchip_memory2_0 [altera_avalon_onchip_memory2 16.0]
+Progress: Parameterizing module onchip_memory2_0
+Progress: Adding sdram [altera_avalon_new_sdram_controller 16.0]
+Progress: Parameterizing module sdram
+Progress: Adding sw [altera_avalon_pio 16.0]
+Progress: Parameterizing module sw
+Progress: Adding sysid_qsys [altera_avalon_sysid_qsys 16.0]
+Progress: Parameterizing module sysid_qsys
+Progress: Adding timer [altera_avalon_timer 16.0]
+Progress: Parameterizing module timer
+Progress: Building connections
+Progress: Parameterizing connections
+Progress: Validating
+Progress: Done reading input file
+Info: Qsys.alt_vip_vfb_0: The Frame Buffer will no longer be available after 16.1, please upgrade to Frame Buffer II.
+Info: Qsys.jtag_uart: JTAG UART IP input clock need to be at least double (2x) the operating frequency of JTAG TCK on board
+Info: Qsys.key: PIO inputs are not hardwired in test bench. Undefined values will be read from PIO inputs during simulation.
+Info: Qsys.sw: PIO inputs are not hardwired in test bench. Undefined values will be read from PIO inputs during simulation.
+Info: Qsys.sysid_qsys: System ID is not assigned automatically. Edit the System ID parameter to provide a unique ID
+Info: Qsys.sysid_qsys: Time stamp will be automatically updated when this component is generated.
+Info: Qsys: Generating Qsys "Qsys" for QUARTUS_SYNTH
+Info: Inserting clock-crossing logic between cmd_demux.src5 and cmd_mux_005.sink0
+Info: Inserting clock-crossing logic between rsp_demux_005.src0 and rsp_mux.sink5
+Info: TERASIC_AUTO_FOCUS_0: "Qsys" instantiated TERASIC_AUTO_FOCUS "TERASIC_AUTO_FOCUS_0"
+Info: TERASIC_CAMERA_0: "Qsys" instantiated TERASIC_CAMERA "TERASIC_CAMERA_0"
+Info: alt_vip_itc_0: "Qsys" instantiated alt_vip_itc "alt_vip_itc_0"
+Info: alt_vip_vfb_0: "Qsys" instantiated alt_vip_vfb "alt_vip_vfb_0"
+Info: altpll_0: Error while generating Qsys_altpll_0.v : 1 : Illegal port or parameter name scandone Illegal port or parameter name scanclkena Illegal port or parameter name scandataout Illegal port or parameter name configupdate Illegal port or parameter name scandata child process exited abnormally
+Info: altpll_0: Illegal port or parameter name scandone Illegal port or parameter name scanclkena Illegal port or parameter name scandataout Illegal port or parameter name configupdate Illegal port or parameter name scandata child process exited abnormally     while executing "exec /home/ed/altera_lite/16.0/quartus/linux64/clearbox altpll_avalon device_family=MAX10 CBX_FILE=Qsys_altpll_0.v -f cbxcmdln_1617092322619640"     ("eval" body line 1)     invoked from within "eval exec $cbx_cmd "
+Error: Can't continue processing -- expected file /tmp/alt8716_2763057626446894966.dir/0017_sopcgen/Qsys_altpll_0.v is missing
+Warning: Quartus Prime Generate HDL Interface was unsuccessful. 1 error, 0 warnings
+Error:     Peak virtual memory: 1399 megabytes
+Error:     Processing ended: Tue Mar 30 09:18:43 2021
+Error:     Elapsed time: 00:00:01
+Error:     Total CPU time (on all processors): 00:00:00
+Error: altpll_0: File /tmp/alt8716_2763057626446894966.dir/0017_sopcgen/Qsys_altpll_0.v written by generation callback did not contain a module called Qsys_altpll_0
+Error: altpll_0: /tmp/alt8716_2763057626446894966.dir/0017_sopcgen/Qsys_altpll_0.v (No such file or directory)
+Info: altpll_0: "Qsys" instantiated altpll "altpll_0"
+Error: Generation stopped, 218 or more modules remaining
+Info: Qsys: Done "Qsys" with 33 modules, 34 files
+Error: qsys-generate failed with exit code 1: 8 Errors, 1 Warning
+Info: Finished: Create HDL design files for synthesis
