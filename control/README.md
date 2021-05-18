@@ -1,3 +1,13 @@
+# WiFi
+
+## Add WiFi credentials
+
+This must be done before uploading. It is best to mask the WiFi credentials using `"???"` or similar before pushing.
+
+The WiFi credentials can be found in `spaceXpp_rover_controller/include/wifi.h` and are defined using `ESP_WIFI_SSID` and `ESP_WIFI_PASS`.
+
+# MQTT
+
 ## Mosquitto Setup
 
 ### Setup Mosquitto broker on cloud
