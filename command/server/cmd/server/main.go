@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/IBricchi/SpaceXpp/command/server"
+	"github.com/IBricchi/SpaceXpp/blob/bsc/httpserver1/command/server"
 	"github.com/go-chi/chi"
 	"go.uber.org/zap"
 )

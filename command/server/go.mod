@@ -1,4 +1,4 @@
-module 	github.com/IBricchi/SpaceXpp/tree/bsc/httpserver1/command/server
+module 	github.com/IBricchi/SpaceXpp/blob/bsc/httpserver1/command/server
 
 go 1.16
 
