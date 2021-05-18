@@ -38,5 +38,5 @@ mosquitto_sub -h 18.130.239.157 -p 8883 --cafile /etc/mosquitto/ca_certificates/
 ### Publish to topic using mosquitto_pub
 
 ```
-mosquitto_pub -h 18.130.239.157 -p 8883 --cafile /etc/mosquitto/ca_certificates/ca.crt -t "/test/test1"
+mosquitto_pub -h 18.130.239.157 -p 8883 --cafile /etc/mosquitto/ca_certificates/ca.crt -t "/test/test1" -m "Message to publish"
 ```
