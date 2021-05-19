@@ -25,23 +25,25 @@ func OpenHttpServer(ctx context.Context, logger *zap.Logger, router *chi.Mux /*,
 	return h
 }
 
-func hello(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(w, "hello\n")
-}
-
 func (h *HttpServer) Serve(ctx context.Context, port string) error {
 	if err := h.routes(ctx); err != nil {
 		return fmt.Errorf("server: http_server: routes failed: %w", err)
 	}
 
-	http.HandleFunc("/hello", hello)
-
 	portStr := ":" + port
 
-	fmt.Fprint("listennninnnggg")
-
-	if err := http.ListenAndServe(portStr, nil); err != nil {
+	if err := http.ListenAndServe(portStr, h.router); err != nil {
 		return fmt.Errorf("server: http_server: http.ListenAndServe failed: %w", err)
 	}
+	return nil
+}
+
+func (h *HttpServer) Close() error {
+
+	/*
+		if err := h.db.Close(); err != nil {
+			return fmt.Errorf("server: http_server: failed to close db: %w", err)
+		}
+	*/
 	return nil
 }

@@ -16,10 +16,12 @@ func main() {
 	fmt.Println("Loading Server")
 
 	var httpPort = flag.String("httpPort", "3000", "Port for serving http server")
-	var serverDBFilePath = flag.String("db", "serverDB.db", "SQLite DB file path")
+	//var serverDBFilePath = flag.String("db", "serverDB.db", "SQLite DB file path")
 	flag.Parse()
 
-	serverDBDSN := "db/" + *serverDBFilePath
+	//serverDBDSN := "db/" + *serverDBFilePath
+
+	fmt.Println(*httpPort)
 
 	ctx := context.Background()
 
@@ -41,13 +43,13 @@ func main() {
 
 	r := chi.NewRouter()
 
-	httpServer := server.OpenHttpServer(ctx, logger, r, serverDB)
+	httpServer := server.OpenHttpServer(ctx, logger, r /*serverDB*/)
 	defer httpServer.Close()
 
 	logger.Info("server: opened http server")
-	fmt.Fprint("Server successfully opened http server")
+	fmt.Println("Successfully opened http server")
 
-	fmt.Fprint("going into loop of listening")
+	fmt.Println("going into loop of listening")
 	if err := httpServer.Serve(ctx, *httpPort); err != nil {
 		logger.Fatal("server: failed to serve http server", zap.Error(err))
 	}
