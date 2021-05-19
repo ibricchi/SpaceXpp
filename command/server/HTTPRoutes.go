@@ -13,6 +13,8 @@ func (h *HttpServer) routes(ctx context.Context) error {
 		// Get
 		r.Get("/connect", connect)
 		r.Get("/battery", battery)
+		r.Get("/check", check)
+
 	})
 	return nil
 }
