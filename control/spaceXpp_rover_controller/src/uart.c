@@ -21,6 +21,11 @@ void vision_uart_init()
     // TODO: implement based on DE10-Lite UART interface
 }
 
+void energy_uart_init()
+{
+    // TODO: implement based on DE10-Lite UART interface
+}
+
 void drive_uart_task(void *arg)
 {
     uint8_t* data = (uint8_t*) malloc(DRIVE_BUFFER_SIZE+1);
@@ -33,8 +38,8 @@ void drive_uart_task(void *arg)
             // Send string data
             char* tx_string = "A message from ESP32\n";
             uint8_t stringKey = (uint8_t)MSG;
-            uart_write_bytes(UART_NUM_1, (const char*)&stringKey, 1); // send key
-            uart_write_bytes(UART_NUM_1, (const char*)tx_string, strlen(tx_string)); // send data
+            uart_write_bytes(DRIVE_UART_NUM, (const char*)&stringKey, 1); // send key
+            uart_write_bytes(DRIVE_UART_NUM, (const char*)tx_string, strlen(tx_string)); // send data
         }
 
          vTaskDelay(1000 / portTICK_PERIOD_MS);
@@ -43,6 +48,13 @@ void drive_uart_task(void *arg)
 }
 
 void vision_uart_task(void *arg)
+{
+    while (1) {
+        // TODO: implement
+    }
+}
+
+void energy_uart_task(void *arg)
 {
     while (1) {
         // TODO: implement

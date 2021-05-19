@@ -26,9 +26,12 @@ void app_main()
     esp_mqtt_client_handle_t client = mqtt_init();
 
     drive_uart_init();
+    // vision_uart_init();
+    // energy_uart_init();
 
-    xTaskCreate(mqtt_task, "mqtt_task", 2048, (void*)client, 1, NULL);
+    xTaskCreate(mqtt_task, "mqtt_task", 2048, (void*)client, 10, NULL);
 
-    xTaskCreate(drive_uart_task, "drive_uart_task", 2048, NULL, 1, NULL);
-    // xTaskCreate(vision_uart_task, "vision_uart_task", 2048, NULL, 1, NULL);
+    xTaskCreate(drive_uart_task, "drive_uart_task", 2048, NULL, 10, NULL);
+    // xTaskCreate(vision_uart_task, "vision_uart_task", 2048, NULL, 10, NULL);
+    // xTaskCreate(energy_uart_task, "energy_uart_task", 2048, NULL, 5, NULL);
 }
