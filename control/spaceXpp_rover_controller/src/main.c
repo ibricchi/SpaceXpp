@@ -7,6 +7,7 @@
 
 #include "mqtt.h"
 #include "wifi.h"
+#include "uart.h"
 
 void app_main()
 {
@@ -24,5 +25,10 @@ void app_main()
 
     esp_mqtt_client_handle_t client = mqtt_init();
 
-    xTaskCreate(mqtt_task, "mqtt_task", 2000, (void*)client, 1, NULL);
+    drive_uart_init();
+
+    xTaskCreate(mqtt_task, "mqtt_task", 2048, (void*)client, 1, NULL);
+
+    xTaskCreate(drive_uart_task, "drive_uart_task", 2048, NULL, 1, NULL);
+    // xTaskCreate(vision_uart_task, "vision_uart_task", 2048, NULL, 1, NULL);
 }
