@@ -27,9 +27,8 @@ func InitMQTT(ctx context.Context, logger *zap.Logger, mqttBrokerURL string) (*M
 	opts.AddBroker(mqttBrokerURL)
 	opts.SetTLSConfig(tlsConfig)
 	opts.SetClientID("SpaceXpp_server")
-
-	// opts.SetUsername(*mqttUsername)
-	// opts.SetPassword(*mqttPassword)
+	opts.SetCleanSession(true)
+	opts.SetConnectRetry(true)
 
 	opts.OnConnect = mqttConnectHandler
 	opts.OnConnectionLost = mqttConnectLostHandler
@@ -45,6 +44,12 @@ func (m *MQTTClient) Connect() error {
 		return fmt.Errorf("server: mqtt: failed to connect to broker: %w", token.Error())
 	}
 	return nil
+}
+
+func (m *MQTTClient) Disconnect() {
+	m.client.Disconnect(100)
+
+	m.logger.Info("Disconnected from MQTT broker successfully")
 }
 
 var testStatusMessagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
