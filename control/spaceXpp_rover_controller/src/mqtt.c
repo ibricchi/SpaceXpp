@@ -65,6 +65,7 @@ esp_mqtt_client_handle_t mqtt_init()
     esp_mqtt_client_config_t mqtt_cfg = {
         .uri = MQTT_BROKER_URI,
         .cert_pem = (const char*)mqtt_cert, // Used for TLS/SSL
+        .skip_cert_common_name_check = true, // Required as esp32 seems to use common name instead of SANs, even though this was depreciated in 2000
     };
     esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
 
