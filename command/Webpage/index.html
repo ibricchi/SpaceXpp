@@ -18,11 +18,11 @@
         <div class="container">
             <h1> SpaceX++ Rover </h1>
 
-            <h2> Mode </h2>
-            <p id="Mode">Mode: Disconected</p>
+            <h2> Status </h2>
+            <p>Status: <span id="status" ></span></p>
+            
 
-
-            <button type="button" onclick="connect()"> Connect </button>
+            <button type="button" onclick="connect()" > Connect </button>
 
             <h2> Speed </h2>
 
@@ -34,7 +34,7 @@
           
             <h2> Battery </h2>
 
-            <p> Battery Level: <span id="batteryVal"></span></p>
+            <p> Battery Level: <span id="batteryVal"></span><script>battery()</script></p>
 
         </div>
     </body>

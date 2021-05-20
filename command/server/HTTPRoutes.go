@@ -33,6 +33,8 @@ func (h *HttpServer) routes(ctx context.Context) error {
 		r.Get("/battery", battery)
 		r.Get("/check", check)
 
+		r.Post("/speed", speed)
+
 	})
 	return nil
 }
