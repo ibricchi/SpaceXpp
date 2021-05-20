@@ -1,11 +1,33 @@
 function connect(){
-    var mode = document.getElementById("Mode");
+    var mode = document.getElementById("status");
 
-    if (mode.innerHTML != "Mode: connected")
-        {
-            // This will call function that will attempt to connect with rover 
-            // For now just simple replacement 
-            mode.innerHTML = "Mode: Connected";
-        }
-    
+    fetch("http://18.117.12.54:3000/connect")
+        .then(request => request.json())
+        .then(data => {
+            if(data != null){
+                mode.innerHTML = data;
+            }else{
+                mode.innerHTML = " Disconnected: Issue between wepage and server";
+            }})
+        .catch(err => {
+            console.warn(err);
+            console.warn("Communicator: unable to fetch data from server");
+            mode.innerHTML = " Disconnected: Issue between wepage and server";
+        });
+
+
+}
+
+function battery(){
+    var val = document.getElementById("batteryVal")
+
+    fetch("http://18.117.12.54:3000/battery")
+        .then(request => request.json())
+        .then(data => {val.innerHTML = data;})
+        .catch(err => {
+            console.warn(err);
+            console.warn("Communicator: unable to fetch data from server");
+            mode.innerHTML = " Error: unable to fetch battery data";
+        });
+
 }

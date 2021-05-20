@@ -6,5 +6,5 @@ import (
 )
 
 func speed(w http.ResponseWriter, req *http.Request) {
-	fmt.Println("speed")
+	fmt.Fprintf(w, "speed: %v", req.Body)
 }
