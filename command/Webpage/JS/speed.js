@@ -13,19 +13,3 @@
        
    }
 
-function speedSend(){
-    var output = document.getElementById("speedVal");
-    var val = parseInt(output.innerHTML)
-
-    const options = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(val)
-    };
-
-    fetch("http://172.17.251.225:3000/speed", options);
-
-
-}

@@ -21,8 +21,6 @@ func main() {
 
 	//serverDBDSN := "db/" + *serverDBFilePath
 
-	fmt.Println(*httpPort)
-
 	ctx := context.Background()
 
 	logger, err := zap.NewDevelopment()
@@ -30,8 +28,6 @@ func main() {
 		log.Fatalf("server: failed to create zap logger: %v\n", err)
 	}
 	defer logger.Sync()
-
-	fmt.Println("Server successfully created a zap logger")
 
 	/* Database stuff
 	serverDB, err := server.OpenSQLiteDB(ctx, logger, serverDBDSN)
@@ -47,9 +43,7 @@ func main() {
 	defer httpServer.Close()
 
 	logger.Info("server: opened http server")
-	fmt.Println("Successfully opened http server")
 
-	fmt.Println("going into loop of listening")
 	if err := httpServer.Serve(ctx, *httpPort); err != nil {
 		logger.Fatal("server: failed to serve http server", zap.Error(err))
 	}
