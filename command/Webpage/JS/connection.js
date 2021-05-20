@@ -1,7 +1,7 @@
 function connect(){
     var mode = document.getElementById("status");
 
-    fetch("http://18.117.12.54:3000/connect")
+    fetch("http://172.17.251.225:3000/connect")
         .then(request => request.json())
         .then(data => {
             if(data != null){
@@ -21,7 +21,7 @@ function connect(){
 function battery(){
     var val = document.getElementById("batteryVal")
 
-    fetch("http://18.117.12.54:3000/battery")
+    fetch("http://172.17.251.225:3000/battery")
         .then(request => request.json())
         .then(data => {val.innerHTML = data;})
         .catch(err => {

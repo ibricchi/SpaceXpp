@@ -26,7 +26,7 @@
 
             <h2> Speed </h2>
 
-            <div class="slidecontainer" onmousedown="speed()">
+            <div class="slidecontainer" onmousedown="speed()" onmouseup="speedSend()">
                 <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
                 <p>Value: <span id="speedVal" ></span></p>
             </div>
