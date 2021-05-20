@@ -28,7 +28,7 @@ systemctl status mosquitto
 
 Require SANs certificates as Go no longer supports depreciated common name matching.
 
-Start by copying `mqtt_broker.cnf` to the Mosquitto server and then run the following commands. Make sure, that the `CN=18.130.239.157` attribute matches the IP address of the Mosquitto server.
+Start by copying `mqtt_broker.cnf` to the Mosquitto server and check that the DNS and IP under `[ alt_names ]` matches the Mosquitto server. Run the following commands. Make sure, that the `CN=18.130.239.157` attribute matches the IP address of the Mosquitto server.
 
 ```bash
 # Create the CA key
