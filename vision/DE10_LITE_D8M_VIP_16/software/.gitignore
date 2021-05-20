@@ -1,0 +1,8 @@
+!*
+obj
+.metadata
+*.objdump
+*.map
+.force_rebuild
+.force_relink
+RemoteSystemsTempFiles
