@@ -17,12 +17,11 @@ func (h *HttpServer) speed(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	/*
-		err = h.db.insertData(true, t)
-		if err != nil {
-			panic(err)
-		}
-	*/
+	err = h.db.insertData(true, t)
+	if err != nil {
+		panic(err)
+	}
+
 	fmt.Println(t)
 
 }

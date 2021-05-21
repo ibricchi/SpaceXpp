@@ -18,14 +18,12 @@ func (h *HttpServer) connect(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h *HttpServer) battery(w http.ResponseWriter, req *http.Request) {
-	level := 69
 
-	/*
-		err, _, level := h.db.retriveData()
-		if err != nil {
-			//return error
-		}
-	*/
+	err, _, level := h.db.retriveData()
+	if err != nil {
+		//return error
+	}
+
 	json.NewEncoder(w).Encode(level)
 
 }
