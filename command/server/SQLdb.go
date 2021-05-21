@@ -26,10 +26,10 @@ func (s *SQLiteDB) createTable(ctx context.Context) error {
 	rows, _ := s.db.Query("SELECT MAX(id), battery FROM summary")
 	var id int
 	var batVal int
-	for rows.Next() {
-		rows.Scan(&id, &batVal)
-		fmt.Println(strconv.Itoa(id) + ": " + strconv.Itoa(batVal))
-	}
+	//for rows.Next() {
+	rows.Scan(&id, &batVal)
+	fmt.Println(strconv.Itoa(id) + ": " + strconv.Itoa(batVal))
+	//}
 
 	return nil
 }
