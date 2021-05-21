@@ -21,9 +21,9 @@ func (s *SQLiteDB) createTable(ctx context.Context) error {
 }
 
 func (s *SQLiteDB) insertData(status bool, battery int) error {
-	//statement, _ := s.db.Prepare("CREATE TABLE IF NOT EXISTS summary (id INTEGER PRIMARY KEY, battery INTEGER)")
-	//statement.Exec()
-	statement, _ := s.db.Prepare("INSERT INTO summary (battery) VALUES (?)")
+	statement, _ := s.db.Prepare("CREATE TABLE IF NOT EXISTS summary (id INTEGER PRIMARY KEY, battery INTEGER)")
+	statement.Exec()
+	statement, _ = s.db.Prepare("INSERT INTO summary (battery) VALUES (?)")
 	statement.Exec(battery)
 	defer statement.Close()
 
