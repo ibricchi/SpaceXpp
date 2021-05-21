@@ -23,6 +23,7 @@ func (s *SQLiteDB) createTable(ctx context.Context) error {
 
 func (s *SQLiteDB) insertData(status bool, battery int) error {
 	batVal := strconv.Itoa(battery)
+	fmt.Println("Inserting: " + batVal)
 
 	s.db.Prepare("INSERT INTO summary (battery) VALUES (?)")
 	s.db.Exec(batVal)
@@ -39,6 +40,10 @@ func (s *SQLiteDB) retriveData() (error, bool, int) {
 	var batVal int
 	var id int
 	latest.Scan(&id, batVal)
+
+	fmt.Println("retrived: ")
+	fmt.Println(batVal)
+
 	return nil, true, batVal
 
 }
