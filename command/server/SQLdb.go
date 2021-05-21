@@ -27,6 +27,7 @@ func (s *SQLiteDB) createTable(ctx context.Context) error {
 	var id int
 	var batVal int
 	//for rows.Next() {
+	rows.Next()
 	rows.Scan(&id, &batVal)
 	fmt.Println(strconv.Itoa(id) + ": " + strconv.Itoa(batVal))
 	//}
