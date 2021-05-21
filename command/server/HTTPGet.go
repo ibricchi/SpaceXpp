@@ -16,8 +16,6 @@ func connect(w http.ResponseWriter, req *http.Request) {
 
 }
 
-// func (h *HttpServer) handleGetIsAuthorised(creds map[string]string) http.HandlerFunc {
-
 func (h *HttpServer) battery(w http.ResponseWriter, req *http.Request) {
 
 	err, _, level := h.db.retriveData()

@@ -8,7 +8,7 @@ import (
 
 type DB interface {
 	createTable(ctx context.Context) error
-	insertData(ctx context.Context, status bool, battery int) error
+	insertData(status bool, battery int) error
 	retriveData() (error, bool, int)
 	Close() error
 }
@@ -21,7 +21,7 @@ func (s *SQLiteDB) createTable(ctx context.Context) error {
 	return nil
 }
 
-func (s *SQLiteDB) insertData(ctx context.Context, status bool, battery int) error {
+func (s *SQLiteDB) insertData(status bool, battery int) error {
 	batVal := strconv.Itoa(battery)
 
 	s.db.Prepare("INSERT INTO summary (battery) VALUES (?)")

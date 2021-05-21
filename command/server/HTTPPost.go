@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func speed(w http.ResponseWriter, r *http.Request) {
+func (h *HttpServer) speed(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	defer r.Body.Close()
 
@@ -17,6 +17,10 @@ func speed(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
+	err = h.db.insertData(true, t)
+	if err != nil {
+		panic(err)
+	}
 	fmt.Println(t)
 
 }
