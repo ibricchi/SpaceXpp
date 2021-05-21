@@ -3,7 +3,6 @@ package server
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 )
 
 type staticTestData struct {
@@ -14,24 +13,19 @@ type staticTestData struct {
 func (h *HttpServer) connect(w http.ResponseWriter, req *http.Request) {
 	status := "connected"
 
-	err, _, level := h.db.retriveData()
-	if err != nil {
-		//return error
-	}
-
-	status = strconv.Itoa(level)
-
 	json.NewEncoder(w).Encode(status)
 
 }
 
 func (h *HttpServer) battery(w http.ResponseWriter, req *http.Request) {
+	level := 69
 
-	err, _, level := h.db.retriveData()
-	if err != nil {
-		//return error
-	}
-
+	/*
+		err, _, level := h.db.retriveData()
+		if err != nil {
+			//return error
+		}
+	*/
 	json.NewEncoder(w).Encode(level)
 
 }
