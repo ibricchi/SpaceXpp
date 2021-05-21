@@ -23,7 +23,7 @@ func (s *SQLiteDB) createTable(ctx context.Context) error {
 
 func (s *SQLiteDB) insertData(status bool, battery int) error {
 	statement, _ := s.db.Prepare("INSERT INTO summary (battery) VALUES (?)")
-	statement.Exec(battery)
+	statement.Exec(69)
 
 	rows, _ := s.db.Query("SELECT id, battery FROM summary")
 	var id int
