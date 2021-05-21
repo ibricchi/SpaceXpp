@@ -23,7 +23,7 @@ func (s *SQLiteDB) createTable(ctx context.Context) error {
 
 	fmt.Println("data in db, now querying")
 
-	rows, _ := s.db.Query("SELECT id, name FROM people")
+	rows, _ := s.db.Query("SELECT id, name FROM summary")
 	var id int
 	var name string
 	for rows.Next() {
