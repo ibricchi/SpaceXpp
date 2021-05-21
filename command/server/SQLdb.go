@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"strconv"
 )
 
 type DB interface {
@@ -24,6 +25,14 @@ func (s *SQLiteDB) insertData(status bool, battery int) error {
 	statement, _ := s.db.Prepare("INSERT INTO summary (battery) VALUES (?)")
 	statement.Exec(battery)
 
+	rows, _ := s.db.Query("SELECT id, battery FROM summary")
+	var id int
+	var val int
+	for rows.Next() {
+		rows.Scan(&id, &val)
+		fmt.Println(strconv.Itoa(id) + ": " + strconv.Itoa(val))
+	}
+
 	return nil
 }
 
@@ -44,3 +53,24 @@ func (s *SQLiteDB) Close() error {
 	}
 	return nil
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/* DATABASE Testing Area /
+fmt.Println("Stating db tests")
+statement, _ := db.Prepare("CREATE TABLE IF NOT EXISTS people (id INTEGER PRIMARY KEY, name TEXT)")
+statement.Exec()
+statement, _ = db.Prepare("INSERT INTO people (name) VALUES (?)")
+statement.Exec("Brad")
+
+fmt.Println("data in db, now querying")
+
+rows, _ := db.Query("SELECT id, name FROM people")
+var id int
+var name string
+for rows.Next() {
+	rows.Scan(&id, &name)
+	fmt.Println(strconv.Itoa(id) + ": " + name)
+}
+
+/* end of testing area */
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
