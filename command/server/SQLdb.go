@@ -23,9 +23,18 @@ func (s *SQLiteDB) createTable(ctx context.Context) error {
 
 func (s *SQLiteDB) insertData(status bool, battery int) error {
 	batVal := strconv.Itoa(battery)
-	fmt.Println("Inserting: " + batVal)
 
 	s.db.Prepare("INSERT INTO summary (battery) VALUES (" + batVal + ")")
+
+	fmt.Println("Indserted: ")
+
+	rows, _ := s.db.Query("SELECT id, battery FROM summary")
+	var id int
+	var val int
+	for rows.Next() {
+		rows.Scan(&id, &val)
+		fmt.Println(strconv.Itoa(id) + ": " + strconv.Itoa(val))
+	}
 
 	return nil
 }
