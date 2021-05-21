@@ -39,8 +39,8 @@ func (s *SQLiteDB) retriveData() (error, bool, int) {
 	}
 	var batVal int
 	var id int
-	latest.Next()
-	latest.Scan(&id, batVal)
+	//for latest.Next()
+	latest.Scan(&id, &batVal)
 
 	fmt.Println("retrived: ")
 	fmt.Println(batVal)
