@@ -25,7 +25,7 @@ func (s *SQLiteDB) insertData(status bool, battery int) error {
 	statement, _ := s.db.Prepare("CREATE TABLE IF NOT EXISTS summary (id INTEGER PRIMARY KEY, battery INTEGER)")
 	statement.Exec()
 	statement, _ = s.db.Prepare("INSERT INTO summary (battery) VALUES (?)")
-	statement.Exec(10)
+	statement.Exec(&battery)
 
 	rows, _ := s.db.Query("SELECT id, battery FROM summary")
 	var id int
