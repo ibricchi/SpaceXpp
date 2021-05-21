@@ -18,20 +18,6 @@ func (s *SQLiteDB) createTable(ctx context.Context) error {
 	statement, _ := s.db.Prepare("CREATE TABLE IF NOT EXISTS summary (id INTEGER PRIMARY KEY, battery INTEGER)")
 	statement.Exec()
 
-	statement, _ = s.db.Prepare("INSERT INTO summary (battery) VALUES (?)")
-	statement.Exec(68)
-	statement.Exec(12)
-	fmt.Println("data in db, now querying")
-
-	rows, _ := s.db.Query("SELECT MAX(id), battery FROM summary")
-	var id int
-	var batVal int
-	//for rows.Next() {
-	rows.Next()
-	rows.Scan(&id, &batVal)
-	fmt.Println(strconv.Itoa(id) + ": " + strconv.Itoa(batVal))
-	//}
-
 	return nil
 }
 
@@ -39,18 +25,10 @@ func (s *SQLiteDB) createTable(ctx context.Context) error {
 
 func (s *SQLiteDB) insertData(status bool, battery int) error {
 
-	statement, _ := s.db.Prepare("INSERT INTO summary (name) VALUES (?)")
-	statement.Exec("Brad")
-
-	fmt.Println("data in db, now querying")
-
-	rows, _ := s.db.Query("SELECT id, name FROM people")
-	var id int
-	var name string
-	for rows.Next() {
-		rows.Scan(&id, &name)
-		fmt.Println(strconv.Itoa(id) + ": " + name)
-	}
+	statement, _ := s.db.Prepare("INSERT INTO summary (battery) VALUES (?)")
+	statement.Exec(68)
+	statement.Exec(12)
+	fmt.Println("data in db")
 
 	/*batVal := strconv.Itoa(battery)
 	batValt := batVal + batVal
@@ -72,21 +50,13 @@ func (s *SQLiteDB) insertData(status bool, battery int) error {
 }
 
 func (s *SQLiteDB) retriveData() (error, bool, int) {
-
-	latest, err := s.db.Query("SELECT id, battery FROM summary")
-	if err != nil {
-		return err, false, -1
-	}
-	var batVal int
+	fmt.Println("now querying")
+	rows, _ := s.db.Query("SELECT MAX(id), battery FROM summary")
 	var id int
-	for latest.Next() {
-		latest.Scan(&id, &batVal)
-		fmt.Println("retrived: ")
-		fmt.Println(batVal)
-	}
-
-	fmt.Println("retrived: ")
-	fmt.Println(batVal)
+	var batVal int
+	rows.Next()
+	rows.Scan(&id, &batVal)
+	fmt.Println(strconv.Itoa(id) + ": " + strconv.Itoa(batVal))
 
 	return nil, true, batVal
 
