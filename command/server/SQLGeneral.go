@@ -30,6 +30,11 @@ func OpenSQLiteDB(ctx context.Context, logger *zap.Logger, dsn string) (*SQLiteD
 		logger: logger,
 	}
 
+	/* DATABASE Testing Area */
+	fmt.Println("Stating db tests")
+	statement, _ := db.Prepare("CREATE TABLE people (id INTEGER PRIMARY KEY, name TEXT)")
+	statement.Exec()
+
 	/*
 		if err := s.migrate(ctx); err != nil {
 			s.Close()
