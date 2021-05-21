@@ -15,7 +15,8 @@ type HttpServer struct {
 	logger *zap.Logger
 }
 
-func OpenHttpServer(ctx context.Context, logger *zap.Logger, router *chi.Mux /*, db *SQLiteDB*/) *HttpServer {
+func OpenHttpServer(ctx context.Context, logger *zap.Logger, router *chi.Mux, db *SQLiteDB) *HttpServer {
+
 	h := &HttpServer{
 		//db:     db,
 		router: router,

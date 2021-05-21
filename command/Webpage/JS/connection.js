@@ -16,6 +16,7 @@ function getData( location, address ){
         .catch(err => {
             console.warn(err);
             console.warn("Communicator: unable to fetch data from server");
+            webLocation.innerHTML = " Disconnected: Issue between wepage and server";
         });
 }
 

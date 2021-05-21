@@ -16,10 +16,10 @@ func main() {
 	fmt.Println("Loading Server")
 
 	var httpPort = flag.String("httpPort", "3000", "Port for serving http server")
-	//var serverDBFilePath = flag.String("db", "serverDB.db", "SQLite DB file path")
+	var serverDBFilePath = flag.String("db", "serverDB.db", "SQLite DB file path")
 	flag.Parse()
 
-	//serverDBDSN := "db/" + *serverDBFilePath
+	serverDBDSN := "db/" + *serverDBFilePath
 
 	ctx := context.Background()
 
@@ -29,17 +29,15 @@ func main() {
 	}
 	defer logger.Sync()
 
-	/* Database stuff
 	serverDB, err := server.OpenSQLiteDB(ctx, logger, serverDBDSN)
 	if err != nil {
 		logger.Fatal("server: failed to open SQLite server database", zap.Error(err))
 	}
 	logger.Info("server: opened server sqlite3 DB")
-	*/
 
 	r := chi.NewRouter()
 
-	httpServer := server.OpenHttpServer(ctx, logger, r /*serverDB*/)
+	httpServer := server.OpenHttpServer(ctx, logger, r, serverDB)
 	defer httpServer.Close()
 
 	logger.Info("server: opened http server")
