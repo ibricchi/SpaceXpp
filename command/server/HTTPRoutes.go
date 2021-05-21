@@ -29,7 +29,7 @@ func (h *HttpServer) routes(ctx context.Context) error {
 	// Public routes
 	h.router.Group(func(r chi.Router) {
 		// Get
-		r.Get("/connect", connect)
+		r.Get("/connect", h.connect)
 		r.Get("/battery", h.battery)
 		r.Get("/check", check)
 

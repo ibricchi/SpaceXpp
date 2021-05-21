@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 )
 
 type staticTestData struct {
@@ -10,8 +11,16 @@ type staticTestData struct {
 	Data []int  `json:"data"`
 }
 
-func connect(w http.ResponseWriter, req *http.Request) {
+func (h *HttpServer) connect(w http.ResponseWriter, req *http.Request) {
 	status := "connected"
+
+	err, _, level := h.db.retriveData()
+	if err != nil {
+		//return error
+	}
+
+	status = strconv.Itoa(level)
+
 	json.NewEncoder(w).Encode(status)
 
 }
