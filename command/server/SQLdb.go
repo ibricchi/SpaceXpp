@@ -25,7 +25,7 @@ func (s *SQLiteDB) insertData(status bool, battery int) error {
 	statement, _ := s.db.Prepare("CREATE TABLE IF NOT EXISTS summary (id INTEGER PRIMARY KEY, battery INTEGER)")
 	statement.Exec()
 	statement, _ = s.db.Prepare("INSERT INTO summary (battery) VALUES (?)")
-	statement.Exec(21)
+	statement.Exec(battery)
 	defer statement.Close()
 
 	rows, _ := s.db.Query("SELECT id, battery FROM summary")
@@ -45,6 +45,7 @@ func (s *SQLiteDB) retriveData() (error, bool, int) {
 	var batVal int
 	rows.Next()
 	rows.Scan(&id, &batVal)
+	defer rows.Close()
 
 	return nil, true, batVal
 
