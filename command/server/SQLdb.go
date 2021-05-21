@@ -20,7 +20,7 @@ func (s *SQLiteDB) createTable(ctx context.Context) error {
 
 	statement, _ = s.db.Prepare("INSERT INTO summary (name) VALUES (?)")
 	statement.Exec("Brad")
-
+	statement.Exec("steve")
 	fmt.Println("data in db, now querying")
 
 	rows, _ := s.db.Query("SELECT id, name FROM summary")
