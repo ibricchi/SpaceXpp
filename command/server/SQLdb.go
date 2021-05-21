@@ -33,7 +33,7 @@ func (s *SQLiteDB) insertData(status bool, battery int) error {
 
 func (s *SQLiteDB) retriveData() (error, bool, int) {
 
-	latest, err := s.db.Query("SELECT MAX(id), battery FROM summary")
+	latest, err := s.db.Query("SELECT id, battery FROM summary")
 	if err != nil {
 		return err, false, -1
 	}
