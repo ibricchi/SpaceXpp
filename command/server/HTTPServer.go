@@ -23,6 +23,8 @@ func OpenHttpServer(ctx context.Context, logger *zap.Logger, router *chi.Mux, db
 		logger: logger,
 	}
 
+	h.db.createTable(ctx)
+
 	return h
 }
 
