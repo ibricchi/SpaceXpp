@@ -24,9 +24,6 @@ func OpenHttpServer(ctx context.Context, logger *zap.Logger, router *chi.Mux, db
 	}
 
 	h.db.createTable(ctx)
-	h.db.insertData(true, 12)
-	h.db.retriveData()
-
 	return h
 }
 
