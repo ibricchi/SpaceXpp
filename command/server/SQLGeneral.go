@@ -30,7 +30,7 @@ func OpenSQLiteDB(ctx context.Context, logger *zap.Logger, dsn string) (*SQLiteD
 		db:     db,
 		logger: logger,
 	}
-
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/* DATABASE Testing Area */
 	fmt.Println("Stating db tests")
 	statement, _ := db.Prepare("CREATE TABLE IF NOT EXISTS people (id INTEGER PRIMARY KEY, name TEXT)")
@@ -47,6 +47,9 @@ func OpenSQLiteDB(ctx context.Context, logger *zap.Logger, dsn string) (*SQLiteD
 		rows.Scan(&id, &name)
 		fmt.Println(strconv.Itoa(id) + ": " + name)
 	}
+
+	/* end of testing area */
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/*
 		if err := s.migrate(ctx); err != nil {

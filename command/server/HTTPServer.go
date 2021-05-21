@@ -10,7 +10,7 @@ import (
 )
 
 type HttpServer struct {
-	//db     DB
+	db     DB
 	router *chi.Mux
 	logger *zap.Logger
 }
@@ -18,7 +18,7 @@ type HttpServer struct {
 func OpenHttpServer(ctx context.Context, logger *zap.Logger, router *chi.Mux, db *SQLiteDB) *HttpServer {
 
 	h := &HttpServer{
-		//db:     db,
+		db:     db,
 		router: router,
 		logger: logger,
 	}
