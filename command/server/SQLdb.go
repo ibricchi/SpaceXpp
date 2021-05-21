@@ -17,6 +17,18 @@ func (s *SQLiteDB) createTable(ctx context.Context) error {
 	fmt.Println("Creating summary table")
 	statement, _ := s.db.Prepare("CREATE TABLE IF NOT EXISTS summary (id INTEGER PRIMARY KEY, name TEXT)")
 	statement.Exec()
+	statement, _ = s.db.Prepare("INSERT INTO summary (name) VALUES (?)")
+	statement.Exec("Brad")
+
+	fmt.Println("data in db, now querying")
+
+	rows, _ := s.db.Query("SELECT id, name FROM people")
+	var id int
+	var name string
+	for rows.Next() {
+		rows.Scan(&id, &name)
+		fmt.Println(strconv.Itoa(id) + ": " + name)
+	}
 
 	return nil
 }
