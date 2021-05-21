@@ -22,10 +22,8 @@ func (s *SQLiteDB) createTable(ctx context.Context) error {
 }
 
 func (s *SQLiteDB) insertData(status bool, battery int) error {
-	fmt.Println("Stating db tests")
-	statement, _ := s.db.Prepare("CREATE TABLE IF NOT EXISTS people (id INTEGER PRIMARY KEY, name TEXT)")
-	statement.Exec()
-	statement, _ = s.db.Prepare("INSERT INTO people (name) VALUES (?)")
+
+	statement, _ := s.db.Prepare("INSERT INTO people (name) VALUES (?)")
 	statement.Exec("Brad")
 
 	fmt.Println("data in db, now querying")
