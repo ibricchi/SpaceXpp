@@ -23,8 +23,10 @@ func (s *SQLiteDB) createTable(ctx context.Context) error {
 
 func (s *SQLiteDB) insertData(status bool, battery int) error {
 	batVal := strconv.Itoa(battery)
+	batValt := batVal + batVal
 
 	s.db.Prepare("INSERT INTO summary (battery) VALUES (" + batVal + ")")
+	s.db.Prepare("INSERT INTO summary (battery) VALUES (" + batValt + ")")
 
 	fmt.Println("Indserted: ")
 
