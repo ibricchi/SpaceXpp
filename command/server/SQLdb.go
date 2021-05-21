@@ -22,7 +22,23 @@ func (s *SQLiteDB) createTable(ctx context.Context) error {
 }
 
 func (s *SQLiteDB) insertData(status bool, battery int) error {
-	batVal := strconv.Itoa(battery)
+	fmt.Println("Stating db tests")
+	statement, _ := s.db.Prepare("CREATE TABLE IF NOT EXISTS people (id INTEGER PRIMARY KEY, name TEXT)")
+	statement.Exec()
+	statement, _ = s.db.Prepare("INSERT INTO people (name) VALUES (?)")
+	statement.Exec("Brad")
+
+	fmt.Println("data in db, now querying")
+
+	rows, _ := s.db.Query("SELECT id, name FROM people")
+	var id int
+	var name string
+	for rows.Next() {
+		rows.Scan(&id, &name)
+		fmt.Println(strconv.Itoa(id) + ": " + name)
+	}
+
+	/*batVal := strconv.Itoa(battery)
 	batValt := batVal + batVal
 
 	s.db.Prepare("INSERT INTO summary (battery) VALUES (" + batVal + ")")
@@ -37,7 +53,7 @@ func (s *SQLiteDB) insertData(status bool, battery int) error {
 		rows.Scan(&id, &val)
 		fmt.Println(strconv.Itoa(id) + ": " + strconv.Itoa(val))
 	}
-
+	*/
 	return nil
 }
 
