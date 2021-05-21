@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"fmt"
-	"strconv"
 )
 
 type DB interface {
@@ -27,14 +26,6 @@ func (s *SQLiteDB) insertData(status bool, battery int) error {
 	statement, _ = s.db.Prepare("INSERT INTO summary (battery) VALUES (?)")
 	statement.Exec(battery)
 	defer statement.Close()
-
-	rows, _ := s.db.Query("SELECT id, battery FROM summary")
-	var id int
-	var val int
-	for rows.Next() {
-		rows.Scan(&id, &val)
-		fmt.Println(strconv.Itoa(id) + ": " + strconv.Itoa(val))
-	}
 
 	return nil
 }
