@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"strconv"
 
 	_ "github.com/mattn/go-sqlite3"
 	"go.uber.org/zap"
@@ -30,26 +29,6 @@ func OpenSQLiteDB(ctx context.Context, logger *zap.Logger, dsn string) (*SQLiteD
 		db:     db,
 		logger: logger,
 	}
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/* DATABASE Testing Area */
-	fmt.Println("Stating db tests")
-	statement, _ := db.Prepare("CREATE TABLE IF NOT EXISTS people (id INTEGER PRIMARY KEY, name TEXT)")
-	statement.Exec()
-	statement, _ = db.Prepare("INSERT INTO people (name) VALUES (?)")
-	statement.Exec("Brad")
-
-	fmt.Println("data in db, now querying")
-
-	rows, _ := db.Query("SELECT id, name FROM people")
-	var id int
-	var name string
-	for rows.Next() {
-		rows.Scan(&id, &name)
-		fmt.Println(strconv.Itoa(id) + ": " + name)
-	}
-
-	/* end of testing area */
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/*
 		if err := s.migrate(ctx); err != nil {

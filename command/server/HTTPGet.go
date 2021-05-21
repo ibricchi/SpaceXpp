@@ -16,8 +16,15 @@ func connect(w http.ResponseWriter, req *http.Request) {
 
 }
 
-func battery(w http.ResponseWriter, req *http.Request) {
-	level := 69
+// func (h *HttpServer) handleGetIsAuthorised(creds map[string]string) http.HandlerFunc {
+
+func (h *HttpServer) battery(w http.ResponseWriter, req *http.Request) {
+
+	err, _, level := h.db.retriveData()
+	if err != nil {
+		//return error
+	}
+
 	json.NewEncoder(w).Encode(level)
 
 }

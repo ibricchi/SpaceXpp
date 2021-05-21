@@ -30,7 +30,7 @@ func (h *HttpServer) routes(ctx context.Context) error {
 	h.router.Group(func(r chi.Router) {
 		// Get
 		r.Get("/connect", connect)
-		r.Get("/battery", battery)
+		r.Get("/battery", h.battery)
 		r.Get("/check", check)
 
 		r.Post("/speed", speed)

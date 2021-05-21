@@ -1,15 +1,72 @@
 package server
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+	"strconv"
+)
 
 type DB interface {
-	createTable() error
+	createTable(ctx context.Context) error
+	insertData(ctx context.Context, status bool, battery int) error
+	retriveData() (error, bool, int)
+	Close() error
 }
 
-func (s *SQLiteDB) createTable() error {
-	fmt.Println("Stating db tests")
-	statement, _ := s.db.Prepare("CREATE TABLE IF NOT EXISTS people (id INTEGER PRIMARY KEY, name TEXT)")
+func (s *SQLiteDB) createTable(ctx context.Context) error {
+	fmt.Println("Creating summary table")
+	statement, _ := s.db.Prepare("CREATE TABLE IF NOT EXISTS summary (id INTEGER PRIMARY KEY, battery INTEGER)")
 	statement.Exec()
 
 	return nil
 }
+
+func (s *SQLiteDB) insertData(ctx context.Context, status bool, battery int) error {
+	batVal := strconv.Itoa(battery)
+
+	s.db.Prepare("INSERT INTO summary (battery) VALUES (?)")
+	s.db.Exec(batVal)
+
+	return nil
+}
+
+func (s *SQLiteDB) retriveData() (error, bool, int) {
+
+	latest, err := s.db.Query("SELECT MAX(id), battery FROM summary")
+	if err != nil {
+		return err, false, -1
+	}
+	var batVal int
+	var id int
+	latest.Scan(&id, batVal)
+	return nil, true, batVal
+
+}
+
+func (s *SQLiteDB) Close() error {
+	if err := s.db.Close(); err != nil {
+		return fmt.Errorf("server: sqlite_db_general: failed to close sqlite db: %w", err)
+	}
+	return nil
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/* DATABASE Testing Area /
+fmt.Println("Stating db tests")
+statement, _ := db.Prepare("CREATE TABLE IF NOT EXISTS people (id INTEGER PRIMARY KEY, name TEXT)")
+statement.Exec()
+statement, _ = db.Prepare("INSERT INTO people (name) VALUES (?)")
+statement.Exec("Brad")
+
+fmt.Println("data in db, now querying")
+
+rows, _ := db.Query("SELECT id, name FROM people")
+var id int
+var name string
+for rows.Next() {
+	rows.Scan(&id, &name)
+	fmt.Println(strconv.Itoa(id) + ": " + name)
+}
+
+/* end of testing area */
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
