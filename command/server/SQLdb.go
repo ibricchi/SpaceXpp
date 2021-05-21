@@ -15,20 +15,20 @@ type DB interface {
 
 func (s *SQLiteDB) createTable(ctx context.Context) error {
 	fmt.Println("Creating summary table")
-	statement, _ := s.db.Prepare("CREATE TABLE IF NOT EXISTS summary (id INTEGER PRIMARY KEY, name TEXT)")
+	statement, _ := s.db.Prepare("CREATE TABLE IF NOT EXISTS summary (id INTEGER PRIMARY KEY, battery INTEGER)")
 	statement.Exec()
 
-	statement, _ = s.db.Prepare("INSERT INTO summary (name) VALUES (?)")
-	statement.Exec("Brad")
-	statement.Exec("steve")
+	statement, _ = s.db.Prepare("INSERT INTO summary (battery) VALUES (?)")
+	statement.Exec(68)
+	statement.Exec(12)
 	fmt.Println("data in db, now querying")
 
 	rows, _ := s.db.Query("SELECT id, name FROM summary")
 	var id int
-	var name string
+	var batVal int
 	for rows.Next() {
-		rows.Scan(&id, &name)
-		fmt.Println(strconv.Itoa(id) + ": " + name)
+		rows.Scan(&id, &batVal)
+		fmt.Println(strconv.Itoa(id) + ": " + strconv.Itoa(batVal))
 	}
 
 	return nil
