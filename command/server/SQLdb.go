@@ -25,8 +25,7 @@ func (s *SQLiteDB) insertData(status bool, battery int) error {
 	batVal := strconv.Itoa(battery)
 	fmt.Println("Inserting: " + batVal)
 
-	s.db.Prepare("INSERT INTO summary (battery) VALUES (?)")
-	s.db.Exec(batVal)
+	s.db.Prepare("INSERT INTO summary (battery) VALUES (" + batVal + ")")
 
 	return nil
 }
