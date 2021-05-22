@@ -61,32 +61,7 @@ void setup() {
   digitalWrite(pwml, HIGH);       //setting left motor speed at maximum
   //*******************************************************************//
 
-  //Basic pin setups
-  
-  noInterrupts(); //disable all interrupts
-  pinMode(13, OUTPUT);  //Pin13 is used to time the loops of the controller
-  pinMode(3, INPUT_PULLUP); //Pin3 is the input from the Buck/Boost switch
-  pinMode(2, INPUT_PULLUP); // Pin 2 is the input from the CL/OL switch
-  analogReference(EXTERNAL); // We are using an external analogue reference for the ADC
-
-  // TimerA0 initialization for control-loop interrupt.
-  
-  TCA0.SINGLE.PER = 999; //
-  TCA0.SINGLE.CMP1 = 999; //
-  TCA0.SINGLE.CTRLA = TCA_SINGLE_CLKSEL_DIV16_gc | TCA_SINGLE_ENABLE_bm; //16 prescaler, 1M.
-  TCA0.SINGLE.INTCTRL = TCA_SINGLE_CMP1_bm; 
-
-  // TimerB0 initialization for PWM output
-  
-  pinMode(6, OUTPUT);
-  TCB0.CTRLA=TCB_CLKSEL_CLKDIV1_gc | TCB_ENABLE_bm; //62.5kHz
-  analogWrite(6,120); 
-
-  interrupts();  //enable interrupts.
-  Wire.begin(); // We need this for the i2c comms for the current sensor
-  ina219.init(); // this initiates the current sensor
-  Wire.setClock(700000); // set the comms speed for i2c
-  
+  SMPSSetup();
 }
 
  void loop() {
@@ -148,7 +123,7 @@ void translation(int dir){
     }
 }
 
-//A function that causes the rover to rotate clockwise/anticlockwise
+// A function that causes the rover to rotate clockwise/anticlockwise
 void rotation(int dir){
   if(dir==0){
      // rotate clockwise
@@ -166,6 +141,33 @@ void rotation(int dir){
   SMPS Control - NO NEED TO EDIT FURTHER FOR MARS ROVER
 */
 
+// Basic setup for the SMPS pins and current sensing chip
+void SMPSSetup(){
+  noInterrupts();             // Disable all interrupts during setup
+  pinMode(3, INPUT_PULLUP);   // Pin3 is the input from the Buck/Boost switch
+  pinMode(2, INPUT_PULLUP);   // Pin 2 is the input from the CL/OL switch
+  analogReference(EXTERNAL);  // Eexternal analogue reference for the ADC
+
+  // TimerA0 initialization for control-loop interrupt.
+  TCA0.SINGLE.PER = 999;
+  TCA0.SINGLE.CMP1 = 999;
+  TCA0.SINGLE.CTRLA = TCA_SINGLE_CLKSEL_DIV16_gc | TCA_SINGLE_ENABLE_bm;
+  TCA0.SINGLE.INTCTRL = TCA_SINGLE_CMP1_bm; 
+
+  // TimerB0 initialization for PWM output
+  pinMode(6, OUTPUT);
+  TCB0.CTRLA=TCB_CLKSEL_CLKDIV1_gc | TCB_ENABLE_bm; 
+  analogWrite(6,120); 
+
+  // Enable interrupts.
+  interrupts();               
+  // Current sensor
+  Wire.begin(); 
+  ina219.init(); 
+  Wire.setClock(700000);   
+}
+
+// A function for controlling the SMPS duty cycle to achieve the desired reference voltage 
 void SMPSControl(){
   if (Boost_mode){
       // Boost SMPS is never used for the Mars rover
