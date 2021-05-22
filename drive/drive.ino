@@ -11,7 +11,7 @@
 INA219_WE ina219; // this is the instantiation of the library for the current sensor
 
 float open_loop, closed_loop; // Duty Cycles
-float vpd,vb,vref,iL,dutyref,current_mA; // Measurement Variables
+float vpd,vb,iL,dutyref,current_mA; // Measurement Variables
 unsigned int sensorValue0,sensorValue1,sensorValue2,sensorValue3;  // ADC sample values declaration
 float ev=0,cv=0,ei=0,oc=0; //internal signals
 float Ts=0.0008; //1.25 kHz control frequency. It's better to design the control period as integral multiple of switching period.
@@ -25,6 +25,8 @@ float current_limit = 1.0;
 boolean Boost_mode = 0;
 boolean CL_mode = 0;
 
+// Used for setting the speed of the rover
+float vref = 1.5;
 
 unsigned int loopTrigger;
 unsigned int com_count=0;   // a variables to count the interrupts. Used for program debugging.
@@ -48,8 +50,6 @@ int pwml = 9;                     //pin to control left wheel speed using pwm
 //*******************************************************************//
 
 
-
-
 void setup() {
 
   //************************** Motor Pins Defining **************************//
@@ -66,7 +66,7 @@ void setup() {
 
  void loop() {
   /*
-   * Used for controlling the duty cycle of the SMPS to achieve the required reference voltage
+   * Used for controlling the duty cycle of the SMPS to achieve the required reference voltage, which, in turn, controls the speed of the motors
    */
   if(loopTrigger) {
     sampling();                   // Sample all the measurements
@@ -82,6 +82,7 @@ void setup() {
   unsigned long currentMillis = millis();
   //moving forwards
   if (currentMillis < f_i) {
+   setVelocity(4.0);
    translation(0);
   }
   //rotating clockwise
@@ -90,15 +91,16 @@ void setup() {
   }
   //moving backwards
   if (currentMillis > r_i && currentMillis <b_i) {
+    setVelocity(1.5);
     translation(1);
   }
   //rotating anticlockwise
   if (currentMillis > b_i && currentMillis <l_i) {
     rotation(1);
   }
-  //set your states
+  //stop moving
   if (currentMillis > l_i) {
-   rotation(1);
+   stopMoving();
   }
 
   // Output signals for the motors
@@ -110,7 +112,7 @@ void setup() {
    Rover movement functions
 */
 
-//A function that causes the rover to move forward/backwards
+// A function that causes the rover to move forward/backwards
 void translation(int dir){
     if(dir==0){
        // move forward
@@ -130,12 +132,22 @@ void rotation(int dir){
      DIRRstate = HIGH;
      DIRLstate = HIGH;  
   }else{
-    // rotate anticlockwise
+     // rotate anticlockwise
      DIRRstate = LOW;
      DIRLstate = LOW;  
   }
 }
 
+// Sets the speed of the rover
+void setVelocity(float v){
+  // TODO - Epxeriments to find relationship between speed [m/s] and reference voltage [V]
+  vref = v;
+}
+
+// Causes the rover to stop moving
+void stopMoving(){
+  vref = 0;
+}
 
 /*
   SMPS Control - NO NEED TO EDIT FURTHER FOR MARS ROVER
@@ -217,7 +229,7 @@ ISR(TCA0_CMP1_vect){
 // This subroutine processes all of the analogue samples, creating the required values for the main loop
 void sampling(){
   sensorValue0 = analogRead(A0); // Vb
-  sensorValue2 = analogRead(A2); // Vref
+  sensorValue2 = vref * (1023.0 / 4.096); //analogRead(A2); // Vref
   sensorValue3 = analogRead(A3); // Vpd
   current_mA = ina219.getCurrent_mA(); // IL from current snesing chip
 
@@ -227,7 +239,7 @@ void sampling(){
   representing a voltage between 0 and the analogue reference which is 4.096V
   */
   vb = sensorValue0 * (4.096 / 1023.0);
-  vref = sensorValue2 * (4.096 / 1023.0);
+  //vref = sensorValue2 * (4.096 / 1023.0);
   vpd = sensorValue3 * (4.096 / 1023.0);
 
   /*
