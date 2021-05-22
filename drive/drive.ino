@@ -1,14 +1,31 @@
 /*
- * Program written by Yue Zhu (yue.zhu18@imperial.ac.uk) in July 2020.
- * pin6 is PWM output at 62.5kHz.
- * duty-cycle saturation is set as 2% - 98%
- * Control frequency is set as 1.25kHz. 
+ * Program originally written by Yue Zhu (yue.zhu18@imperial.ac.uk) in July 2020.
+ * Edited code taken from MS Teams for the Summer Electronics Design Project 2 2021
+ * Final code written by Benjamin Ramhorst
 */
+
+/*
+ * NOTES:
+ *  Arduino code for controlling the drive module of the Mars Rover 2021
+ *  
+ *  SMPS:
+ *      1. Always runs in closed-loop Buck, never Boost
+ *      2. PWM for controlling the SMPS has a frequency of 62.5kHz and a duty cycle range of 2%-98%
+ *      3. Control frequency is set to 1.25kHz 
+ *      4. Voltage and current are controlled using a PID controller, to achieve the desired reference voltage
+ * 
+ * Movement:
+ *      1. The speed is controlled by controlling the reference (and output) voltage of the SMPS
+ *      2. The rover can move forwards and backwards, as well as rotate clockwise and anticlockwise
+ * 
+ * Measurements:
+ *      1. TODO - Expand once optical flow code is added
+ */
 
 #include <Wire.h>
 #include <INA219_WE.h>
 
-INA219_WE ina219; // this is the instantiation of the library for the current sensor
+INA219_WE ina219; 
 
 float open_loop, closed_loop; // Duty Cycles
 float vpd,vb,iL,dutyref,current_mA; // Measurement Variables
