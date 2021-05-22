@@ -90,85 +90,45 @@ void setup() {
 }
 
  void loop() {
-  unsigned long currentMillis = millis();
-  if(loopTrigger) { // This loop is triggered, it wont run unless there is an interrupt
-    
-    digitalWrite(13, HIGH);   // set pin 13. Pin13 shows the time consumed by each control cycle. It's used for debugging.
-    
-    // Sample all of the measurements and check which control mode we are in
-    sampling();
-    CL_mode = digitalRead(3); // input from the OL_CL switch
-    Boost_mode = digitalRead(2); // input from the Buck_Boost switch
-
-    if (Boost_mode){
-      if (CL_mode) { //Closed Loop Boost
-          pwm_modulate(1); // This disables the Boost as we are not using this mode
-      }else{ // Open Loop Boost
-          pwm_modulate(1); // This disables the Boost as we are not using this mode
-      }
-    }else{      
-      if (CL_mode) { // Closed Loop Buck
-          // The closed loop path has a voltage controller cascaded with a current controller. The voltage controller
-          // creates a current demand based upon the voltage error. This demand is saturated to give current limiting.
-          // The current loop then gives a duty cycle demand based upon the error between demanded current and measured
-          // current
-          current_limit = 3; // Buck has a higher current limit
-          ev = vref - vb;  //voltage error at this time
-          cv=pidv(ev);  //voltage pid
-          cv=saturation(cv, current_limit, 0); //current demand saturation
-          ei=cv-iL; //current error
-          closed_loop=pidi(ei);  //current pid
-          closed_loop=saturation(closed_loop,0.99,0.01);  //duty_cycle saturation
-          pwm_modulate(closed_loop); //pwm modulation
-      }else{ // Open Loop Buck
-          current_limit = 3; // Buck has a higher current limit
-          oc = iL-current_limit; // Calculate the difference between current measurement and current limit
-          if ( oc > 0) {
-            open_loop=open_loop-0.001; // We are above the current limit so less duty cycle
-          } else {
-            open_loop=open_loop+0.001; // We are below the current limit so more duty cycle
-          }
-          open_loop=saturation(open_loop,dutyref,0.02); // saturate the duty cycle at the reference or a min of 0.01
-          pwm_modulate(open_loop); // and send it out
-      }
-    }
-    // closed loop control path
-
-    digitalWrite(13, LOW);   // reset pin13.
-    loopTrigger = 0;
+  /*
+   * Used for controlling the duty cycle of the SMPS to achieve the required reference voltage
+   */
+  if(loopTrigger) {
+    sampling();                   // Sample all the measurements
+    CL_mode = digitalRead(3);     // SMPS in closed or open loop
+    Boost_mode = digitalRead(2);  // SMPS in Buck or Boost
+    SMPSControl();                // Control function for duty ref of SMPS
+    loopTrigger = 0;              // Reset loop trigger
   }
   
-  //************************** Motor Testing **************************//
-  //this part of the code decides the direction of motor rotations depending on the time lapsed. currentMillis records the time lapsed once it is called.
-  
+  /*
+   * Used for testing the motor with incremental changes, will be removed later
+   */
+  unsigned long currentMillis = millis();
   //moving forwards
   if (currentMillis < f_i) {
    translation(0);
   }
-  
   //rotating clockwise
   if (currentMillis > f_i && currentMillis <r_i) {
     rotation(0);
   }
-
   //moving backwards
   if (currentMillis > r_i && currentMillis <b_i) {
     translation(1);
   }
-  
   //rotating anticlockwise
   if (currentMillis > b_i && currentMillis <l_i) {
     rotation(1);
   }
-
   //set your states
   if (currentMillis > l_i) {
    rotation(1);
   }
 
-    digitalWrite(DIRR, DIRRstate);
-    digitalWrite(DIRL, DIRLstate); 
-  //*******************************************************************//
+  // Output signals for the motors
+  digitalWrite(DIRR, DIRRstate);
+  digitalWrite(DIRL, DIRLstate); 
 }
 
 /*
@@ -203,8 +163,48 @@ void rotation(int dir){
 
 
 /*
-  SMPS Control - NO NEED TO EDIT FOR MARS ROVER
+  SMPS Control - NO NEED TO EDIT FURTHER FOR MARS ROVER
 */
+
+void SMPSControl(){
+  if (Boost_mode){
+      // Boost SMPS is never used for the Mars rover
+      if (CL_mode) {
+          // Closed-Loop Boost
+          pwm_modulate(1); // This disables the Boost as we are not using this mode
+      }else{ 
+          // Open-Loop Boost
+          pwm_modulate(1); // This disables the Boost as we are not using this mode
+      }
+   }else{    
+      current_limit = 3;  // Buck current limit 
+      if (CL_mode) { 
+        // Closed Loop Buck, Mars Rover will always be in this mode
+        /*
+          The closed loop path has a voltage controller cascaded with a current controller. The voltage controller
+          creates a current demand based upon the voltage error. This demand is saturated to give current limiting.
+          The current loop then gives a duty cycle demand based upon the error between demanded current and measured
+          current.
+        */
+          ev = vref - vb;  
+          cv=pidv(ev);    
+          cv=saturation(cv, current_limit, 0); 
+          ei=cv-iL;      
+          closed_loop=pidi(ei);               
+          closed_loop=saturation(closed_loop,0.99,0.01);  
+          pwm_modulate(closed_loop);
+      }else{ // Open Loop Buck
+          oc = iL-current_limit; 
+          if ( oc > 0) {
+            open_loop=open_loop-0.001; 
+          } else {
+            open_loop=open_loop+0.001;
+          }
+          open_loop=saturation(open_loop,dutyref,0.02);
+          pwm_modulate(open_loop);
+      }
+    }
+}
 
 // Timer A CMP1 interrupt. Every 800us the program enters this interrupt. This, clears the incoming interrupt flag and triggers the main loop.
 ISR(TCA0_CMP1_vect){
