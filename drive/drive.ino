@@ -28,13 +28,13 @@
 INA219_WE ina219;
 
 // Control frequency (integer multiple of switching frequency)
-float Ts = 0.0004; 
+float Ts = 0.0004;
 
 // Reference voltage - used for controlling the speed of the rover
 float vref = 0.0;
 
 // Duty cycle required to achieve the desired voltage
-float duty_cycle; 
+float duty_cycle;
 
 // Measurements from the circuit - output voltage and inductor current
 float vout, iL;
@@ -52,55 +52,96 @@ float uv_max = 4, uv_min = 0; // Anti-windup limitation
 float ui_max = 1, ui_min = 0; // Anti-windup limitation
 float current_limit = 3.0;    // Buck current limit
 
-// Used for looping to control the SMPS 
+// Used for looping to control the SMPS
 unsigned int loopTrigger;
 
+// Signals for controlling the moverment of the rover
+int DIRRstate = HIGH;
+int DIRLstate = LOW;
 
-//************************** Motor Constants **************************//
-unsigned long previousMillis = 0; //initializing time counter
-const long f_i = 10000;           //time to move in forward direction, please calculate the precision and conversion factor
+// Purely for debugging - will be removed once control is added
+const long f_i = 10000;           //time to move in forward direction
 const long r_i = 20000;           //time to rotate clockwise
 const long b_i = 30000;           //time to move backwards
 const long l_i = 40000;           //time to move anticlockwise
-const long s_i = 50000;
-int DIRRstate = LOW;              //initializing direction states
-int DIRLstate = HIGH;
-
-int DIRL = 20;                    //defining left direction pin
-int DIRR = 21;                    //defining right direction pin
-
-int pwmr = 5;                     //pin to control right wheel speed using pwm
-int pwml = 9;                     //pin to control left wheel speed using pwm
-//*******************************************************************//
-
 
 void setup() {
-
-  //************************** Motor Pins Defining **************************//
-  pinMode(DIRR, OUTPUT);
-  pinMode(DIRL, OUTPUT);
-  pinMode(pwmr, OUTPUT);
-  pinMode(pwml, OUTPUT);
-  digitalWrite(pwmr, HIGH);       //setting right motor speed at maximum
-  digitalWrite(pwml, HIGH);       //setting left motor speed at maximum
-  //*******************************************************************//
-
+  driveSetup();
   SMPSSetup();
 }
 
 void loop() {
-  /*
-     Used for controlling the duty cycle of the SMPS to achieve the required reference voltage, which, in turn, controls the speed of the motors
-  */
+  //Used for controlling the duty cycle of the SMPS to achieve the required reference voltage, which, in turn, controls the speed of the rover
   if (loopTrigger) {
     sampling();                   // Sample all the measurements
     SMPSControl();                // Control function for duty ref of SMPS
     loopTrigger = 0;              // Reset loop trigger
   }
 
-  /*
-     Used for testing the motor with incremental changes, will be removed later
-  */
+  testDrive();
+
+  // Output signals for the motors
+  digitalWrite(21, DIRRstate);
+  digitalWrite(20, DIRLstate);
+}
+
+/*
+   Rover functions
+*/
+void driveSetup() {
+  // Direction pins for the motors: Right(21) and Left(20)
+  pinMode(21, OUTPUT);
+  pinMode(20, OUTPUT);
+  digitalWrite(21, HIGH);
+  digitalWrite(20, LOW);
+
+  // Right (5) and Left (9) motor & setting their speed to maximum (HIGH)
+  pinMode(5, OUTPUT);
+  pinMode(9, OUTPUT);
+  digitalWrite(5, HIGH);
+  digitalWrite(9, HIGH);
+}
+
+// Move forward/backwards
+void translation(int dir) {
+  if (dir == 0) {
+    // move forward
+    DIRRstate = HIGH;
+    DIRLstate = LOW;
+  } else {
+    // move backwards
+    DIRRstate = LOW;
+    DIRLstate = HIGH;
+  }
+}
+
+// Rotate clockwise/anticlockwise
+void rotation(int dir) {
+  if (dir == 0) {
+    // rotate clockwise
+    DIRRstate = HIGH;
+    DIRLstate = HIGH;
+  } else {
+    // rotate anticlockwise
+    DIRRstate = LOW;
+    DIRLstate = LOW;
+  }
+}
+
+// Sets the speed of the rover
+void setVelocity(float v) {
+  // TODO - Epxeriments to find relationship between speed [m/s] and reference voltage [V]
+  vref = v;
+}
+
+// Causes the rover to stop moving
+void stopMoving() {
+  vref = 0.0;
+}
+
+
+// Used for testing the motor with incremental changes, will be removed later
+void testDrive() {
   unsigned long currentMillis = millis();
   //moving forwards
   if (currentMillis < f_i) {
@@ -124,51 +165,6 @@ void loop() {
   if (currentMillis > l_i) {
     stopMoving();
   }
-
-  // Output signals for the motors
-  digitalWrite(DIRR, DIRRstate);
-  digitalWrite(DIRL, DIRLstate);
-}
-
-/*
-   Rover movement functions
-*/
-
-// A function that causes the rover to move forward/backwards
-void translation(int dir) {
-  if (dir == 0) {
-    // move forward
-    DIRRstate = HIGH;
-    DIRLstate = LOW;
-  } else {
-    // move backwards
-    DIRRstate = LOW;
-    DIRLstate = HIGH;
-  }
-}
-
-// A function that causes the rover to rotate clockwise/anticlockwise
-void rotation(int dir) {
-  if (dir == 0) {
-    // rotate clockwise
-    DIRRstate = HIGH;
-    DIRLstate = HIGH;
-  } else {
-    // rotate anticlockwise
-    DIRRstate = LOW;
-    DIRLstate = LOW;
-  }
-}
-
-// Sets the speed of the rover
-void setVelocity(float v) {
-  // TODO - Epxeriments to find relationship between speed [m/s] and reference voltage [V]
-  vref = v;
-}
-
-// Causes the rover to stop moving
-void stopMoving() {
-  vref = 0;
 }
 
 /*
@@ -225,7 +221,7 @@ ISR(TCA0_CMP1_vect) {
 // This subroutine processes all of the analogue samples, creating the required values for the main loop
 void sampling() {
   vout = (float)(analogRead(A0)) * (4.096 / 1023.0);
-  iL = (float)(ina219.getCurrent_mA())/1000.0;
+  iL = (float)(ina219.getCurrent_mA()) / 1000.0;
 }
 
 // Saturation function - used for limiting current/voltage to avoid damaging the circuit
