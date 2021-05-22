@@ -11,7 +11,7 @@
     SMPS:
         1. Always runs in closed-loop Buck, never Boost
         2. PWM for controlling the SMPS has a frequency of 62.5kHz and a duty cycle range of 2%-98%
-        3. Control frequency is set to 1.25kHz
+        3. Control frequency is set to 2.5kHz
         4. Voltage and current are controlled using a PID controller, to achieve the desired reference voltage
 
    Movement:
@@ -27,24 +27,33 @@
 
 INA219_WE ina219;
 
-float duty_mes; // Duty Cycles
-float vb, iL, dutyref, current_mA; // Measurement Variables
-unsigned int sensorValue0, sensorValue1, sensorValue2, sensorValue3; // ADC sample values declaration
-float ev = 0, cv = 0, ei = 0, oc = 0; //internal signals
-float Ts = 0.0008; //1.25 kHz control frequency. It's better to design the control period as integral multiple of switching period.
-float kpv = 0.05024, kiv = 15.78, kdv = 0; // voltage pid.
+// Control frequency (integer multiple of switching frequency)
+float Ts = 0.0004; 
+
+// Reference voltage - used for controlling the speed of the rover
+float vref = 0.0;
+
+// Duty cycle required to achieve the desired voltage
+float duty_cycle; 
+
+// Measurements from the circuit - output voltage and inductor current
+float vout, iL;
+
+// Internal values needed for the PID controller
 float u0v, u1v, delta_uv, e0v, e1v, e2v; // u->output; e->error; 0->this time; 1->last time; 2->last last time
-float kpi = 0.02512, kii = 39.4, kdi = 0; // current pid.
 float u0i, u1i, delta_ui, e0i, e1i, e2i; // Internal values for the current controller
-float uv_max = 4, uv_min = 0; //anti-windup limitation
-float ui_max = 1, ui_min = 0; //anti-windup limitation
-float current_limit = 3.0;
 
-// Used for setting the speed of the rover
-float vref = 1.5;
+// PID controller constants for voltage and current
+float kpv = 0.05024, kiv = 15.78, kdv = 0;
+float kpi = 0.02512, kii = 39.4, kdi = 0;
 
+// Limits
+float uv_max = 4, uv_min = 0; // Anti-windup limitation
+float ui_max = 1, ui_min = 0; // Anti-windup limitation
+float current_limit = 3.0;    // Buck current limit
+
+// Used for looping to control the SMPS 
 unsigned int loopTrigger;
-unsigned int com_count = 0; // a variables to count the interrupts. Used for program debugging.
 
 
 //************************** Motor Constants **************************//
@@ -198,42 +207,25 @@ void SMPSControl() {
     The current loop then gives a duty cycle demand based upon the error between demanded current and measured
     current.
   */
-  ev = vref - vb;
-  cv = pidv(ev);
+  float ev = vref - vout;
+  float cv = pidv(ev);
   cv = saturation(cv, current_limit, 0);
-  ei = cv - iL;
-  duty_mes = pidi(ei);
-  duty_mes = saturation(duty_mes, 0.99, 0.01);
-  pwm_modulate(duty_mes);
-
+  float ei = cv - iL;
+  duty_cycle = pidi(ei);
+  duty_cycle = saturation(duty_cycle, 0.99, 0.01);
+  pwm_modulate(duty_cycle);
 }
 
 // Timer A CMP1 interrupt. Every 800us the program enters this interrupt. This, clears the incoming interrupt flag and triggers the main loop.
 ISR(TCA0_CMP1_vect) {
-  TCA0.SINGLE.INTFLAGS |= TCA_SINGLE_CMP1_bm; //clear interrupt flag
+  TCA0.SINGLE.INTFLAGS |= TCA_SINGLE_CMP1_bm;
   loopTrigger = 1;
 }
 
 // This subroutine processes all of the analogue samples, creating the required values for the main loop
 void sampling() {
-  sensorValue0 = analogRead(A0); // output voltage at termin 
-  sensorValue2 = vref * (1023.0 / 4.096); //analogRead(A2); // Vref
-  current_mA = ina219.getCurrent_mA(); // IL from current snesing chip
-
-  /*
-    Process the values so they are a bit more usable/readable
-    The analogRead process gives a value between 0 and 1023
-    representing a voltage between 0 and the analogue reference which is 4.096V
-  */
-  vb = sensorValue0 * (4.096 / 1023.0);
-  //vref = sensorValue2 * (4.096 / 1023.0);
-
-
-  
-    // The inductor current is in mA from the sensor so we need to convert to amps.
-    iL = current_mA / 1000.0;
-    dutyref = sensorValue2 * (1.0 / 1023.0);
- 
+  vout = (float)(analogRead(A0)) * (4.096 / 1023.0);
+  iL = (float)(ina219.getCurrent_mA())/1000.0;
 }
 
 // Saturation function - used for limiting current/voltage to avoid damaging the circuit
