@@ -143,43 +143,62 @@ void setup() {
   
   //moving forwards
   if (currentMillis < f_i) {
-    DIRRstate = HIGH;
-    DIRLstate = LOW;
-    
+   translation(0);
   }
+  
   //rotating clockwise
   if (currentMillis > f_i && currentMillis <r_i) {
-    DIRRstate = HIGH;
-    DIRLstate = HIGH;
-    
+    rotation(0);
   }
 
   //moving backwards
   if (currentMillis > r_i && currentMillis <b_i) {
-    DIRRstate = LOW;
-    DIRLstate = HIGH;
-    
+    translation(1);
   }
+  
   //rotating anticlockwise
   if (currentMillis > b_i && currentMillis <l_i) {
-    DIRRstate = LOW;
-    DIRLstate = LOW;
-    
+    rotation(1);
   }
 
   //set your states
   if (currentMillis > l_i) {
-    DIRRstate = LOW;
-    DIRLstate = LOW;
-    
+   rotation(1);
   }
 
     digitalWrite(DIRR, DIRRstate);
     digitalWrite(DIRL, DIRLstate); 
   //*******************************************************************//
+}
 
+/*
+   Rover movement functions
+*/
 
-  
+//A function that causes the rover to move forward/backwards
+void translation(int dir){
+    if(dir==0){
+       // move forward
+       DIRRstate = HIGH;
+       DIRLstate = LOW;
+    }else{
+      // move backwards
+       DIRRstate = LOW;
+       DIRLstate = HIGH;
+    }
+}
+
+//A function that causes the rover to rotate clockwise/anticlockwise
+void rotation(int dir){
+  if(dir==0){
+     // rotate clockwise
+     DIRRstate = HIGH;
+     DIRLstate = HIGH;  
+  }else{
+    // rotate anticlockwise
+     DIRRstate = LOW;
+     DIRLstate = LOW;  
+  }
 }
 
 
