@@ -1,9 +1,4 @@
-module SXPP_BLOB_DETECT
-//#(
-//	parameter initalize_minx = 0, initialize_maxx = 100,
-//	parameter initalize_miny = 0, initialize_maxy = 100,
-//)
-(
+module SXPP_BLOB_DETECT (
 	// global clock & reset
 	clk,
 	reset_n,
@@ -18,8 +13,15 @@ module SXPP_BLOB_DETECT
 	// output data
 	valid,
 	
+	rad_out,
 	minx_out, maxx_out, miny_out, maxy_out
 );
+
+// parameters
+parameter MINX_INIT = 0,
+			 MAXX_INIT = 100,
+          MINY_INIT = 0,
+			 MAXY_INIT = 100;
 
 // inputs
 input clk;
@@ -34,14 +36,16 @@ input is_valid_color;
 output valid;
 
 output [10:0] minx_out, maxx_out, miny_out, maxy_out;
+output [10:0] rad_out;
 	
 // constants
-integer min_dist = 2048;
+integer min_dist = 1024;
 
 // blob state
 reg validp;
 reg just_reset;
 reg [10:0] minx, miny, maxx, maxy;
+reg [10:0] box_rad;
 
 // link outputs to local vairables
 assign valid = validp;
@@ -49,6 +53,7 @@ assign minx_out = minx;
 assign maxx_out = maxx;
 assign miny_out = miny;
 assign maxy_out = maxy;
+assign rad_out = box_rad;
 
 // process blob information
 // box center
@@ -59,7 +64,7 @@ assign cy = (miny + maxy) >> 1; // center y
 wire [10:0] bw, bh, br;
 assign bw = maxx - minx; // box height
 assign bh = maxy - miny; // box width
-assign br = (bw + bh) >> 2; // average box radius
+assign br = (bw + bh) >> 2; // average box distance
 // min-max of new point compared to box range
 wire [10:0] new_minx, new_maxx, new_miny, new_maxy;
 assign new_minx = (minx < x_in)?minx:x_in;
@@ -68,11 +73,15 @@ assign new_miny = (miny < y_in)?miny:y_in;
 assign new_maxy = (maxy < y_in)?y_in:maxy;
 
 // check current pixels distance
-wire [31:0] dist;
+wire [31:0] distance;
 wire is_valid_pos;
-assign dist = (cx-x_in)*(cx-x_in) + (cy-y_in)*(cy-y_in) - br*br;
-assign is_valid_pos = dist < min_dist | dist[31];
-
+wire is_valid_init;
+assign distance = (cx-x_in)*(cx-x_in) + (cy-y_in)*(cy-y_in) - br * br;
+assign is_valid_pos = (distance < min_dist | distance[31]) & !just_reset;
+assign is_valid_init = MINX_INIT <= x_in & x_in <= MAXX_INIT &
+                       MINY_INIT <= y_in & y_in <= MAXY_INIT &
+                       just_reset;
+							  
 // adjust blob at each clock edge with new data
 always @(posedge clk) begin
 	 if(!reset_n | reset) begin
@@ -82,15 +91,17 @@ always @(posedge clk) begin
 		  maxx <= 0;
 		  miny <= 0;
 		  maxy <= 0;
+		  box_rad <= 0;
 	 end
 	 else if(is_valid_color) begin
-        if (just_reset) begin
+        if (is_valid_init) begin
 				validp <= 1;
             just_reset <= 0;
             minx <= x_in;
             maxx <= x_in;
             miny <= y_in;
             maxy <= y_in;
+				box_rad <= br;
         end
 		  else if(is_valid_pos) begin
     			validp <= 1;
@@ -98,6 +109,7 @@ always @(posedge clk) begin
             maxx <= new_maxx;
             miny <= new_miny;
             maxy <= new_maxy;
+				box_rad <= br;
         end
 		  else begin
 				validp <= 0;
