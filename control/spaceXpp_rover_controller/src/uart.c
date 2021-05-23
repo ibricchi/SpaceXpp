@@ -1,11 +1,9 @@
 #include "uart.h"
 
+static const char *UART_tag = "UART";
+
 // Data encodings
-typedef struct{
-    const char* forward;
-    const char* turn;
-} DriveEncoding;
-static const DriveEncoding driveEncoding = {"F", "T"};
+const DriveEncoding driveEncoding = {"F", "T"};
 
 void drive_uart_init()
 {
@@ -43,7 +41,7 @@ void drive_uart_task(void *arg)
             printf("UART data from drive: %s", (char*)data);
 
             // Send string data
-            char* data = "Message from ESP32\n";
+            const char* data = "Message from ESP32\n";
             char tx_string[40];
             sprintf(tx_string, "<%s%s>", data, driveEncoding.forward);
             uart_write_bytes(DRIVE_UART_NUM, (const char*)tx_string, strlen(tx_string)); // send data
@@ -66,4 +64,13 @@ void energy_uart_task(void *arg)
     while (1) {
         // TODO: implement
     }
+}
+
+void send_drive_uart_data(const char* encoding, const char* data) {
+    char tx_string[strlen(data)+strlen(encoding)];
+    sprintf(tx_string, "<%s%s>", data, encoding);
+
+    uart_write_bytes(DRIVE_UART_NUM, (const char*)tx_string, strlen(tx_string));
+
+    ESP_LOGI(UART_tag, "Drive data send: %s\n", tx_string);
 }

@@ -1,5 +1,7 @@
 #include "mqtt.h"
 
+extern const DriveEncoding driveEncoding;
+
 static const char *MQTT_tag = "MQTT";
 
 void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
@@ -14,7 +16,9 @@ void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(MQTT_tag, "MQTT_EVENT_CONNECTED");
 
-        msg_id = esp_mqtt_client_subscribe(client, "/test/cmd", 0);
+        msg_id = esp_mqtt_client_subscribe(client, "/drive/distance", 0);
+        ESP_LOGI(MQTT_tag, "sent subscribe successful, msg_id=%d", msg_id);
+        msg_id = esp_mqtt_client_subscribe(client, "/drive/angle", 0);
         ESP_LOGI(MQTT_tag, "sent subscribe successful, msg_id=%d", msg_id);
 
         break;
@@ -41,15 +45,24 @@ void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event
 
     case MQTT_EVENT_DATA:
         ESP_LOGI(MQTT_tag, "MQTT_EVENT_DATA");
-        
-        // TODO: Do processing on received data
-        printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
-        printf("DATA=%.*s\r\n", event->data_len, event->data);
-        
+
+        char topic[32];
+        sprintf(topic, "%.*s", event->topic_len, event->topic);
+        char data[32];
+        sprintf(data, "%.*s", event->data_len, event->data);
+
+        if (!strcmp(topic, "/drive/distance")) {
+            send_drive_uart_data(driveEncoding.forward, data);
+        } else if (!strcmp(topic, "/drive/angle")) {
+            send_drive_uart_data(driveEncoding.turn, data);
+        } else {
+            ESP_LOGE(MQTT_tag, "MQTT_EVENT_DATA: Unknown topic: %s", topic);
+        }
+
         break;
 
     case MQTT_EVENT_ERROR:
-        ESP_LOGI(MQTT_tag, "MQTT_EVENT_ERROR");
+        ESP_LOGE(MQTT_tag, "MQTT_EVENT_ERROR");
 
         break;
 
