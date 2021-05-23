@@ -104,14 +104,14 @@ unsigned int loopTrigger;
 int DIRRstate = HIGH;
 int DIRLstate = LOW;
 
-// Distance moved in each direction, [mm]
+// Distance moved in each direction, [cm]
 float totalX = 0.0, totalY = 0.0;
 
 // Distance moved in each direction, [counts/inch]
 float totalXAlt = 0.0, totalYAlt = 0.0;
 
 // Purely for debugging - will be removed once control is added
-const long f_i = 50000;           //time to move in forward direction
+const long f_i = 10000;           //time to move in forward direction
 
 void setup() {
   opticalFlowSetup();
@@ -129,7 +129,7 @@ void loop() {
 
   opticalFlowRead();
   
-  testDrive();
+  //testDrive();
 
   // Output signals for the motors
   digitalWrite(21, DIRRstate);
@@ -187,6 +187,8 @@ void setVelocity(float v) {
 
 // Causes the rover to stop moving
 void stopMoving() {
+  digitalWrite(5, LOW);
+  digitalWrite(9, LOW);
   vref = 0.0;
 }
 
@@ -238,10 +240,12 @@ void opticalFlowSetup() {
 void opticalFlowRead() {
   MD md;
   mousecam_read_motion(&md);
-  totalXAlt += md.dx;
-  totalYAlt += md.dy;
-  totalX = 10 * totalXAlt / 157;
-  totalY = 10 * totalYAlt / 157;
+  // Use - instead of + because backwards/left is positive displacement on the optical flow sensor
+  totalXAlt -= md.dx;
+  totalYAlt -= md.dy;
+  // Convert from counts/inch to cm
+  totalX = totalXAlt/157.48;
+  totalY = totalYAlt/157.48;
   Serial.println("Distance_x = " + String(totalX));
   Serial.println("Distance_y = " + String(totalY));
   Serial.print('\n');
