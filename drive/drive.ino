@@ -24,7 +24,52 @@
 
 #include <Wire.h>
 #include <INA219_WE.h>
+#include "SPI.h"
 
+// Pin definitions for the optical flow sensor
+#define PIN_SS        10
+#define PIN_MISO      12
+#define PIN_MOSI      11
+#define PIN_SCK       13
+#define PIN_MOUSECAM_RESET     8
+#define PIN_MOUSECAM_CS        7
+#define ADNS3080_PIXELS_X                 30
+#define ADNS3080_PIXELS_Y                 30
+#define ADNS3080_PRODUCT_ID            0x00
+#define ADNS3080_REVISION_ID           0x01
+#define ADNS3080_MOTION                0x02
+#define ADNS3080_DELTA_X               0x03
+#define ADNS3080_DELTA_Y               0x04
+#define ADNS3080_SQUAL                 0x05
+#define ADNS3080_PIXEL_SUM             0x06
+#define ADNS3080_MAXIMUM_PIXEL         0x07
+#define ADNS3080_CONFIGURATION_BITS    0x0a
+#define ADNS3080_EXTENDED_CONFIG       0x0b
+#define ADNS3080_DATA_OUT_LOWER        0x0c
+#define ADNS3080_DATA_OUT_UPPER        0x0d
+#define ADNS3080_SHUTTER_LOWER         0x0e
+#define ADNS3080_SHUTTER_UPPER         0x0f
+#define ADNS3080_FRAME_PERIOD_LOWER    0x10
+#define ADNS3080_FRAME_PERIOD_UPPER    0x11
+#define ADNS3080_MOTION_CLEAR          0x12
+#define ADNS3080_FRAME_CAPTURE         0x13
+#define ADNS3080_SROM_ENABLE           0x14
+#define ADNS3080_FRAME_PERIOD_MAX_BOUND_LOWER      0x19
+#define ADNS3080_FRAME_PERIOD_MAX_BOUND_UPPER      0x1a
+#define ADNS3080_FRAME_PERIOD_MIN_BOUND_LOWER      0x1b
+#define ADNS3080_FRAME_PERIOD_MIN_BOUND_UPPER      0x1c
+#define ADNS3080_SHUTTER_MAX_BOUND_LOWER           0x1e
+#define ADNS3080_SHUTTER_MAX_BOUND_UPPER           0x1e
+#define ADNS3080_SROM_ID               0x1f
+#define ADNS3080_OBSERVATION           0x3d
+#define ADNS3080_INVERSE_PRODUCT_ID    0x3f
+#define ADNS3080_PIXEL_BURST           0x40
+#define ADNS3080_MOTION_BURST          0x50
+#define ADNS3080_SROM_LOAD             0x60
+#define ADNS3080_PRODUCT_ID_VAL        0x17
+
+
+// Current sensing chip
 INA219_WE ina219;
 
 // Control frequency (integer multiple of switching frequency)
@@ -59,13 +104,17 @@ unsigned int loopTrigger;
 int DIRRstate = HIGH;
 int DIRLstate = LOW;
 
+// Distance moved in each direction, [mm]
+float totalX = 0.0, totalY = 0.0;
+
+// Distance moved in each direction, [counts/inch]
+float totalXAlt = 0.0, totalYAlt = 0.0;
+
 // Purely for debugging - will be removed once control is added
-const long f_i = 10000;           //time to move in forward direction
-const long r_i = 20000;           //time to rotate clockwise
-const long b_i = 30000;           //time to move backwards
-const long l_i = 40000;           //time to move anticlockwise
+const long f_i = 50000;           //time to move in forward direction
 
 void setup() {
+  opticalFlowSetup();
   driveSetup();
   SMPSSetup();
 }
@@ -78,6 +127,8 @@ void loop() {
     loopTrigger = 0;              // Reset loop trigger
   }
 
+  opticalFlowRead();
+  
   testDrive();
 
   // Output signals for the motors
@@ -86,7 +137,7 @@ void loop() {
 }
 
 /*
-   Rover functions
+   Low-level rover functions
 */
 void driveSetup() {
   // Direction pins for the motors: Right(21) and Left(20)
@@ -139,33 +190,119 @@ void stopMoving() {
   vref = 0.0;
 }
 
-
 // Used for testing the motor with incremental changes, will be removed later
 void testDrive() {
   unsigned long currentMillis = millis();
   //moving forwards
   if (currentMillis < f_i) {
-    setVelocity(4.0);
+    setVelocity(3.0);
     translation(0);
   }
-  //rotating clockwise
-  if (currentMillis > f_i && currentMillis < r_i) {
-    rotation(0);
-  }
-  //moving backwards
-  if (currentMillis > r_i && currentMillis < b_i) {
-    setVelocity(1.5);
-    translation(1);
-  }
-  //rotating anticlockwise
-  if (currentMillis > b_i && currentMillis < l_i) {
-    rotation(1);
-  }
   //stop moving
-  if (currentMillis > l_i) {
+  if (currentMillis >= f_i) {
     stopMoving();
   }
 }
+
+/*
+  Optical flow setup - NO NEED TO EDIT FURTHER FOR MARS ROVER
+*/
+
+// A struct contataining all the necessary attributes of movement
+struct MD {
+  byte motion;
+  char dx, dy;
+  byte squal;
+  word shutter;
+  byte max_pix;
+};
+
+// Initialising the optical flow sensor in the setup() function
+void opticalFlowSetup() {
+  pinMode(PIN_SS, OUTPUT);
+  pinMode(PIN_MISO, INPUT);
+  pinMode(PIN_MOSI, OUTPUT);
+  pinMode(PIN_SCK, OUTPUT);
+  SPI.begin();
+  SPI.setClockDivider(SPI_CLOCK_DIV32);
+  SPI.setDataMode(SPI_MODE3);
+  SPI.setBitOrder(MSBFIRST);
+  Serial.begin(38400);
+  if (mousecam_init() == -1) {
+    Serial.println("Mouse cam failed to init");
+    while (1);
+  }
+}
+
+// Finding the displacement in the x- and y- direction -> This can be expanded to fit the required needs
+void opticalFlowRead() {
+  MD md;
+  mousecam_read_motion(&md);
+  totalXAlt += md.dx;
+  totalYAlt += md.dy;
+  totalX = 10 * totalXAlt / 157;
+  totalY = 10 * totalYAlt / 157;
+  Serial.println("Distance_x = " + String(totalX));
+  Serial.println("Distance_y = " + String(totalY));
+  Serial.print('\n');
+}
+
+// Initialising the optical flow sensor
+int mousecam_init() {
+  pinMode(PIN_MOUSECAM_RESET, OUTPUT);
+  pinMode(PIN_MOUSECAM_CS, OUTPUT);
+  digitalWrite(PIN_MOUSECAM_CS, HIGH);
+  mousecam_reset();
+  int pid = mousecam_read_reg(ADNS3080_PRODUCT_ID);
+  if (pid != ADNS3080_PRODUCT_ID_VAL) return -1;
+  mousecam_write_reg(ADNS3080_CONFIGURATION_BITS, 0x19);
+  return 0;
+}
+
+// Reseting the optical flow sensor
+void mousecam_reset() {
+  digitalWrite(PIN_MOUSECAM_RESET, HIGH);
+  delay(1);
+  digitalWrite(PIN_MOUSECAM_RESET, LOW);
+  delay(35);
+}
+
+// Helper function - for writing to registers of the sensor
+void mousecam_write_reg(int reg, int val) {
+  digitalWrite(PIN_MOUSECAM_CS, LOW);
+  SPI.transfer(reg | 0x80);
+  SPI.transfer(val);
+  digitalWrite(PIN_MOUSECAM_CS, HIGH);
+  delayMicroseconds(50);
+}
+
+// Helper function - for writing to registers of the sensor
+int mousecam_read_reg(int reg) {
+  digitalWrite(PIN_MOUSECAM_CS, LOW);
+  SPI.transfer(reg);
+  delayMicroseconds(75);
+  int ret = SPI.transfer(0xff);
+  digitalWrite(PIN_MOUSECAM_CS, HIGH);
+  delayMicroseconds(1);
+  return ret;
+}
+
+// For getting movement data , such as displacement
+void mousecam_read_motion(struct MD *p) {
+  digitalWrite(PIN_MOUSECAM_CS, LOW);
+  SPI.transfer(ADNS3080_MOTION_BURST);
+  delayMicroseconds(75);
+  p->motion =  SPI.transfer(0xff);
+  p->dx =  SPI.transfer(0xff);
+  p->dy =  SPI.transfer(0xff);
+  p->squal =  SPI.transfer(0xff);
+  p->shutter =  SPI.transfer(0xff) << 8;
+  p->shutter |=  SPI.transfer(0xff);
+  p->max_pix =  SPI.transfer(0xff);
+  digitalWrite(PIN_MOUSECAM_CS, HIGH);
+  delayMicroseconds(5);
+}
+
 
 /*
   SMPS Control - NO NEED TO EDIT FURTHER FOR MARS ROVER
