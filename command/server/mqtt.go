@@ -1,6 +1,6 @@
 package server
 
-type MQT interface {
+type MQ interface {
 	filler() error
 }
 
