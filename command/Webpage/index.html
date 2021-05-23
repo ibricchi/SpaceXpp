@@ -18,23 +18,18 @@
         <div class="container">
             <h1> SpaceX++ Rover </h1>
 
-            <h2> Mode </h2>
-            <p id="Mode">Mode: Disconected</p>
-
-
-            <button type="button" onclick="connect()"> Connect </button>
+            <h2> Status </h2>
+            <p>Status: <span id="status" ></span></p>
+            <button type="button" onclick="getData('status', '/connect' )" > Connect </button>
 
             <h2> Speed </h2>
-
-            <div class="slidecontainer" onmousedown="speed()">
+            <div class="slidecontainer" onmousedown="speed()" onmouseup="speedSend()">
                 <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
                 <p>Value: <span id="speedVal" ></span></p>
             </div>
-
-          
+            
             <h2> Battery </h2>
-
-            <p> Battery Level: <span id="batteryVal"></span></p>
+            <p> Battery Level: <span id="batteryVal"></span><script>getData('batteryVal', '/battery' )</script></p>
 
         </div>
     </body>
