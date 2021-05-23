@@ -11,6 +11,7 @@
 
         <script src="JS/connection.js"></script>
         <script src="JS/speed.js"></script>
+        <script src="JS/drive.js"></script>
 
     </head>
 
@@ -30,6 +31,15 @@
             
             <h2> Battery </h2>
             <p> Battery Level: <span id="batteryVal"></span><script>getData('batteryVal', '/battery' )</script></p>
+
+            <h2> Drive </h2>
+                <label for="distace">Distance:</label><br>
+                <input type="number" id="distance" name="Distance" value="0"><br>
+                <button type="button" onclick="sendData('distance', '/drive/distance')" > Submit </button>
+                <p></p>
+                <label for="angle">Angle:</label><br>
+                <input type="number" id="angle" name="Angle" value="0"><br>
+                <button type="button" onclick="sendData('angle', '/drive/angle')" > Submit </button>
 
         </div>
     </body>

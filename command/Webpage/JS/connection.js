@@ -2,7 +2,7 @@ serverIP = "http://18.117.12.54:3000"
 
 
 function getData( location, address ){
-    webLocation = document.getElementById(location)
+    webLocation = document.getElementById(location);
 
     fetch(serverIP + address)
         .then(request => request.json())
@@ -18,6 +18,23 @@ function getData( location, address ){
             webLocation.innerHTML = " Disconnected: Issue between wepage and server";
         });
 }
+
+function sendData(location, address){
+    webLocation = document.getElementById(location);
+    val = webLocation.value
+    
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(val)
+    };
+
+    fetch(serverIP + address, options);
+
+}
+
 
 function speedSend(){
     var output = document.getElementById("speedVal");
@@ -35,3 +52,4 @@ function speedSend(){
 
 
 }
+
