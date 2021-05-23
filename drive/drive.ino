@@ -76,7 +76,7 @@ INA219_WE ina219;
 float Ts = 0.0004;
 
 // Reference voltage - used for controlling the speed of the rover
-float vref = 0.0;
+float vref = 3.0;
 
 // Duty cycle required to achieve the desired voltage
 float duty_cycle;
@@ -110,8 +110,10 @@ float totalX = 0.0, totalY = 0.0;
 // Distance moved in each direction, [counts/inch]
 float totalXAlt = 0.0, totalYAlt = 0.0;
 
-// Purely for debugging - will be removed once control is added
-const long f_i = 10000;           //time to move in forward direction
+// The current instruction to be executed
+long long currentInstructionTime = 0.0; 
+bool currentInstructionCompleted = false;
+bool currentInstructionStarted = false;
 
 void setup() {
   opticalFlowSetup();
@@ -127,14 +129,45 @@ void loop() {
     loopTrigger = 0;              // Reset loop trigger
   }
 
-  opticalFlowRead();
+  //opticalFlowRead();
   
-  //testDrive();
-
+  if(!currentInstructionStarted){
+    currentInstructionStarted = true;
+    currentInstructionTime = millis();
+  }else{
+    if(!currentInstructionCompleted){
+      currentInstructionCompleted = moveForwardForTime(12000);  
+    }else{
+      stopMoving();  
+    }
+ }
+  
   // Output signals for the motors
   digitalWrite(21, DIRRstate);
   digitalWrite(20, DIRLstate);
 }
+
+/*
+  High-level movement functions
+ */
+
+// Causes the rover to move forward for a time t [ms] and returns true after t [ms] have elapsed
+boolean moveForwardForTime(long t){
+  if (millis() < (currentInstructionTime+t)){
+      translation(0);
+      return false;
+  }
+  return true;
+}
+
+boolean moveBackwardForTime(long t){
+  if (millis() < (currentInstructionTime+t)){
+      translation(1);
+      return false;
+  }
+  return true;
+}
+ 
 
 /*
    Low-level rover functions
@@ -190,20 +223,6 @@ void stopMoving() {
   digitalWrite(5, LOW);
   digitalWrite(9, LOW);
   vref = 0.0;
-}
-
-// Used for testing the motor with incremental changes, will be removed later
-void testDrive() {
-  unsigned long currentMillis = millis();
-  //moving forwards
-  if (currentMillis < f_i) {
-    setVelocity(3.0);
-    translation(0);
-  }
-  //stop moving
-  if (currentMillis >= f_i) {
-    stopMoving();
-  }
 }
 
 /*
