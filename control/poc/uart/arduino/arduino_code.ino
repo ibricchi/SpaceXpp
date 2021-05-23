@@ -1,38 +1,78 @@
-enum Key {
-    NUMBER = 0,
-    MSG = 1,
-};
+const byte numUARTChars = 40;
+char receivedUARTChars[numUARTChars];
+boolean newUARTDataAvailable = false;
+
+unsigned long previousMillis = 0;
 
 void setup() {
-  Serial.begin(9600);
+    Serial.begin(115200);
+
+    Serial.print("Arduino Setup Complete\n");
 }
 
 void loop() {
-    Serial.println("Hello from Arduino");
+    recvUARTWithStartEndMarkers();
+    processNewUARTData();
 
-    if (Serial.available()) {
-      char key = Serial.read();
-      String data_rcvd;
-      switch(key) {
-        case NUMBER:
-          // Expecting single byte
-          data_rcvd = Serial.read();
-          Serial.print("NUMBER: ");
-          Serial.println(data_rcvd);
-          break;
-        case MSG:
-          data_rcvd = Serial.readString();
-          Serial.print("MSG: ");
-          Serial.println(data_rcvd);
-          break;
-        default:
-          Serial.println("INVALID KEY!!!");
-          data_rcvd = Serial.readString();
-          Serial.print("INVALID DATA: ");
-          Serial.println(data_rcvd);
-          break;
-      }
+    unsigned long currentMillis = millis();
+    if (currentMillis - previousMillis > 1000) {
+      previousMillis = currentMillis;
+      Serial.println("<Data from Arduino>");
     }
+}
 
-    delay(100);
+void recvUARTWithStartEndMarkers() {
+    static boolean recvInProgress = false;
+    static byte idx = 0;
+    const char startMarker = '<';
+    const char endMarker = '>';
+    char received;
+ 
+    while (Serial.available() && !newUARTDataAvailable) {
+        received = Serial.read();
+
+        if (recvInProgress) {
+            if (received != endMarker) {
+                receivedUARTChars[idx] = received;
+                idx++;
+                
+                if (idx >= numUARTChars) {
+                    idx = numUARTChars - 1;
+                    Serial.print("ERROR: UART character buffer not large enough\n");
+                }
+            } else {
+                receivedUARTChars[idx] = '\0'; // terminate the string
+                recvInProgress = false;
+                idx = 0;
+                newUARTDataAvailable = true;
+            }
+        } else if (received == startMarker) {
+            recvInProgress = true;
+        }
+    }
+}
+
+void processNewUARTData() {
+    if (newUARTDataAvailable) {
+        // Read and pop key
+        const char key = receivedUARTChars[strlen(receivedUARTChars)-1];
+        receivedUARTChars[strlen(receivedUARTChars)-1] = '\0';
+
+        // Data encoding defined in esp32 => Will probably want both way data encoding
+        switch(key) {
+          case 'F':
+            Serial.print("FORWARD VALUE: ");
+            Serial.print(receivedUARTChars);
+            break;
+          case 'T':
+            Serial.print("TURN VALUE: ");
+            Serial.print(receivedUARTChars);
+            break;
+          default:
+            Serial.print("INVALID KEY\n");
+            break;
+        }
+        
+        newUARTDataAvailable = false;
+    }
 }
