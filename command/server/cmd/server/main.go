@@ -58,7 +58,7 @@ func main() {
 
 	r := chi.NewRouter()
 
-	httpServer := server.OpenHttpServer(ctx, logger, r, serverDB)
+	httpServer := server.OpenHttpServer(ctx, logger, r, serverDB, mqttClient)
 	defer httpServer.Close()
 
 	logger.Info("server: opened http server")

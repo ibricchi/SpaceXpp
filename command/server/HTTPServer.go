@@ -11,14 +11,16 @@ import (
 
 type HttpServer struct {
 	db     DB
+	mqtt   MQTT
 	router *chi.Mux
 	logger *zap.Logger
 }
 
-func OpenHttpServer(ctx context.Context, logger *zap.Logger, router *chi.Mux, db *SQLiteDB) *HttpServer {
+func OpenHttpServer(ctx context.Context, logger *zap.Logger, router *chi.Mux, db *SQLiteDB, mqtt *MQTTClient) *HttpServer {
 
 	h := &HttpServer{
 		db:     db,
+		mqtt:   mqtt,
 		router: router,
 		logger: logger,
 	}
