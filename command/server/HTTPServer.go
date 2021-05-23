@@ -11,7 +11,7 @@ import (
 
 type HttpServer struct {
 	db     DB
-	mq     MQ
+	mqtt   MQTT
 	router *chi.Mux
 	logger *zap.Logger
 }
@@ -20,7 +20,7 @@ func OpenHttpServer(ctx context.Context, logger *zap.Logger, router *chi.Mux, db
 
 	h := &HttpServer{
 		db:     db,
-		mq:     mqtt,
+		mqtt:   mqtt,
 		router: router,
 		logger: logger,
 	}
