@@ -110,17 +110,32 @@ float totalX = 0.0, totalY = 0.0;
 // Distance moved in each direction, [counts/inch]
 float totalXAlt = 0.0, totalYAlt = 0.0;
 
+// All instructions to be executed;
+int instructions[99];
+float data[99];
+int currentInstruction = -1;
+int lastInstruction = -1;
+
 // The current instruction to be executed
 long long currentInstructionTime = 0.0;
-float currentInstructionX = 0.0; 
-float currentInstructionY = 0.0; 
+float currentInstructionX = 0.0;
+float currentInstructionY = 0.0;
 bool currentInstructionCompleted = false;
 bool currentInstructionStarted = false;
 
 void setup() {
+  // Device setup
   opticalFlowSetup();
   driveSetup();
   SMPSSetup();
+
+  // Mock instructions
+  instructions[0] = 3;  data[0] = 10.0;
+  instructions[1] = 4;  data[1] = 5.0;
+  instructions[2] = 3;  data[2] = 10.0;
+  currentInstruction = 0;
+  lastInstruction = 2;
+
 }
 
 void loop() {
@@ -131,63 +146,93 @@ void loop() {
     loopTrigger = 0;              // Reset loop trigger
   }
 
+  // Read the current position of the rover
   opticalFlowRead();
-  
-  if(!currentInstructionStarted){
-    currentInstructionStarted = true;
-    currentInstructionTime = millis();
-    currentInstructionX = totalX;
-    currentInstructionY = totalY;
-  }else{
-    if(!currentInstructionCompleted){
-      currentInstructionCompleted = moveForwardForDistance(20.0);  
-    }else{
-      stopMoving();  
+
+  // Buffer through the instructions in order they arrive
+  if (currentInstruction <= lastInstruction) {
+    if (!currentInstructionStarted) {
+      currentInstructionStarted = true;
+      currentInstructionCompleted = false;
+      currentInstructionTime = millis();
+      currentInstructionX = totalX;
+      currentInstructionY = totalY;
+    } else {
+      // This has room for improving efficiency; could cut down 2(?) cycles
+      if (!currentInstructionCompleted) {
+        currentInstructionCompleted = callCurrentInstruction();
+      } else {
+        currentInstruction++;
+        currentInstructionStarted = false;
+      }
     }
- }
-  
+  } else {
+    stopMoving();
+  }
+
+
+
   // Output signals for the motors
   digitalWrite(21, DIRRstate);
   digitalWrite(20, DIRLstate);
 }
 
 /*
-  High-level movement functions
- */
+  High-level movement control functions
+*/
 
-// Causes the rover to move forward for a time t [ms] and returns true after t [ms] have elapsed
-boolean moveForwardForTime(long t){
-  if (millis() < (currentInstructionTime+t)){
-      translation(0);
-      return false;
+// Causes the rover to move forward for a time t [ms] and returns true after t [ms] have elapsed - SLIGHTLY BUGGY
+boolean moveForwardForTime(float t) {
+  if (millis() < (currentInstructionTime + t)) {
+    translation(0);
+    return false;
   }
   return true;
 }
 
-boolean moveBackwardForTime(long t){
-  if (millis() < (currentInstructionTime+t)){
-      translation(1);
-      return false;
+// Causes the rover to move backward for a time t [ms] and returns true after t [ms] have elapsed - SLIGHTLY BUGGY
+boolean moveBackwardForTime(float t) {
+  if (millis() < (currentInstructionTime + t)) {
+    translation(1);
+    return false;
   }
   return true;
 }
 
-boolean moveForwardForDistance(float d){
-  if (totalY < (currentInstructionY+d)){
-      translation(0);
-      return false;
+// Causes the rover to move forward for a distance d [cm] and returns true after moving the given distance
+boolean moveForwardForDistance(float d) {
+  if (totalY < (currentInstructionY + d)) {
+    translation(0);
+    return false;
   }
   return true;
 }
 
-boolean moveBackwardForDistance(float d){
-  if (totalY > (currentInstructionY-d)){
-      translation(1);
-      return false;
+// Causes the rover to move backward for a distance d [cm] and returns true after moving the given distance
+boolean moveBackwardForDistance(float d) {
+  if (totalY > (currentInstructionY - d)) {
+    translation(1);
+    return false;
   }
   return true;
 }
- 
+
+// Decides and call the current instruction based on the mapping below
+boolean callCurrentInstruction() {
+  switch (instructions[currentInstruction]) {
+    case 1:
+      return moveForwardForTime(data[currentInstruction]);
+    case 2:
+      return moveBackwardForTime(data[currentInstruction]);
+    case 3:
+      return moveForwardForDistance(data[currentInstruction]);
+    case 4:
+      return moveBackwardForDistance(data[currentInstruction]);
+    default:
+      return false;
+  }
+}
+
 
 /*
    Low-level rover functions
@@ -283,11 +328,11 @@ void opticalFlowRead() {
   totalXAlt += md.dx;
   totalYAlt += md.dy;
   // Convert from counts/inch to cm
-  totalX = totalXAlt/157.48;
-  totalY = totalYAlt/157.48;
+  totalX = totalXAlt / 157.48;
+  totalY = totalYAlt / 157.48;
   // Inver to match x-y plane
-  totalX = (-1)*totalX;
-  totalY = (-1)*totalY;
+  totalX = (-1) * totalX;
+  totalY = (-1) * totalY;
   Serial.println("Distance_x = " + String(totalX));
   Serial.println("Distance_y = " + String(totalY));
   Serial.print('\n');
