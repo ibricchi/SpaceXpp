@@ -11,7 +11,7 @@ type staticTestData struct {
 }
 
 func (h *HttpServer) connect(w http.ResponseWriter, req *http.Request) {
-	status := "connected"
+	status := "Connected"
 
 	json.NewEncoder(w).Encode(status)
 
