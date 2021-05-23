@@ -21,12 +21,6 @@
 // #define VISION_RXD_PIN ???
 // #define DRIVE_BUFFER_SIZE (???)
 
-// Used for data encoding
-enum Key {
-    NUMBER = 0,
-    MSG = 1,
-};
-
 // Full-duplex
 void drive_uart_init();
 
