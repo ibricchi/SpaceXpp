@@ -21,7 +21,7 @@ function getData( location, address ){
 
 function sendData(location, address){
     webLocation = document.getElementById(location);
-    val = webLocation.value
+    val = parseInt(webLocation.value)
     
     const options = {
         method: 'POST',
