@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 )
 
 func (h *HttpServer) speed(w http.ResponseWriter, r *http.Request) {
@@ -37,9 +38,9 @@ func (h *HttpServer) driveD(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	// Send data to hardware
 	fmt.Println(t)
-
+	// Send data to hardware
+	h.mqtt.publish("/drive/distance", strconv.Itoa(t), 0)
 }
 
 func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
@@ -53,7 +54,10 @@ func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	// Send data to hardware
 	fmt.Println(t)
+
+	// Send data to hardware
+
+	h.mqtt.publish("/drive/angle", strconv.Itoa(t), 0)
 
 }
