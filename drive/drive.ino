@@ -111,7 +111,9 @@ float totalX = 0.0, totalY = 0.0;
 float totalXAlt = 0.0, totalYAlt = 0.0;
 
 // The current instruction to be executed
-long long currentInstructionTime = 0.0; 
+long long currentInstructionTime = 0.0;
+float currentInstructionX = 0.0; 
+float currentInstructionY = 0.0; 
 bool currentInstructionCompleted = false;
 bool currentInstructionStarted = false;
 
@@ -129,14 +131,16 @@ void loop() {
     loopTrigger = 0;              // Reset loop trigger
   }
 
-  //opticalFlowRead();
+  opticalFlowRead();
   
   if(!currentInstructionStarted){
     currentInstructionStarted = true;
     currentInstructionTime = millis();
+    currentInstructionX = totalX;
+    currentInstructionY = totalY;
   }else{
     if(!currentInstructionCompleted){
-      currentInstructionCompleted = moveForwardForTime(12000);  
+      currentInstructionCompleted = moveForwardForDistance(20.0);  
     }else{
       stopMoving();  
     }
@@ -162,6 +166,22 @@ boolean moveForwardForTime(long t){
 
 boolean moveBackwardForTime(long t){
   if (millis() < (currentInstructionTime+t)){
+      translation(1);
+      return false;
+  }
+  return true;
+}
+
+boolean moveForwardForDistance(float d){
+  if (totalY < (currentInstructionY+d)){
+      translation(0);
+      return false;
+  }
+  return true;
+}
+
+boolean moveBackwardForDistance(float d){
+  if (totalY > (currentInstructionY-d)){
       translation(1);
       return false;
   }
@@ -259,12 +279,15 @@ void opticalFlowSetup() {
 void opticalFlowRead() {
   MD md;
   mousecam_read_motion(&md);
-  // Use - instead of + because backwards/left is positive displacement on the optical flow sensor
-  totalXAlt -= md.dx;
-  totalYAlt -= md.dy;
+  // Add incremental changes
+  totalXAlt += md.dx;
+  totalYAlt += md.dy;
   // Convert from counts/inch to cm
   totalX = totalXAlt/157.48;
   totalY = totalYAlt/157.48;
+  // Inver to match x-y plane
+  totalX = (-1)*totalX;
+  totalY = (-1)*totalY;
   Serial.println("Distance_x = " + String(totalX));
   Serial.println("Distance_y = " + String(totalY));
   Serial.print('\n');
