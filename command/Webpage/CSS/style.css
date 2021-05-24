@@ -53,3 +53,10 @@ input{
   border: 2px solid #4CAF50;
 
 }
+
+.main-wrapper {
+  width: 512px;
+  padding-left: 1em;
+  padding-right: 1em;
+  margin: 0 auto;
+}

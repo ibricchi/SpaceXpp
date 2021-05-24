@@ -12,6 +12,9 @@
         <script src="JS/Communicator.js"></script>
         <script src="JS/speed.js"></script>
 
+        <script src="JS/map/common.js"></script>
+        <script src="JS/map/logic-grid.js"></script>
+
 
     </head>
 
@@ -36,7 +39,14 @@
                 <input type="number" id="angle" name="Angle" value="0"><br>
                 <button type="button" id="drive" > Submit </button>
             </div>
-        </div>
+
+            <h2> Map </h2>
+
+            <div class="main-wrapper">
+                <canvas id="demo" width="512" height="512"></canvas>
+            </div>
+            
+    </div>
 
     </body>
 
