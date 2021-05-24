@@ -12,8 +12,13 @@ type staticTestData struct {
 
 func (h *HttpServer) connect(w http.ResponseWriter, req *http.Request) {
 	status := "Connected"
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	json.NewEncoder(w).Encode(status)
+	if err := json.NewEncoder(w).Encode(status); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	w.WriteHeader(http.StatusOK)
 
 }
 
@@ -24,8 +29,13 @@ func (h *HttpServer) battery(w http.ResponseWriter, req *http.Request) {
 		//return error
 	}
 
-	json.NewEncoder(w).Encode(level)
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
+	if err := json.NewEncoder(w).Encode(level); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func check(w http.ResponseWriter, req *http.Request) {
