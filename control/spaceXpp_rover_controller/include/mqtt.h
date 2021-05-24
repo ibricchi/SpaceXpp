@@ -14,6 +14,8 @@ void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event
 
 esp_mqtt_client_handle_t mqtt_init();
 
+void handle_mqtt_event_data(esp_mqtt_event_handle_t event);
+
 // Used to send status to server
 void mqtt_task(void *arg);
 

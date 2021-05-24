@@ -33,23 +33,21 @@ void energy_uart_init()
 
 void drive_uart_task(void *arg)
 {
-    uint8_t* data = (uint8_t*) malloc(DRIVE_BUFFER_SIZE+1);
+    uint8_t* rx_data = (uint8_t*) malloc(DRIVE_BUFFER_SIZE+1);
     while (1) {
-        int rxBytes = uart_read_bytes(DRIVE_UART_NUM, data, DRIVE_BUFFER_SIZE, 1000 / portTICK_RATE_MS);
+        int rxBytes = uart_read_bytes(DRIVE_UART_NUM, rx_data, DRIVE_BUFFER_SIZE, 1000 / portTICK_RATE_MS);
         if (rxBytes > 0) {
-            data[rxBytes] = 0; // End of received string
-            printf("UART data from drive: %s", (char*)data);
+            rx_data[rxBytes] = 0; // End of received string
+            printf("UART data from drive: %s", (char*)rx_data);
 
             // Send string data
-            const char* data = "Message from ESP32\n";
-            char tx_string[40];
-            sprintf(tx_string, "<%s%s>", data, driveEncoding.forward);
-            uart_write_bytes(DRIVE_UART_NUM, (const char*)tx_string, strlen(tx_string)); // send data
+            const char* tx_data = "Message from ESP32";
+            send_drive_uart_data(driveEncoding.forward, tx_data);
         }
 
          vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
-    free(data);
+    free(rx_data);
 }
 
 void vision_uart_task(void *arg)
@@ -67,10 +65,10 @@ void energy_uart_task(void *arg)
 }
 
 void send_drive_uart_data(const char* encoding, const char* data) {
-    char tx_string[strlen(data)+strlen(encoding)];
+    char tx_string[strlen(data)+strlen(encoding)+3];
     sprintf(tx_string, "<%s%s>", data, encoding);
 
     uart_write_bytes(DRIVE_UART_NUM, (const char*)tx_string, strlen(tx_string));
 
-    ESP_LOGI(UART_tag, "Drive data send: %s\n", tx_string);
+    ESP_LOGI(UART_tag, "Drive data sent: %s", tx_string);
 }

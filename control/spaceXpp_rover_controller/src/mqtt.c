@@ -46,18 +46,7 @@ void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event
     case MQTT_EVENT_DATA:
         ESP_LOGI(MQTT_tag, "MQTT_EVENT_DATA");
 
-        char topic[32];
-        sprintf(topic, "%.*s", event->topic_len, event->topic);
-        char data[32];
-        sprintf(data, "%.*s", event->data_len, event->data);
-
-        if (!strcmp(topic, "/drive/distance")) {
-            send_drive_uart_data(driveEncoding.forward, data);
-        } else if (!strcmp(topic, "/drive/angle")) {
-            send_drive_uart_data(driveEncoding.turn, data);
-        } else {
-            ESP_LOGE(MQTT_tag, "MQTT_EVENT_DATA: Unknown topic: %s", topic);
-        }
+        handle_mqtt_event_data(event);
 
         break;
 
@@ -86,6 +75,21 @@ esp_mqtt_client_handle_t mqtt_init()
     ESP_ERROR_CHECK(esp_mqtt_client_start(client));
 
     return client;
+}
+
+void handle_mqtt_event_data(esp_mqtt_event_handle_t event) {
+    char topic[32];
+    sprintf(topic, "%.*s", event->topic_len, event->topic);
+    char data[32];
+    sprintf(data, "%.*s", event->data_len, event->data);
+
+    if (!strcmp(topic, "/drive/distance")) {
+        send_drive_uart_data(driveEncoding.forward, data);
+    } else if (!strcmp(topic, "/drive/angle")) {
+        send_drive_uart_data(driveEncoding.turn, data);
+    } else {
+        ESP_LOGE(MQTT_tag, "MQTT_EVENT_DATA: Unknown topic: %s", topic);
+    }
 }
 
 // Used to send status to server
