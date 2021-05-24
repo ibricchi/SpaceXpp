@@ -66,7 +66,7 @@ func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 
-	fmt.Println("Recived drive disntace: ", t)
+	fmt.Println("Recived drive angle: ", t)
 	// Send data to hardware
 
 	h.mqtt.publish("/drive/angle", strconv.Itoa(t), 0)
