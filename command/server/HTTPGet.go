@@ -16,12 +16,12 @@ type status struct {
 }
 
 func (h *HttpServer) connect(w http.ResponseWriter, req *http.Request) {
-	
-	data := status {
-		server: "connected",
-		rover: "disconnected"
+
+	data := status{
+		server: "Connected",
+		rover:  "Disconnected",
 	}
-	
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	if err := json.NewEncoder(w).Encode(data); err != nil {
