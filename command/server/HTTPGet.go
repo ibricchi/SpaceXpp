@@ -50,7 +50,6 @@ func check(w http.ResponseWriter, req *http.Request) {
 	}
 	if err := json.NewEncoder(w).Encode(data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
 	}
 
 	w.WriteHeader(http.StatusOK)
