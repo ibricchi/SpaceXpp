@@ -12,18 +12,19 @@ func (h *HttpServer) speed(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	var t int
-	err := decoder.Decode(&t)
-
-	if err != nil {
-		panic(err)
+	if err := decoder.Decode(&t); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
-	err = h.db.insertData(true, t)
-	if err != nil {
-		panic(err)
+	// Check for correct format
+
+	if err := h.db.insertData(true, t); err != nil {
+		http.Error(w, "Error: Failed to insert data in DB", http.StatusInternalServerError)
 	}
 
-	fmt.Println(t)
+	w.WriteHeader(http.StatusOK)
+
+	fmt.Println("Recived speed: ", t)
 
 }
 
@@ -32,13 +33,18 @@ func (h *HttpServer) driveD(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	var t int
-	err := decoder.Decode(&t)
-
-	if err != nil {
-		panic(err)
+	if err := decoder.Decode(&t); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
-	fmt.Println(t)
+	if err := h.db.insertData(true, t); err != nil {
+		http.Error(w, "Error: Failed to insert data in DB", http.StatusInternalServerError)
+	}
+
+	w.WriteHeader(http.StatusOK)
+
+	fmt.Println("Recived drive distance: ", t)
+
 	// Send data to hardware
 	h.mqtt.publish("/drive/distance", strconv.Itoa(t), 0)
 }
@@ -48,14 +54,19 @@ func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	var t int
-	err := decoder.Decode(&t)
-
-	if err != nil {
-		panic(err)
+	if err := decoder.Decode(&t); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
-	fmt.Println(t)
+	// Check for correct format
 
+	if err := h.db.insertData(true, t); err != nil {
+		http.Error(w, "Error: Failed to insert data in DB", http.StatusInternalServerError)
+	}
+
+	w.WriteHeader(http.StatusOK)
+
+	fmt.Println("Recived drive disntace: ", t)
 	// Send data to hardware
 
 	h.mqtt.publish("/drive/angle", strconv.Itoa(t), 0)
