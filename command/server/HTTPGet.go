@@ -10,11 +10,21 @@ type staticTestData struct {
 	Data []int  `json:"data"`
 }
 
+type status struct {
+	server string
+	rover  string
+}
+
 func (h *HttpServer) connect(w http.ResponseWriter, req *http.Request) {
-	status := "Connected"
+	
+	data := status {
+		server: "connected",
+		rover: "disconnected"
+	}
+	
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	if err := json.NewEncoder(w).Encode(status); err != nil {
+	if err := json.NewEncoder(w).Encode(data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 

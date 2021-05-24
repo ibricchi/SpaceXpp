@@ -11,6 +11,14 @@ body{
   border: 2px solid #4CAF50;
 }
 
+.server{
+  border-radius: 8px;
+  border: 2px solid #4CAF50;
+  width: 200px;
+
+
+}
+
 .container{
         width: 500px;
         margin: auto;

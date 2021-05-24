@@ -19,6 +19,31 @@ function getData( location, address ){
         });
 }
 
+
+function status(){
+    server = document.getElementById("server")
+    rover = document.getElementById("rover")
+
+    fetch(serverIP + '/connect')
+        .then(request => request.json())
+        .then(data => {
+            if(data != null){
+                server.innerHTML = data.server;
+                rover.innerHTML = data.rover
+            }else{
+                server.innerHTML = "Disconnected"
+                rover.innerHTML = "Disconnected"
+
+            }})
+        .catch(err => {
+            console.warn(err);
+            console.warn("Communicator: unable to fetch data from server");
+            server.innerHTML = "Disconnected"
+            rover.innerHTML = "Disconnected"
+        });
+}
+
+
 function sendData(location, address){
     webLocation = document.getElementById(location);
     val = parseInt(webLocation.value)

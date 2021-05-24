@@ -1,13 +1,11 @@
 
 
-const connectButton = document.getElementById("connect");
 const driveButton = document.getElementById("drive");
 
-connectButton.addEventListener('click', connect , false);
 driveButton.addEventListener('click', drive , false);
 
 setInterval(function(){
-    getData('status', '/connect' );
+    status();
 }, 3000);
 
 
