@@ -117,12 +117,12 @@ parameter grids_x = screen_w / grid_w;
 parameter grids_y = screen_h / grid_h;
 
 // blob detector variables global
-wire bds_valid[grids_x-1:0][grids_y-1:0];
-wire [10:0] bds_rad[grids_x-1:0][grids_y-1:0];
-wire [10:0] bds_x_min[grids_x-1:0][grids_y-1:0],
-                bds_x_max[grids_x-1:0][grids_y-1:0],
-                bds_y_min[grids_x-1:0][grids_y-1:0],
-                bds_y_max[grids_x-1:0][grids_y-1:0];
+wire [grids_x-1:0][grids_y-1:0] bds_valid;
+wire [10:0][grids_x-1:0][grids_y-1:0] bds_rad;
+wire [10:0][grids_x-1:0][grids_y-1:0] bds_x_min,
+                                      bds_x_max,
+                                      bds_y_min,
+                                      bds_y_max;
                 
 // blob detector variables local
 wire bd_reset;
@@ -134,10 +134,27 @@ wire [10:0] x_min, y_min, x_max, y_max;
 assign bd_reset = sop & in_valid;
 
 assign bd_valid = bds_valid[bd_which_x][bd_which_y];
-assign x_min = bds_x_min[bd_which_x][bd_which_y];
-assign x_max = bds_x_max[bd_which_x][bd_which_y];
-assign y_min = bds_y_min[bd_which_x][bd_which_y];
-assign y_max = bds_y_max[bd_which_x][bd_which_y];
+
+SXPP_MINMAX_MEM
+    #(11,grids_x,grids_y)
+    mmd(
+        clk,
+        reset_n,
+        
+        eop & in_valid & packet_video,
+        bds_rad,
+        bds_x_min,
+        bds_x_max,
+        bds_y_min,
+        bds_y_max,
+        
+        bd_which_x, bd_which_y,
+        bd_rad,
+        x_min,
+        x_max,
+        y_min,
+        y_max
+    );
 
 genvar i, j;
 generate
@@ -167,28 +184,6 @@ generate
         end
     end
 endgenerate
-
-integer k, l;
-always @(posedge clk) begin
-    if(sop) begin
-        bd_which_x <= 0;
-        bd_which_y <= 0;
-        bd_rad <= 0;
-//        bd_valid <= 0;
-    end
-    for(k = 0; k < grids_x; k = k + 1) begin : generate_x_loop_check_rad
-        for(l = 0; l < grids_y; l = l + 1) begin : generate_y_loop_check_rad
-            if(bd_rad < bds_rad[k][l]) begin	
-                bd_which_x <= k;
-                bd_which_y <= l;
-                bd_rad <= bds_rad[k][l];
-            end
-//            if(bds_valid[k][l]) begin
-//                bd_valid <= 1;
-//            end 
-        end
-    end
-end
 
 // display sensor grids
 reg grid_active;
