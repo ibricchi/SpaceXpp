@@ -28,8 +28,13 @@ function status(){
         .then(request => request.json())
         .then(data => {
             if(data != null){
-                server.innerHTML = data.server;
-                rover.innerHTML = data.rover
+                server.innerHTML = "Connected";
+                if(data == 0){
+                    rover.innerHTML =  "Connected";
+                } else {
+                    rover.innerHTML =  "Disconnected";
+                }
+
             }else{
                 server.innerHTML = "Disconnected"
                 rover.innerHTML = "Disconnected"
