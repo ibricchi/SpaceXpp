@@ -110,6 +110,13 @@ float totalX = 0.0, totalY = 0.0;
 // Distance moved in each direction, [counts/inch]
 float totalXAlt = 0.0, totalYAlt = 0.0;
 
+// For velocity control, iterative proportional controller
+float kvp = 0.1;   // TO BE TUNED
+float currentY = 0.0;
+float previousY = 0.0;
+float currentTime = 0.0;
+float previousTime = 0.0;
+
 // All instructions to be executed;
 int instructions[99];
 float data[99];
@@ -149,7 +156,10 @@ void loop() {
   // Read the current position of the rover
   opticalFlowRead();
 
-  // Buffer through the instructions in order they arrive
+  // Set velocity to the desired value
+  setVelocity();
+
+  /*// Buffer through the instructions in order they arrive
   if (currentInstruction <= lastInstruction) {
     if (!currentInstructionStarted) {
       currentInstructionStarted = true;
@@ -169,8 +179,7 @@ void loop() {
   } else {
     stopMoving();
   }
-
-
+  */
 
   // Output signals for the motors
   digitalWrite(21, DIRRstate);
@@ -278,9 +287,14 @@ void rotation(int dir) {
 }
 
 // Sets the speed of the rover
-void setVelocity(float v) {
-  // TODO - Epxeriments to find relationship between speed [m/s] and reference voltage [V]
-  vref = v;
+void setVelocity(float velocityReference) {
+  previousY = currentY;
+  currentY = totalY;
+  previousTime = currentTime;
+  currentTime = millis();
+  float velocityCurrent = (currentY-previousY)/(currentTime-previousTime);
+  float velocityError = velocityReference - velocityCurrent;
+  vref += kvp*velocityError;
 }
 
 // Causes the rover to stop moving
