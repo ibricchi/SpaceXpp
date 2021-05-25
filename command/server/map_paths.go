@@ -16,13 +16,13 @@ import "errors"
 	Space complexity = O(n)
 	where n = number of nodes in graph (n = cols * rows)
 */
-func getShortedPathFromStartToDestination(startRow int, startCol int, destinationRow int, destinationCol int, graph [][]int) ([][]int, error) {
+func getShortedPathFromStartToDestination(startRow int, startCol int, destinationRow int, destinationCol int, tileMap tileMap) ([][]int, error) {
 	// Check if start node is equal to destination node
 	if startRow == destinationRow && startCol == destinationCol {
 		return [][]int{}, nil
 	}
 
-	nodes := initNodes(graph)
+	nodes := initNodes(tileMap)
 	startNode := nodes[startRow][startCol]
 	destinationNode := nodes[destinationRow][destinationCol]
 
@@ -86,12 +86,12 @@ func h(currentNode *node, destinationNode *node) int {
 	return abs(currentNode.col-destinationNode.col) + abs(currentNode.row-destinationNode.row)
 }
 
-func initNodes(graph [][]int) [][]*node {
+func initNodes(tileMap tileMap) [][]*node {
 	nodes := [][]*node{}
-	for row := range graph {
+	for row := 0; row < tileMap.rows; row++ {
 		newRow := []*node{}
-		for col := range graph[0] {
-			val := graph[row][col]
+		for col := 0; col < tileMap.cols; col++ {
+			val := tileMap.getTile(row, col)
 			newRow = append(newRow, newNode(row, col, val))
 		}
 		nodes = append(nodes, newRow)

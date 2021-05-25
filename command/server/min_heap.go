@@ -20,6 +20,11 @@ type node struct {
 	cameFrom *node
 }
 
+type minHeap struct {
+	nodes         []*node
+	heapPositions map[string]int // Positions of nodes in heap (key = node.id)
+}
+
 func newNode(row int, col int, val int) *node {
 	return &node{
 		id:       fmt.Sprintf("%d%d", row, col), // Unique id for each node
@@ -30,11 +35,6 @@ func newNode(row int, col int, val int) *node {
 		fScore:   math.MaxInt32,
 		cameFrom: nil,
 	}
-}
-
-type minHeap struct {
-	nodes         []*node
-	heapPositions map[string]int // Positions of nodes in heap (key = node.id)
 }
 
 func initMinHeap(nodes []*node) *minHeap {
