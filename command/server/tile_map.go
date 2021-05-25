@@ -1,8 +1,8 @@
 package server
 
 type tileMap struct {
-	cols  int   // number of columns
 	rows  int   // number of rows
+	cols  int   // number of columns
 	tiles []int // matrix stored as slice
 }
 
