@@ -157,8 +157,8 @@ void loop() {
   opticalFlowRead();
 
   // Set velocity to the desired value
-  setVelocity();
-
+  setVelocity(1.0);
+  
   /*// Buffer through the instructions in order they arrive
   if (currentInstruction <= lastInstruction) {
     if (!currentInstructionStarted) {
