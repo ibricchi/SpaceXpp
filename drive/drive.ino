@@ -132,16 +132,16 @@ bool currentInstructionStarted = false;
 
 void setup() {
   // Device setup
+  SMPSSetup();
   opticalFlowSetup();
   driveSetup();
-  SMPSSetup();
 
   // Mock instructions
-  instructions[0] = 3;  data[0] = 10.0;
+  instructions[0] = 5;  data[0] = -1;
   instructions[1] = 4;  data[1] = 5.0;
   instructions[2] = 3;  data[2] = 10.0;
   currentInstruction = 0;
-  lastInstruction = 2;
+  lastInstruction = 0;
 
 }
 
@@ -159,7 +159,7 @@ void loop() {
   // Set velocity to the desired value
   setVelocity(1.0);
   
-  /*// Buffer through the instructions in order they arrive
+  // Buffer through the instructions in order they arrive
   if (currentInstruction <= lastInstruction) {
     if (!currentInstructionStarted) {
       currentInstructionStarted = true;
@@ -179,7 +179,7 @@ void loop() {
   } else {
     stopMoving();
   }
-  */
+  
 
   // Output signals for the motors
   digitalWrite(21, DIRRstate);
@@ -226,6 +226,27 @@ boolean moveBackwardForDistance(float d) {
   return true;
 }
 
+boolean clockwise90(){
+  float currentHypotenuse = (totalX-currentInstructionX)*(totalX-currentInstructionX) + (totalY-currentInstructionY)*(totalY-currentInstructionY);
+  float desiredHypotenuse = 2*11.5*11.5;    // distna from the center of the rover to the optical flow sensor is 11.5 [cm]
+  if(currentHypotenuse < desiredHypotenuse){
+    rotation(0);
+    return false;
+  }
+  return true;  
+}
+
+boolean anticlockwise90(){
+  float currentHypotenuse = (totalX-currentInstructionX)*(totalX-currentInstructionX) + (totalY-currentInstructionY)*(totalY-currentInstructionY);
+  float desiredHypotenuse = 2*11.5*11.5;    // distna from the center of the rover to the optical flow sensor is 11.5 [cm]
+  if(currentHypotenuse < desiredHypotenuse){
+    rotation(1);
+    return false;
+  }
+  return true;  
+}
+
+
 // Decides and call the current instruction based on the mapping below
 boolean callCurrentInstruction() {
   switch (instructions[currentInstruction]) {
@@ -237,6 +258,10 @@ boolean callCurrentInstruction() {
       return moveForwardForDistance(data[currentInstruction]);
     case 4:
       return moveBackwardForDistance(data[currentInstruction]);
+    case 5:
+      return clockwise90();
+    case 6:
+      return anticlockwise90();
     default:
       return false;
   }
