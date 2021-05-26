@@ -16,6 +16,15 @@ type driveInstruction struct {
 	value       int
 }
 
+// For greater control on map building using on-board camera
+type traverseMode int
+
+const (
+	simple               traverseMode = iota // Traverse the path without extra rotations
+	fullDiscovery                            // Traverse the path and complete a full rotation on each tile
+	destinationDiscovery                     // Traverse the path and complete a full roation on the destination tile
+)
+
 // Direction on tile map that rover is facing
 type direction int
 
@@ -37,14 +46,14 @@ const (
 
 	Time complexity: O(n) where n = number of nodes in path
 */
-func pathToDriveInstructions(path [][]int, tileWidth int, initialDirection direction) ([]driveInstruction, error) {
+func pathToDriveInstructions(path [][]int, tileWidth int, initialDirection direction, traverseMode traverseMode) ([]driveInstruction, error) {
 	if len(path) < 2 {
 		return nil, errors.New("server: drive: path must have at least two elements")
 	}
 
 	instructions := []driveInstruction{}
 
-	// Distance moved forward since last turn
+	// Distance moved forward since last turn (always equal to tileWidth for fullDiscovery traversal mode)
 	currentDistance := tileWidth
 	// Direction on tile map that rover is currently facing (use start tile to determine initial direction)
 	currentDirection := getNewDirection(path[0], path[1])
@@ -70,20 +79,33 @@ func pathToDriveInstructions(path [][]int, tileWidth int, initialDirection direc
 		previousRow := path[i-1][0]
 		previousCol := path[i-1][1]
 
-		if currentDirection == north && currentCol == previousCol { // Keep moving in same direction
-			currentDistance += tileWidth
-		} else if currentDirection == south && currentCol == previousCol { // Keep moving in same direction
-			currentDistance += tileWidth
-		} else if currentDirection == east && currentRow == previousRow { // Keep moving in same direction
-			currentDistance += tileWidth
-		} else if currentDirection == west && currentRow == previousRow { // Keep moving in same direction
-			currentDistance += tileWidth
+		if (currentDirection == north && currentCol == previousCol) ||
+			(currentDirection == south && currentCol == previousCol) ||
+			(currentDirection == east && currentRow == previousRow) ||
+			(currentDirection == west && currentRow == previousRow) { // Keep moving in same direction
+			if traverseMode == fullDiscovery {
+				// Add forward instruction
+				instructions = append(instructions, driveInstruction{
+					instruction: "forward",
+					value:       currentDistance,
+				})
+
+				// Add instructions for full roation
+				instructions = append(instructions, getInstructionForFullRotation(currentDirection)...)
+			} else {
+				// Group multiple forward instructions together
+				currentDistance += tileWidth
+			}
 		} else { // Turn
-			// Save forward instruction
+			// Save grouped forward instruction
 			instructions = append(instructions, driveInstruction{
 				instruction: "forward",
 				value:       currentDistance,
 			})
+			if traverseMode == fullDiscovery {
+				// Add instructions for full roation as rotation leads to moving one forward
+				instructions = append(instructions, getInstructionForFullRotation(currentDirection)...)
+			}
 
 			// Automatically move one forward after turn
 			currentDistance = tileWidth
@@ -111,9 +133,36 @@ func pathToDriveInstructions(path [][]int, tileWidth int, initialDirection direc
 				value:       currentDistance,
 			})
 		}
+
+		// Add full rotation once destination is reached
+		if i == len(path)-1 && traverseMode != simple {
+			instructions = append(instructions, getInstructionForFullRotation(currentDirection)...)
+		}
 	}
 
 	return instructions, nil
+}
+
+// Instructions for full rotation in 90° steps to allow vision to obtain images of all surrounding tiles
+func getInstructionForFullRotation(initialDirection direction) []driveInstruction {
+	return []driveInstruction{
+		{
+			instruction: "turnRight",
+			value:       90,
+		},
+		{
+			instruction: "turnRight",
+			value:       90,
+		},
+		{
+			instruction: "turnRight",
+			value:       90,
+		},
+		{
+			instruction: "turnRight",
+			value:       90,
+		},
+	}
 }
 
 func getNewDirection(currenNode []int, nextNode []int) direction {

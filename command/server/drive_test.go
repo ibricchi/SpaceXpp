@@ -10,6 +10,7 @@ func TestPathToDriveInstructions(t *testing.T) {
 		path                 [][]int
 		tileWidth            int
 		initialDirection     direction
+		traverseMode         traverseMode
 		expectedInstructions []driveInstruction
 	}
 
@@ -29,6 +30,7 @@ func TestPathToDriveInstructions(t *testing.T) {
 			},
 			tileWidth:        10,
 			initialDirection: east,
+			traverseMode:     simple,
 			expectedInstructions: []driveInstruction{
 				{
 					instruction: "turnRight",
@@ -90,6 +92,7 @@ func TestPathToDriveInstructions(t *testing.T) {
 			},
 			tileWidth:        10,
 			initialDirection: west,
+			traverseMode:     simple,
 			expectedInstructions: []driveInstruction{
 				{
 					instruction: "forward",
@@ -129,10 +132,304 @@ func TestPathToDriveInstructions(t *testing.T) {
 				},
 			},
 		},
+		{
+			path: [][]int{
+				{0, 1},
+				{0, 0},
+				{1, 0},
+				{2, 0},
+				{3, 0},
+				{3, 1},
+				{4, 1},
+				{5, 1},
+				{5, 2},
+				{5, 3},
+			},
+			tileWidth:        10,
+			initialDirection: east,
+			traverseMode:     fullDiscovery,
+			expectedInstructions: []driveInstruction{
+				{
+					instruction: "turnRight",
+					value:       180,
+				},
+				{
+					instruction: "forward",
+					value:       10,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnLeft",
+					value:       90,
+				},
+				{
+					instruction: "forward",
+					value:       10,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "forward",
+					value:       10,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "forward",
+					value:       10,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnLeft",
+					value:       90,
+				},
+				{
+					instruction: "forward",
+					value:       10,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "forward",
+					value:       10,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "forward",
+					value:       10,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnLeft",
+					value:       90,
+				},
+				{
+					instruction: "forward",
+					value:       10,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "forward",
+					value:       10,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+			},
+		},
+		{
+			path: [][]int{
+				{0, 1},
+				{0, 0},
+				{1, 0},
+				{2, 0},
+				{2, 1},
+				{3, 1},
+				{4, 1},
+				{4, 2},
+				{4, 3},
+				{4, 4},
+			},
+			tileWidth:        10,
+			initialDirection: east,
+			traverseMode:     destinationDiscovery,
+			expectedInstructions: []driveInstruction{
+				{
+					instruction: "turnRight",
+					value:       180,
+				},
+				{
+					instruction: "forward",
+					value:       10,
+				},
+				{
+					instruction: "turnLeft",
+					value:       90,
+				},
+				{
+					instruction: "forward",
+					value:       20,
+				},
+				{
+					instruction: "turnLeft",
+					value:       90,
+				},
+				{
+					instruction: "forward",
+					value:       10,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "forward",
+					value:       20,
+				},
+				{
+					instruction: "turnLeft",
+					value:       90,
+				},
+				{
+					instruction: "forward",
+					value:       30,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+			},
+		},
 	}
 
 	for _, test := range tests {
-		instructions, err := pathToDriveInstructions(test.path, test.tileWidth, test.initialDirection)
+		instructions, err := pathToDriveInstructions(test.path, test.tileWidth, test.initialDirection, test.traverseMode)
 		if err != nil {
 			t.Errorf("pathToDriveInstructions returned error: %w", err)
 		}
