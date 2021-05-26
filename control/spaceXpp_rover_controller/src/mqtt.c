@@ -1,8 +1,8 @@
 #include "mqtt.h"
 
-extern const DriveEncoding driveEncoding;
-
 static const char *MQTT_tag = "MQTT";
+
+extern QueueHandle_t driveInstructionQueue;
 
 void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
@@ -16,10 +16,8 @@ void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(MQTT_tag, "MQTT_EVENT_CONNECTED");
 
-        msg_id = esp_mqtt_client_subscribe(client, "/drive/distance", 0);
-        ESP_LOGI(MQTT_tag, "sent subscribe successful, msg_id=%d", msg_id);
-        msg_id = esp_mqtt_client_subscribe(client, "/drive/angle", 0);
-        ESP_LOGI(MQTT_tag, "sent subscribe successful, msg_id=%d", msg_id);
+        msg_id = esp_mqtt_client_subscribe(client, "/drive/instruction", 2);
+        ESP_LOGI(MQTT_tag, "sent subscribe successful for path '/drive/instruction', msg_id=%d", msg_id);
 
         break;
 
@@ -71,7 +69,7 @@ esp_mqtt_client_handle_t mqtt_init()
     };
     esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
 
-    ESP_ERROR_CHECK(esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, client));
+    ESP_ERROR_CHECK(esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL));
     ESP_ERROR_CHECK(esp_mqtt_client_start(client));
 
     return client;
@@ -83,10 +81,9 @@ void handle_mqtt_event_data(esp_mqtt_event_handle_t event) {
     char data[32];
     sprintf(data, "%.*s", event->data_len, event->data);
 
-    if (!strcmp(topic, "/drive/distance")) {
-        send_drive_uart_data(driveEncoding.forward, data);
-    } else if (!strcmp(topic, "/drive/angle")) {
-        send_drive_uart_data(driveEncoding.turn, data);
+    if (!strcmp(topic, "/drive/instruction")) {
+        // Block for 10 ticks if queue is full
+        xQueueSend(driveInstructionQueue, (void*)data, (TickType_t)10);
     } else {
         ESP_LOGE(MQTT_tag, "MQTT_EVENT_DATA: Unknown topic: %s", topic);
     }
@@ -100,11 +97,17 @@ void mqtt_task(void *arg)
     int counter = 0;
     int msg_id;
     while (1) {
-        char data[20];
-        sprintf(data, "Counter is %d", counter);
+        char statusData[20];
 
-        msg_id = esp_mqtt_client_publish(client, "/test/status", data, 0, 0, 0);
-        ESP_LOGI(MQTT_tag, "sent publish successful, msg_id=%d, data=%s", msg_id, data);
+        sprintf(statusData, "Counter is %d", counter);
+        msg_id = esp_mqtt_client_publish(client, "/test/status", statusData, 0, 0, 0); // qos of 0 is enough for status
+        ESP_LOGI(MQTT_tag, "sent publish successful, msg_id=%d, data=%s", msg_id, statusData);
+
+        // Testing
+        char driveData[32];
+        sprintf(driveData, "F:%d", counter);
+        msg_id = esp_mqtt_client_publish(client, "/drive/instruction", driveData, 0, 2, 0); // want qos of 2 for important drive data
+        ESP_LOGI(MQTT_tag, "sent publish successful, msg_id=%d, data=%s", msg_id, driveData);
 
         ++counter;
 

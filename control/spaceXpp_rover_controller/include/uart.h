@@ -4,6 +4,8 @@
 #include "driver/uart.h"
 #include "driver/gpio.h"
 
+#include "drive.h"
+
 #ifndef UART_H
 #define UART_H
 
@@ -25,12 +27,6 @@
 // #define VISION_TXD_PIN ???
 // #define VISION_RXD_PIN ???
 // #define DRIVE_BUFFER_SIZE (???)
-
-// Data encodings
-typedef struct DriveEncoding{
-    const char* forward;
-    const char* turn;
-} DriveEncoding;
 
 // Full-duplex
 void drive_uart_init();
