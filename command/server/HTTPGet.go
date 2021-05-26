@@ -11,9 +11,10 @@ type staticTestData struct {
 }
 
 type mAp struct {
-	Info string `json:"info"`
-	Cols int    `json:"cols"`
-	Rows int    `json:"rows"`
+	Info   string `json:"info"`
+	Cols   int    `json:"cols"`
+	Rows   int    `json:"rows"`
+	Layout []int  `json:"layout"`
 }
 
 func (h *HttpServer) connect(w http.ResponseWriter, req *http.Request) {
@@ -65,11 +66,7 @@ func (h *HttpServer) getMap(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	data := mAp{
-		Info: "map",
-		Cols: 12,
-		Rows: 12,
-	}
+	data := reciveMap()
 	if err := json.NewEncoder(w).Encode(data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
