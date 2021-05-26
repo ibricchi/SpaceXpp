@@ -4,11 +4,12 @@ module SXPP_RGB_TO_HSV(
     h,s,v
 );
 
-input logic[31:0] r,g,b;
+input logic[7:0] r,g,b;
 
-output logic[31:0] h,s,v;
+output logic[8:0] h;
+output logic[6:0] s,v;
 
-logic[31:0] max, min, dc;
+logic[7:0] max, min, dc;
 logic[31:0] h_diff, h_d_a, h_div, h_d_s, h_sum, h_s_a, h_mult, h_m_s;
 
 always_comb begin
@@ -41,6 +42,15 @@ always_comb begin
 
     if(dc == 0) begin
         h = 0;
+        // to prevent latches
+        h_diff = 0;
+        h_d_a = 0;
+        h_div = 0;
+        h_d_s = 0;
+        h_sum = 0;
+        h_s_a = 0;
+        h_mult = 0;
+        h_m_s = 0;
     end
     else begin
         $display("rgb: %d, %d, %d", r, g, b);
@@ -131,4 +141,3 @@ always_comb begin
 end
 
 endmodule
-

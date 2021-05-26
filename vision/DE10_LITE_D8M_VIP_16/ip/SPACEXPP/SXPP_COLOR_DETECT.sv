@@ -1,28 +1,49 @@
 module SXPP_COLOR_DETECT(
-	input clk,
-	input reset_n,
+	clk,
+	reset_n,
 	
-	input[7:0] r,
-    input[7:0] g,
-    input[7:0] b,
+	r,g, b,
 	
-	output is_red,
-    output is_blue,
-    output is_green
+	is_red,
+	is_yellow,
+    is_green,
+    is_blue,
+    is_pink
 );
 
-parameter max_dist = 40000;
+input logic clk, reset_n;
+input logic [7:0] r, g, b;
 
-logic [31:0] red_dist, green_dist, blue_dist;
+output logic is_red, is_yellow, is_green, is_blue, is_pink;
+
+logic[8:0] h;
+logic[6:0] s,v;
+
+SXPP_RGB_TO_HSV(r,g,b,h,s,v);
 
 always_comb begin
-    red_dist =   (r - 255)*(r-255) + g*g + b*b;
-    green_dist = (g - 255)*(g-255) + b*b + r*r;
-    blue_dist =  (b - 255)*(b-255) + r*r + g*g;
-    
-    is_red   = red_dist < max_dist;
-    is_green = green_dist < max_dist;
-    is_blue  = blue_dist < max_dist;
+    is_red = 0;
+    is_yellow = 0;
+    is_green = 0;
+    is_blue = 0;
+    is_pink = 0;
+    if(s+v>85) begin
+        if(330 <= h | h <= 35) begin
+            is_red = 1;
+        end
+        if(30 <= h & h <= 70) begin
+            is_yellow = 1;
+        end
+        if(65 <= h & h <= 160) begin
+            is_green = 1;
+        end
+        if(200 <= h & h <= 260) begin
+            is_blue = 1;
+        end
+        if(250 <= h & h <= 350) begin
+            is_pink = 1;
+        end
+    end
 end
 
 endmodule

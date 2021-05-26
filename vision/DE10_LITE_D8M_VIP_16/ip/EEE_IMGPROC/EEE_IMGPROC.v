@@ -81,34 +81,41 @@ wire         sop, eop, in_valid, out_ready;
 ////////////////////////////////////////////////////////////////////////
 
 // debug to get max x and max y
-reg [10:0] max_screen;
+reg [10:0] max_x_screen, max_y_screen;
 always @(*) begin
     if(!reset_n) begin
-        max_screen <= 0;
+        max_x_screen <= 0;
+        max_y_screen <= 0;
     end
-    else if(x > max_screen) begin
-        max_screen <= x;
+    else begin
+        if(y > max_y_screen) begin
+            max_y_screen <= y;
+        end
+        if(x > max_x_screen) begin
+            max_x_screen <= x;
+        end
     end
 end
-assign led = max_screen[10:1];
+assign led = sw[9]?max_y_screen[9:0]:max_x_screen[9:0];
 
 // setup color detector vairables
 wire [3:0] cd_mode;
 wire bd_is_valid_color;
-wire cd_is_red, cd_is_blue, cd_is_green;
+wire [4:0] bd_color_high;
 SXPP_COLOR_DETECT cd1 (
     clk,
     reset_n,
     
     red, green, blue,
     
-    cd_is_red, cd_is_blue, cd_is_green
+    bd_color_high[0], //red
+    bd_color_high[1], //yellow
+    bd_color_high[2], //green
+    bd_color_high[3], //blue
+    bd_color_high[4]  //pink
 );
-assign cd_mode = sw[2:1];
-assign bd_is_valid_color = (cd_mode == 0) ? cd_is_red :
-                                    (cd_mode == 1) ? cd_is_blue :
-                                    (cd_mode == 2) ? cd_is_green :
-                                    0;
+assign cd_mode = sw[3:1];
+assign bd_is_valid_color = bd_color_high[1<<(cd_mode-1)];
 
 // setup blob detector params
 parameter screen_w = 700, screen_h = 600;
