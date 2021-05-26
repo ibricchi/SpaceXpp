@@ -33,6 +33,8 @@ void energy_uart_init()
 
 void drive_uart_task(void *arg)
 {
+    static bool driveIsReady = false;
+
     uint8_t* rx_data = (uint8_t*) malloc(DRIVE_BUFFER_SIZE+1);
     char* queue_data = (char*) malloc(32*8);
 
@@ -41,10 +43,15 @@ void drive_uart_task(void *arg)
         if (rxBytes > 0) {
             rx_data[rxBytes] = 0; // End of received string
             printf("UART data from drive: %s\n", (char*)rx_data);
+
+            char quickInstruction = rx_data[0];
+            if (quickInstruction == 'R') { // Drive is ready for next instruction
+                driveIsReady = true;
+            }
         }
 
-        // Don't block if queue is empty
-        if (xQueueReceive(driveInstructionQueue, queue_data, (TickType_t)0)) {
+        // Don't block if queue is empty, only send next instruction if drive is ready
+        if (driveIsReady && xQueueReceive(driveInstructionQueue, queue_data, (TickType_t)0)) {
             // Decode drive instruction data
             char* instruction = strtok(queue_data, DRIVE_INSTRUCTION_DELIMITER);
             char* value = strtok(NULL, DRIVE_INSTRUCTION_DELIMITER);
@@ -62,6 +69,7 @@ void drive_uart_task(void *arg)
 
             // Send instruction to drive
             send_drive_uart_data(encodedInstruction, value);
+            driveIsReady = false;
         }
 
         vTaskDelay(1000 / portTICK_PERIOD_MS);
