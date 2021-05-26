@@ -72,3 +72,24 @@ func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
 	h.mqtt.publish("/drive/angle", strconv.Itoa(t), 0)
 
 }
+
+func (h *HttpServer) targetIndex(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	defer r.Body.Close()
+
+	var t int
+	if err := decoder.Decode(&t); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+
+	// Check for correct format
+
+	if err := h.db.insertData(true, t); err != nil {
+		http.Error(w, "Error: Failed to insert data in DB", http.StatusInternalServerError)
+	}
+
+	w.WriteHeader(http.StatusOK)
+
+	fmt.Println("Target Index: ", t)
+
+}

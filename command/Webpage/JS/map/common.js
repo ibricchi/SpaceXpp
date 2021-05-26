@@ -56,6 +56,8 @@ Keyboard._onKeyDown = function (event) {
     if (keyCode in this._keys) {
         event.preventDefault();
         this._keys[keyCode] = true;
+       // this._keys[keyCode] = false;
+
     }
 };
 
@@ -73,6 +75,10 @@ Keyboard.isDown = function (keyCode) {
     }
     return this._keys[keyCode];
 };
+
+Keyboard.resetKeys = function(keyCode) {
+    this._keys[keyCode] = false;
+}
 
 //
 // Game object

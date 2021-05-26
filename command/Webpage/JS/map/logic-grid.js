@@ -6,9 +6,9 @@ var map = {
         3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
         3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
         3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+        3, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 3,
         3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
-        3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
-        3, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 3,
+        3, 1, 1, 1, 1, 0, 2, 1, 1, 1, 1, 3,
         3, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 3,
         3, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 3,
         3, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 3,
@@ -111,12 +111,12 @@ function Hero(map, x, y) {
     this.image = Loader.getImage('hero');
 }
 
-Hero.SPEED = 256; // pixels per second
+Hero.SPEED = 1; // pixels per second
 
 Hero.prototype.move = function (delta, dirx, diry) {
     // move hero
-    this.x += dirx * Hero.SPEED * delta;
-    this.y += diry * Hero.SPEED * delta;
+    this.x += dirx * 64;
+    this.y += diry * 64;
 
     // check if we walked into a non-walkable tile
     this._collide(dirx, diry);
@@ -164,9 +164,11 @@ Hero.prototype._collide = function (dirx, diry) {
 
 };
 
-Hero.prototype.select = function(dirx) {
-    if (dirx > 0) {
-        console.log(Math.floor(this.y/64))
+Hero.prototype.select = function(entr) {
+    if (entr > 0) {
+       indx = Math.floor(this.x/64) + (Math.floor(this.y/64) * map.cols );
+       console.log(indx);
+       sendTargetIndex(indx);
     }
 }
 
@@ -183,7 +185,7 @@ Game.init = function () {
         [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN, Keyboard.ENTER]);
     this.tileAtlas = Loader.getImage('tiles');
 
-    this.hero = new Hero(map, 160, 160);
+    this.hero = new Hero(map, 352, 352);
     this.camera = new Camera(map, 512, 512);
     this.camera.follow(this.hero);
 };
@@ -193,11 +195,11 @@ Game.update = function (delta) {
     var dirx = 0;
     var diry = 0;
     var entr = 0;
-    if (Keyboard.isDown(Keyboard.LEFT)) { dirx = -1; }
-    else if (Keyboard.isDown(Keyboard.RIGHT)) { dirx = 1; }
-    else if (Keyboard.isDown(Keyboard.UP)) { diry = -1; }
-    else if (Keyboard.isDown(Keyboard.DOWN)) { diry = 1; }
-    else if (Keyboard.isDown(Keyboard.ENTER)) { entr = 1;}
+    if (Keyboard.isDown(Keyboard.LEFT)) {Keyboard.resetKeys(Keyboard.LEFT); dirx = -1;  }
+    else if (Keyboard.isDown(Keyboard.RIGHT)) {Keyboard.resetKeys(Keyboard.RIGHT); dirx = 1;  }
+    else if (Keyboard.isDown(Keyboard.UP)) {Keyboard.resetKeys(Keyboard.UP); diry = -1;  }
+    else if (Keyboard.isDown(Keyboard.DOWN)) {Keyboard.resetKeys(Keyboard.DOWN); diry = 1;  }
+    else if (Keyboard.isDown(Keyboard.ENTER)) {Keyboard.resetKeys(Keyboard.ENTER); entr = 1; }
     this.hero.move(delta, dirx, diry);
     this.hero.select(entr);
     this.camera.update();

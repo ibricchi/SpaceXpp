@@ -83,3 +83,20 @@ function speedSend(){
 
 }
 
+
+
+function sendTargetIndex(indx){
+    
+    val = parseInt(indx)
+    
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(val)
+    };
+
+    fetch(serverIP + "/map/targetIndex", options);
+
+}
