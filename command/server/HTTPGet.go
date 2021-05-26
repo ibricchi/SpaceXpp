@@ -12,8 +12,8 @@ type staticTestData struct {
 
 type mAp struct {
 	Info string `json:"info"`
-	cols int    `json:"data"`
-	rows int    `json:"data"`
+	cols int    `json:"cols"`
+	rows int    `json:"rows"`
 }
 
 func (h *HttpServer) connect(w http.ResponseWriter, req *http.Request) {

@@ -7,6 +7,8 @@ driveButton.addEventListener('click', drive , false);
 document.getElementById("server").innerHTML = "loading"
 document.getElementById("rover").innerHTML = "loading"
 
+console.log("getting map:");
+getMap()
 
 setInterval(function(){
     status();

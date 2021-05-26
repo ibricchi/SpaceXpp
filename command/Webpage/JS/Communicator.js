@@ -56,7 +56,7 @@ function getMap() {
         .then(request => request.json())
         .then(data => {
             if(data != null){
-                console.log("cols: ", data.cols)
+                console.log("cols: ", data)
             }
         })
 }
