@@ -194,7 +194,7 @@ cursor.prototype.select = function(entr) {
 Game.load = function () {
     return [
         Loader.loadImage('tiles', 'assets/tiles.png'),
-        Loader.loadImage('cursor', 'assets/character.png')
+        Loader.loadImage('cursor', 'assets/cursor.png')
     ];
 };
 
@@ -280,14 +280,16 @@ Game.render = function () {
     // draw map background layer
     this._drawLayer(0);
 
+    // draw map top layer
+    this._drawLayer(1);
+
     // draw curser
     this.ctx.drawImage(
         this.cursor.image,
         this.cursor.screenX - this.cursor.width / 2,
         this.cursor.screenY - this.cursor.height / 2);
 
-    // draw map top layer
-    this._drawLayer(1);
+  
 
     this._drawGrid();
 };

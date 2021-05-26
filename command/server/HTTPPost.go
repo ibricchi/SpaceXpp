@@ -87,14 +87,10 @@ func (h *HttpServer) targetCoords(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
-	// Check for correct format
-
-	//if err := h.db.insertData(true, targetCoords); err != nil {
-	//	http.Error(w, "Error: Failed to insert data in DB", http.StatusInternalServerError)
-	//}
-
 	w.WriteHeader(http.StatusOK)
 
 	fmt.Println("Target Coordinates: ", targetCoords.X, targetCoords.Y)
+
+	// TODO: add optimum path function here
 
 }

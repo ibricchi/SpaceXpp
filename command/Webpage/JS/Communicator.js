@@ -71,7 +71,7 @@ function updateRover(){
         .then(data => {
             if(data != null){
                 console.log("Updating rover location");
-                map.layers[1][data.indx] = 3;
+                map.layers[1][data.indx] = 4;
             }
         })
 }
