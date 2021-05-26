@@ -28,14 +28,14 @@ func OpenHttpServer(ctx context.Context, logger *zap.Logger, router *chi.Mux, db
 	return h
 }
 
-func (h *HttpServer) Serve(ctx context.Context, port string) error {
+func (h *HttpServer) Serve(ctx context.Context, port string, certFileName string, keyFileName string) error {
 	if err := h.routes(ctx); err != nil {
 		return fmt.Errorf("server: http_server: routes failed: %w", err)
 	}
 
 	portStr := ":" + port
 
-	if err := http.ListenAndServe(portStr, h.router); err != nil {
+	if err := http.ListenAndServeTLS(portStr, certFileName, keyFileName, h.router); err != nil {
 		return fmt.Errorf("server: http_server: http.ListenAndServe failed: %w", err)
 	}
 	return nil
