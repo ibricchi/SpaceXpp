@@ -2,7 +2,7 @@
 
 const driveButton = document.getElementById("drive");
 
-driveButton.addEventListener('click', getMap , false);
+driveButton.addEventListener('click', drive , false);
 
 document.getElementById("server").innerHTML = "loading"
 document.getElementById("rover").innerHTML = "loading"

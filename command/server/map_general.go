@@ -4,7 +4,7 @@ func getMap() mAp {
 
 	data := mAp{
 		Info: "map",
-		Cols: 8,
+		Cols: 12,
 		Rows: 12,
 		Layout: []int{
 			3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
