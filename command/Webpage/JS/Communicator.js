@@ -128,9 +128,9 @@ function speedSend(){
 function sendTargetCoords(x, y){
     
    var coords = {
-        x: x,
+        x: x, 
         y: y,
-    }
+    };
     
     const options = {
         method: 'POST',
@@ -140,6 +140,6 @@ function sendTargetCoords(x, y){
         body: JSON.stringify(coords)
     };
 
-    fetch(serverIP + "/map/targetIndex", options);
+    fetch(serverIP + "/map/targetCoords", options);
 
 }

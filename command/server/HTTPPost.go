@@ -8,8 +8,8 @@ import (
 )
 
 type coordinates struct {
-	x int
-	y int
+	X int `json:"x"`
+	Y int `json:"y"`
 }
 
 func (h *HttpServer) speed(w http.ResponseWriter, r *http.Request) {
@@ -95,6 +95,6 @@ func (h *HttpServer) targetCoords(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 
-	fmt.Println("Target Coordinates: ", targetCoords.x, targetCoords.y)
+	fmt.Println("Target Coordinates: ", targetCoords.X, targetCoords.Y)
 
 }
