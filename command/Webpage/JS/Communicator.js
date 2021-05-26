@@ -125,16 +125,19 @@ function speedSend(){
 
 
 
-function sendTargetIndex(indx){
+function sendTargetCoords(x, y){
     
-    val = parseInt(indx)
+   var coords = {
+        x: x,
+        y: y,
+    }
     
     const options = {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(val)
+        body: JSON.stringify(coords)
     };
 
     fetch(serverIP + "/map/targetIndex", options);

@@ -184,9 +184,9 @@ cursor.prototype._collide = function (dirx, diry) {
 
 cursor.prototype.select = function(entr) {
     if (entr > 0) {
-       indx = Math.floor(this.x/64) + (Math.floor(this.y/64) * map.cols );
-       console.log(indx);
-       sendTargetIndex(indx);
+       //indx = Math.floor(this.x/64) + (Math.floor(this.y/64) * map.cols );
+       //console.log(indx);
+       sendTargetCoords(floor(this.x/64), Math.floor(this.y/64));
     }
 }
 
