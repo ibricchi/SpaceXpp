@@ -49,6 +49,31 @@ function status(){
 }
 
 
+
+function getMap() {
+
+    fetch(serverIP + '/map/getMap')
+        .then(request => request.json())
+        .then(data => {
+            if(data != null){
+                console.log("cols: ", data.cols)
+            }
+        })
+}
+
+function check(){
+
+    fetch(serverIP + '/check')
+        .then(request => request.json())
+        .then(data => {
+            if(data != null){
+               // decoded = JSON.parse(data);
+                console.log(data);
+            }
+        })    
+}
+
+
 function sendData(location, address){
     webLocation = document.getElementById(location);
     val = parseInt(webLocation.value)

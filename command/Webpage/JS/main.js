@@ -7,6 +7,7 @@ driveButton.addEventListener('click', drive , false);
 document.getElementById("server").innerHTML = "loading"
 document.getElementById("rover").innerHTML = "loading"
 
+
 setInterval(function(){
     status();
 }, 3000);
