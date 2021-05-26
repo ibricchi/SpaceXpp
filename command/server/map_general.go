@@ -4,7 +4,7 @@ func reciveMap() mAp {
 
 	data := mAp{
 		Info: "map",
-		Cols: 12,
+		Cols: 8,
 		Rows: 12,
 		Layout: []int{
 			3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,

@@ -2,13 +2,12 @@
 
 const driveButton = document.getElementById("drive");
 
-driveButton.addEventListener('click', drive , false);
+driveButton.addEventListener('click', getMap , false);
 
 document.getElementById("server").innerHTML = "loading"
 document.getElementById("rover").innerHTML = "loading"
 
 console.log("getting map:");
-getMap()
 
 setInterval(function(){
     status();
@@ -26,5 +25,7 @@ function drive(){
     sendData('angle', '/drive/angle');
     sendData('distance', '/drive/distance');
 }
+
+
 
 
