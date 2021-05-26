@@ -7,6 +7,11 @@ import (
 	"strconv"
 )
 
+type coordinates struct {
+	X int `json:"x"`
+	Y int `json:"y"`
+}
+
 func (h *HttpServer) speed(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	defer r.Body.Close()
@@ -70,5 +75,22 @@ func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
 	// Send data to hardware
 
 	h.mqtt.publish("/drive/angle", strconv.Itoa(t), 0)
+
+}
+
+func (h *HttpServer) targetCoords(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	defer r.Body.Close()
+
+	var targetCoords coordinates
+	if err := decoder.Decode(&targetCoords); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+
+	w.WriteHeader(http.StatusOK)
+
+	fmt.Println("Target Coordinates: ", targetCoords.X, targetCoords.Y)
+
+	// TODO: add optimum path function here
 
 }

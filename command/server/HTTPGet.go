@@ -10,6 +10,18 @@ type staticTestData struct {
 	Data []int  `json:"data"`
 }
 
+type mAp struct {
+	Info   string `json:"info"`
+	Cols   int    `json:"cols"`
+	Rows   int    `json:"rows"`
+	Layout []int  `json:"layout"`
+}
+
+type rover struct {
+	Index    int `json:"indx"`
+	Rotation int `json:"rotation"`
+}
+
 func (h *HttpServer) connect(w http.ResponseWriter, req *http.Request) {
 	status := 1
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -48,6 +60,30 @@ func check(w http.ResponseWriter, req *http.Request) {
 			1, 2, 3, 4, 5,
 		},
 	}
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *HttpServer) updateMap(w http.ResponseWriter, req *http.Request) {
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	data := getMap()
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *HttpServer) updateRover(w http.ResponseWriter, req *http.Request) {
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	data := getRover()
 	if err := json.NewEncoder(w).Encode(data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
