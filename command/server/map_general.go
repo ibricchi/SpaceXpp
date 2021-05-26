@@ -1,6 +1,6 @@
 package server
 
-func reciveMap() mAp {
+func getMap() mAp {
 
 	data := mAp{
 		Info: "map",

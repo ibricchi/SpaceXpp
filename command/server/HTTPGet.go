@@ -62,11 +62,11 @@ func check(w http.ResponseWriter, req *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *HttpServer) getMap(w http.ResponseWriter, req *http.Request) {
+func (h *HttpServer) updateMap(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	data := reciveMap()
+	data := getMap()
 	if err := json.NewEncoder(w).Encode(data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

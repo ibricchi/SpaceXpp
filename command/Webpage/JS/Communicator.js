@@ -50,14 +50,16 @@ function status(){
 
 
 
-function getMap() {
+function updateMap() {
 
     fetch(serverIP + '/map/getMap')
         .then(request => request.json())
         .then(data => {
             if(data != null){
+                console.log("changing layout");
                 map.cols = data.cols;
-                console.log("cols changed to 8");
+                map.rows = data.rows
+                map.layers[0] = data.layout;
 
             }
         })

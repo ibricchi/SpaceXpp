@@ -11,6 +11,7 @@ console.log("getting map:");
 
 setInterval(function(){
     status();
+    updateMap();
 }, 3000);
 
 
