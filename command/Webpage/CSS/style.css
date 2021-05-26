@@ -60,3 +60,12 @@ input{
   padding-right: 1em;
   margin: 0 auto;
 }
+
+#feedback{
+  background-color: #353131;
+  border: 2px solid #4CAF50;
+  padding: 50px;
+  color:aqua; 
+
+
+}

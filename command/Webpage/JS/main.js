@@ -1,13 +1,13 @@
 
 
 const driveButton = document.getElementById("drive");
+const feedback = document.getElementById("feedback")
 
 driveButton.addEventListener('click', drive , false);
 
 document.getElementById("server").innerHTML = "loading"
 document.getElementById("rover").innerHTML = "loading"
-
-console.log("getting map:");
+//feedback.innerHTML="Map is loading"
 
 setInterval(function(){
     status();

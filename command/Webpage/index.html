@@ -31,19 +31,25 @@
             </div>
 
             
-            <h2> Drive </h2>
+            <h2> Map </h2>
+            <h3> Controlls</h3>
+            <p> Arrow Keys: Control cursor</p>
+            <p> Enter Key: Sends rover to location of cursor</p>
+
+            <div class="main-wrapper">
+                <canvas id="demo" width="512" height="512"></canvas>
+            </div>
+
+            <h3> Feedback </h3>
+            <div id="feedback"> </div>
+
+            <h2> Manual Drive </h2>
             <div class="status">
                 <label for="distace">Distance:</label><br>
                 <input type="number" id="distance" name="Distance" value="0"><br>
                 <label for="angle">Angle:</label><br>
                 <input type="number" id="angle" name="Angle" value="0"><br>
                 <button type="button" id="drive" > Submit </button>
-            </div>
-
-            <h2> Map </h2>
-
-            <div class="main-wrapper">
-                <canvas id="demo" width="512" height="512"></canvas>
             </div>
             
     </div>
