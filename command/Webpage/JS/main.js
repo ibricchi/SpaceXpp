@@ -12,6 +12,7 @@ console.log("getting map:");
 setInterval(function(){
     status();
     updateMap();
+    updateRover();
 }, 3000);
 
 

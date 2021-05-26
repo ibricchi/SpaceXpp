@@ -63,8 +63,17 @@ function updateMap() {
 
             }
         })
+}
 
-
+function updateRover(){
+    fetch(serverIP + '/map/getRover')
+        .then(request => request.json())
+        .then(data => {
+            if(data != null){
+                console.log("Updating rover location");
+                map.layers[1][data.indx] = 3;
+            }
+        })
 }
 
 function check(){

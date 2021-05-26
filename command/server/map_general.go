@@ -24,3 +24,11 @@ func getMap() mAp {
 	return data
 
 }
+
+func getRover() rover {
+	data := rover{
+		Index:    38,
+		Rotation: 0,
+	}
+	return data
+}

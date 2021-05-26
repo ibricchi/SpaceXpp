@@ -105,20 +105,34 @@ Camera.prototype.update = function () {
     }
 };
 
-function Hero(map, x, y) {
+function cursor(map, x, y) {
     this.map = map;
     this.x = x;
     this.y = y;
     this.width = map.tsize;
     this.height = map.tsize;
 
-    this.image = Loader.getImage('hero');
+    this.image = Loader.getImage('cursor');
 }
 
-Hero.SPEED = 1; // pixels per second
+function rover(map, x, y) {
+    this.map = map;
+    this.x = x;
+    this.y = y;
+    this.width = map.tsize;
+    this.height = map.tsize;
 
-Hero.prototype.move = function (delta, dirx, diry) {
-    // move hero
+    this.image = Loader.getImage('cursor');
+}
+
+rover._drawRover = function(indx){
+    map.layers[1][indx] = 3;
+}
+
+cursor.SPEED = 1; // pixels per second
+
+cursor.prototype.move = function (delta, dirx, diry) {
+    // move cursor
     this.x += dirx * 64;
     this.y += diry * 64;
 
@@ -132,7 +146,7 @@ Hero.prototype.move = function (delta, dirx, diry) {
     this.y = Math.max(0, Math.min(this.y, maxY));
 };
 
-Hero.prototype._collide = function (dirx, diry) {
+cursor.prototype._collide = function (dirx, diry) {
     var row, col;
     // -1 in right and bottom is because image ranges from 0..63
     // and not up to 64
@@ -168,7 +182,7 @@ Hero.prototype._collide = function (dirx, diry) {
 
 };
 
-Hero.prototype.select = function(entr) {
+cursor.prototype.select = function(entr) {
     if (entr > 0) {
        indx = Math.floor(this.x/64) + (Math.floor(this.y/64) * map.cols );
        console.log(indx);
@@ -180,7 +194,7 @@ Hero.prototype.select = function(entr) {
 Game.load = function () {
     return [
         Loader.loadImage('tiles', 'assets/tiles.png'),
-        Loader.loadImage('hero', 'assets/character.png')
+        Loader.loadImage('cursor', 'assets/character.png')
     ];
 };
 
@@ -189,13 +203,14 @@ Game.init = function () {
         [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN, Keyboard.ENTER]);
     this.tileAtlas = Loader.getImage('tiles');
 
-    this.hero = new Hero(map, 352, 352);
+    this.cursor = new cursor(map, 352, 352);
+    this.rover = new rover(map, 0, 0);
     this.camera = new Camera(map, 512, 512);
-    this.camera.follow(this.hero);
+    this.camera.follow(this.cursor);
 };
 
 Game.update = function (delta) {
-    // handle hero movement with arrow keys
+    // handle cursor movement with arrow keys
     var dirx = 0;
     var diry = 0;
     var entr = 0;
@@ -204,8 +219,8 @@ Game.update = function (delta) {
     else if (Keyboard.isDown(Keyboard.UP)) {Keyboard.resetKeys(Keyboard.UP); diry = -1;  }
     else if (Keyboard.isDown(Keyboard.DOWN)) {Keyboard.resetKeys(Keyboard.DOWN); diry = 1;  }
     else if (Keyboard.isDown(Keyboard.ENTER)) {Keyboard.resetKeys(Keyboard.ENTER); entr = 1; }
-    this.hero.move(delta, dirx, diry);
-    this.hero.select(entr);
+    this.cursor.move(delta, dirx, diry);
+    this.cursor.select(entr);
     this.camera.update();
 };
 
@@ -265,11 +280,11 @@ Game.render = function () {
     // draw map background layer
     this._drawLayer(0);
 
-    // draw main character
+    // draw curser
     this.ctx.drawImage(
-        this.hero.image,
-        this.hero.screenX - this.hero.width / 2,
-        this.hero.screenY - this.hero.height / 2);
+        this.cursor.image,
+        this.cursor.screenX - this.cursor.width / 2,
+        this.cursor.screenY - this.cursor.height / 2);
 
     // draw map top layer
     this._drawLayer(1);
