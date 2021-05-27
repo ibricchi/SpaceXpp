@@ -128,7 +128,7 @@ function speedSend(){
 
 function sendTargetCoords(x, y){
 
-    mode = document.getElementById("mode").value
+    mode = document.getElementById("mode").value;
     
    var coords = {
         x: x, 

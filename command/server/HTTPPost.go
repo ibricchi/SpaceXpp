@@ -91,6 +91,7 @@ func (h *HttpServer) targetCoords(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	fmt.Println("Target Coordinates: ", targetCoords.X, targetCoords.Y)
+	fmt.Println("mode", targetCoords.Mode)
 
 	// TODO: add optimum path function here
 	if err := h.mapAndDrive(targetCoords.X, targetCoords.Y, targetCoords.Mode); err != nil {
