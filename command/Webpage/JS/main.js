@@ -14,7 +14,6 @@ setInterval(function(){
     status();
     updateMap();
     updateRover();
-
 }, 3000);
 
 

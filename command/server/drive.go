@@ -216,3 +216,31 @@ func getTurnInstructionFromAngle(angle int) (string, int, error) {
 		return "", 0, fmt.Errorf("server: drive: invalid turn angle of %v degrees", angle)
 	}
 }
+
+// Converting drive instruction into the coordinates that the rover will end up in
+
+func driveTocoords(driveInstruction driveInstruction, tileWidth int) {
+
+	if driveInstruction.instruction == "forward" {
+		if Rover.Rotation == 0 {
+			Rover.X = Rover.X + (driveInstruction.value / tileWidth)
+		} else if Rover.Rotation == 180 {
+			Rover.X = Rover.X - (driveInstruction.value / tileWidth)
+		} else if Rover.Rotation == 90 {
+			Rover.Y = Rover.Y + (driveInstruction.value / tileWidth)
+		} else if Rover.Rotation == 270 {
+			Rover.Y = Rover.Y - (driveInstruction.value / tileWidth)
+		}
+	} else if driveInstruction.instruction == "turnRight" {
+		Rover.Rotation = (Rover.Rotation + driveInstruction.value) % 360
+	} else if driveInstruction.instruction == "turnLeft" {
+		Rover.Rotation = Abs((Rover.Rotation - driveInstruction.value) % 360)
+	}
+}
+
+func Abs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
+}

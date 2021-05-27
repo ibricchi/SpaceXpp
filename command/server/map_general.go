@@ -2,6 +2,8 @@ package server
 
 import "fmt"
 
+var tileWidth = 1
+
 // Initilising starting map: unknown (1) with boarders (3)
 
 var Map = tileMap{
@@ -44,7 +46,7 @@ func (h *HttpServer) mapAndDrive(destinationCol int, destinationRow int, mode in
 	var direction direction = angle2Direction(Rover.Rotation)
 	var traverseMode traverseMode = value2Mode(mode)
 
-	driveInstruction, err := pathToDriveInstructions(path, 64, direction, traverseMode)
+	driveInstruction, err := pathToDriveInstructions(path, tileWidth, direction, traverseMode)
 
 	if err != nil {
 		return fmt.Errorf("Error: Failed to create drive instructions  %w", err)
@@ -81,4 +83,15 @@ func value2Mode(mode int) traverseMode {
 		return destinationDiscovery
 	}
 	return simple
+}
+
+// Stashes latest instruction recived from rover and updates webpage with previous instruction
+
+var stashedDriveInstruction driveInstruction
+
+func updateMap(driveInstruction driveInstruction) {
+	driveTocoords(stashedDriveInstruction, tileWidth)
+
+	stashedDriveInstruction = driveInstruction
+
 }

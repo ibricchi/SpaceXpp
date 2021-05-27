@@ -65,15 +65,31 @@ function updateMap() {
         })
 }
 
+function getVal(angle){
+    if(angle == 0){
+        return 1;
+    } else if (angle == 90){
+        return 2;
+    } else if (angle == 180){
+        return 3;
+    } else if (angle == 270){
+        return 4;
+    }
+
+}
+
 function updateRover(){
     fetch(serverIP + '/map/getRover')
         .then(request => request.json())
         .then(data => {
             if(data != null){
-                map.layers[1][data.indx] = 4;
+                indx = data.x + (data.y * map.cols );
+                map.layers[1][indx] = getVal(data.rotation);
             }
         })
 }
+
+
 
 function check(){
 

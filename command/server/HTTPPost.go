@@ -77,6 +77,12 @@ func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
 
 	h.mqtt.publish("/drive/angle", strconv.Itoa(t), 0)
 
+	var a driveInstruction
+	a.instruction = "forward"
+	a.value = 3
+	fmt.Println("drive instruction")
+	updateMap(a)
+
 }
 
 func (h *HttpServer) targetCoords(w http.ResponseWriter, r *http.Request) {
