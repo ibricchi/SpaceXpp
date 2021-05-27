@@ -20,6 +20,9 @@
 
    Measurements:
         1. TODO - Expand once optical flow code is added
+
+   UART:
+        1. TODO - Expand once code is fully added
 */
 
 #include <Wire.h>
@@ -130,6 +133,11 @@ float currentInstructionY = 0.0;
 bool currentInstructionCompleted = false;
 bool currentInstructionStarted = false;
 
+// UART constants
+const byte numUARTChars = 40;
+char receivedUARTChars[numUARTChars];
+boolean newUARTDataAvailable = false;
+
 void setup() {
   // Device setup
   SMPSSetup();
@@ -153,12 +161,17 @@ void loop() {
     loopTrigger = 0;              // Reset loop trigger
   }
 
+  // Received and decode current instruction - commented out until instruction buffer is removed
+  //recvUARTWithStartEndMarkers();
+  //processNewUARTData();
+  
+
   // Read the current position of the rover
   opticalFlowRead();
 
-  // Set velocity to the desired value
-  setVelocity(1.0);
-  
+  // Set velocity to the desired value - commented out until velocity is accurately calculated using time
+  // setVelocity(1.0);
+
   // Buffer through the instructions in order they arrive
   if (currentInstruction <= lastInstruction) {
     if (!currentInstructionStarted) {
@@ -179,12 +192,13 @@ void loop() {
   } else {
     stopMoving();
   }
-  
 
   // Output signals for the motors
   digitalWrite(21, DIRRstate);
   digitalWrite(20, DIRLstate);
 }
+
+
 
 /*
   High-level movement control functions
@@ -226,26 +240,27 @@ boolean moveBackwardForDistance(float d) {
   return true;
 }
 
-boolean clockwise90(){
-  float currentHypotenuse = (totalX-currentInstructionX)*(totalX-currentInstructionX) + (totalY-currentInstructionY)*(totalY-currentInstructionY);
-  float desiredHypotenuse = 2*11.5*11.5;    // distna from the center of the rover to the optical flow sensor is 11.5 [cm]
-  if(currentHypotenuse < desiredHypotenuse){
+// Rotates clockwise 90 degrees
+boolean clockwise90() {
+  float currentHypotenuse = (totalX - currentInstructionX) * (totalX - currentInstructionX) + (totalY - currentInstructionY) * (totalY - currentInstructionY);
+  float desiredHypotenuse = 2 * 11.5 * 11.5; // distna from the center of the rover to the optical flow sensor is 11.5 [cm]
+  if (currentHypotenuse < desiredHypotenuse) {
     rotation(0);
     return false;
   }
-  return true;  
+  return true;
 }
 
-boolean anticlockwise90(){
-  float currentHypotenuse = (totalX-currentInstructionX)*(totalX-currentInstructionX) + (totalY-currentInstructionY)*(totalY-currentInstructionY);
-  float desiredHypotenuse = 2*11.5*11.5;    // distna from the center of the rover to the optical flow sensor is 11.5 [cm]
-  if(currentHypotenuse < desiredHypotenuse){
+// Rotates anticlockwise 90 degrees
+boolean anticlockwise90() {
+  float currentHypotenuse = (totalX - currentInstructionX) * (totalX - currentInstructionX) + (totalY - currentInstructionY) * (totalY - currentInstructionY);
+  float desiredHypotenuse = 2 * 11.5 * 11.5; // distna from the center of the rover to the optical flow sensor is 11.5 [cm]
+  if (currentHypotenuse < desiredHypotenuse) {
     rotation(1);
     return false;
   }
-  return true;  
+  return true;
 }
-
 
 // Decides and call the current instruction based on the mapping below
 boolean callCurrentInstruction() {
@@ -266,6 +281,7 @@ boolean callCurrentInstruction() {
       return false;
   }
 }
+
 
 
 /*
@@ -317,9 +333,9 @@ void setVelocity(float velocityReference) {
   currentY = totalY;
   previousTime = currentTime;
   currentTime = millis();
-  float velocityCurrent = (currentY-previousY)/(currentTime-previousTime);
+  float velocityCurrent = (currentY - previousY) / (currentTime - previousTime);
   float velocityError = velocityReference - velocityCurrent;
-  vref += kvp*velocityError;
+  vref += kvp * velocityError;
 }
 
 // Causes the rover to stop moving
@@ -328,6 +344,79 @@ void stopMoving() {
   digitalWrite(9, LOW);
   vref = 0.0;
 }
+
+
+
+/*
+  UART - Reading  the current instruction
+*/
+
+// Receving new instruction from UART
+void recvUARTWithStartEndMarkers() {
+  static boolean recvInProgress = false;
+  static byte idx = 0;
+  const char startMarker = '<';
+  const char endMarker = '>';
+  char received;
+
+  while (Serial.available() && !newUARTDataAvailable) {
+    received = Serial.read();
+
+    if (recvInProgress) {
+      if (received != endMarker) {
+        receivedUARTChars[idx++] = received;
+
+        if (idx >= numUARTChars) {
+          idx = numUARTChars - 1;
+          Serial.print("ERROR: UART character buffer not large enough\n");
+        }
+      } else {
+        receivedUARTChars[idx] = '\0'; // terminate the string
+        recvInProgress = false;
+        idx = 0;
+        newUARTDataAvailable = true;
+      }
+    } else if (received == startMarker) {
+      recvInProgress = true;
+    }
+  }
+}
+
+// Decoding the current instruction alongside its paramater
+void processNewUARTData() {
+  if (newUARTDataAvailable) {
+    // Read and pop instruction key
+    const char instructionKey = receivedUARTChars[strlen(receivedUARTChars) - 1];
+    receivedUARTChars[strlen(receivedUARTChars) - 1] = '\0';
+
+    switch (instructionKey) {
+      case 'F':
+        Serial.print("FORWARD VALUE: ");
+        Serial.print(receivedUARTChars);
+        break;
+      case 'R':
+        Serial.print("TURN RIGHT VALUE: ");
+        Serial.print(receivedUARTChars);
+        break;
+      case 'L':
+        Serial.print("TURN LEFT VALUE: ");
+        Serial.print(receivedUARTChars);
+        break;
+      default:
+        Serial.print("INVALID INSTRUCTION KEY\n");
+        break;
+    }
+
+    newUARTDataAvailable = false;
+  }
+}
+
+// Ready for next instruction signal => should be send after finished with current drive instruction  
+void nextInstructionReady(){
+  Serial.print("R"); 
+}
+
+
 
 /*
   Optical flow setup - NO NEED TO EDIT FURTHER FOR MARS ROVER
@@ -432,6 +521,7 @@ void mousecam_read_motion(struct MD *p) {
   digitalWrite(PIN_MOUSECAM_CS, HIGH);
   delayMicroseconds(5);
 }
+
 
 
 /*
