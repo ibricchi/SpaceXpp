@@ -57,7 +57,6 @@ function updateMap() {
         .then(request => request.json())
         .then(data => {
             if(data != null){
-                console.log("changing layout");
                 map.cols = data.cols;
                 map.rows = data.rows
                 map.layers[0] = data.layout;
@@ -71,7 +70,6 @@ function updateRover(){
         .then(request => request.json())
         .then(data => {
             if(data != null){
-                console.log("Updating rover location");
                 map.layers[1][data.indx] = 4;
             }
         })
@@ -128,7 +126,8 @@ function speedSend(){
 
 function sendTargetCoords(x, y){
 
-    mode = document.getElementById("mode").value;
+    mode = parseInt(document.getElementById("mode").value);
+    
     
    var coords = {
         x: x, 

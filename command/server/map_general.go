@@ -32,8 +32,6 @@ var Rover = rover{
 
 func (h *HttpServer) mapAndDrive(destinationCol int, destinationRow int, mode int) error {
 
-	fmt.Println("mode:", mode)
-
 	// Getting optimum path
 	path, err := getShortedPathFromStartToDestination(Rover.Y, Rover.Y, destinationRow, destinationCol, Map)
 
@@ -41,7 +39,7 @@ func (h *HttpServer) mapAndDrive(destinationCol int, destinationRow int, mode in
 		return fmt.Errorf("Error: Failed to create path from start to destination  %w", err)
 	}
 
-	fmt.Println("optimum path found")
+	//fmt.Println("optimum path found")
 
 	var direction direction = angle2Direction(Rover.Rotation)
 	var traverseMode traverseMode = value2Mode(mode)
@@ -52,11 +50,11 @@ func (h *HttpServer) mapAndDrive(destinationCol int, destinationRow int, mode in
 		return fmt.Errorf("Error: Failed to create drive instructions  %w", err)
 	}
 
-	fmt.Println("drive instructions created")
+	//fmt.Println("drive instructions created")
 
 	h.mqtt.publishDriveInstructionSequence(driveInstruction)
 
-	fmt.Println("drive instructions printed")
+	//fmt.Println("drive instructions printed")
 
 	return nil
 }
