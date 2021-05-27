@@ -120,18 +120,13 @@ float previousY = 0.0;
 float currentTime = 0.0;
 float previousTime = 0.0;
 
-// All instructions to be executed;
-int instructions[99];
-float data[99];
-int currentInstruction = -1;
-int lastInstruction = -1;
-
 // The current instruction to be executed
-long long currentInstructionTime = 0.0;
-float currentInstructionX = 0.0;
-float currentInstructionY = 0.0;
+int currentInstruction = -1;
 bool currentInstructionCompleted = false;
 bool currentInstructionStarted = false;
+long long currentInstructionTime = 0;
+float currentInstructionX = 0.0;
+float currentInstructionY = 0.0;
 
 // UART constants
 const byte numUARTChars = 40;
@@ -143,14 +138,6 @@ void setup() {
   SMPSSetup();
   opticalFlowSetup();
   driveSetup();
-
-  // Mock instructions
-  instructions[0] = 5;  data[0] = -1;
-  instructions[1] = 4;  data[1] = 5.0;
-  instructions[2] = 3;  data[2] = 10.0;
-  currentInstruction = 0;
-  lastInstruction = 0;
-
 }
 
 void loop() {
@@ -161,11 +148,10 @@ void loop() {
     loopTrigger = 0;              // Reset loop trigger
   }
 
-  // Received and decode current instruction - commented out until instruction buffer is removed
-  //recvUARTWithStartEndMarkers();
-  //processNewUARTData();
+  // Received and decode current instruction
+  recvUARTWithStartEndMarkers();
+  processNewUARTData();
   
-
   // Read the current position of the rover
   opticalFlowRead();
 
@@ -173,7 +159,7 @@ void loop() {
   // setVelocity(1.0);
 
   // Buffer through the instructions in order they arrive
-  if (currentInstruction <= lastInstruction) {
+  if (currentInstruction!=-1){
     if (!currentInstructionStarted) {
       currentInstructionStarted = true;
       currentInstructionCompleted = false;
@@ -185,10 +171,11 @@ void loop() {
       if (!currentInstructionCompleted) {
         currentInstructionCompleted = callCurrentInstruction();
       } else {
-        currentInstruction++;
         currentInstructionStarted = false;
+        currentInstruction = -1;
+        nextInstructionReady();
       }
-    }
+    }  
   } else {
     stopMoving();
   }
@@ -264,15 +251,15 @@ boolean anticlockwise90() {
 
 // Decides and call the current instruction based on the mapping below
 boolean callCurrentInstruction() {
-  switch (instructions[currentInstruction]) {
+  switch (currentInstruction) {
     case 1:
-      return moveForwardForTime(data[currentInstruction]);
+      //return moveForwardForTime(data[currentInstruction]);
     case 2:
-      return moveBackwardForTime(data[currentInstruction]);
+      // return moveBackwardForTime(data[currentInstruction]);
     case 3:
-      return moveForwardForDistance(data[currentInstruction]);
+      return moveForwardForDistance(atof(receivedUARTChars));
     case 4:
-      return moveBackwardForDistance(data[currentInstruction]);
+      // return moveBackwardForDistance(data[currentInstruction]);
     case 5:
       return clockwise90();
     case 6:
@@ -391,16 +378,13 @@ void processNewUARTData() {
 
     switch (instructionKey) {
       case 'F':
-        Serial.print("FORWARD VALUE: ");
-        Serial.print(receivedUARTChars);
+        currentInstruction = 3;     
         break;
       case 'R':
-        Serial.print("TURN RIGHT VALUE: ");
-        Serial.print(receivedUARTChars);
+        currentInstruction = 5;   
         break;
       case 'L':
-        Serial.print("TURN LEFT VALUE: ");
-        Serial.print(receivedUARTChars);
+        currentInstruction = 6;   
         break;
       default:
         Serial.print("INVALID INSTRUCTION KEY\n");
