@@ -3,6 +3,7 @@
 const driveButton = document.getElementById("drive");
 const feedback = document.getElementById("feedback")
 
+
 driveButton.addEventListener('click', drive , false);
 
 document.getElementById("server").innerHTML = "loading"
@@ -13,8 +14,8 @@ setInterval(function(){
     status();
     updateMap();
     updateRover();
-}, 3000);
 
+}, 3000);
 
 
 

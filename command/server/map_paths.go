@@ -88,9 +88,9 @@ func h(currentNode *node, destinationNode *node) int {
 
 func initNodes(tileMap tileMap) [][]*node {
 	nodes := [][]*node{}
-	for row := 0; row < tileMap.rows; row++ {
+	for row := 0; row < tileMap.Rows; row++ {
 		newRow := []*node{}
-		for col := 0; col < tileMap.cols; col++ {
+		for col := 0; col < tileMap.Cols; col++ {
 			val := tileMap.getTile(row, col)
 			newRow = append(newRow, newNode(row, col, val))
 		}

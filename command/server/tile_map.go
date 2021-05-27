@@ -1,11 +1,11 @@
 package server
 
 type tileMap struct {
-	rows  int   // number of rows
-	cols  int   // number of columns
-	tiles []int // matrix stored as slice
+	Rows  int   `json:"rows"`   // number of rows
+	Cols  int   `json:"cols"`   // number of columns
+	Tiles []int `json:"layout"` // matrix stored as slice
 }
 
 func (m *tileMap) getTile(row int, col int) int {
-	return m.tiles[row*m.cols+col]
+	return m.Tiles[row*m.Cols+col]
 }

@@ -8,8 +8,9 @@ import (
 )
 
 type coordinates struct {
-	X int `json:"x"`
-	Y int `json:"y"`
+	X    int `json:"x"`
+	Y    int `json:"y"`
+	Mode int `json:"mode"`
 }
 
 func (h *HttpServer) speed(w http.ResponseWriter, r *http.Request) {
@@ -92,5 +93,7 @@ func (h *HttpServer) targetCoords(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Target Coordinates: ", targetCoords.X, targetCoords.Y)
 
 	// TODO: add optimum path function here
-
+	if err := h.mapAndDrive(targetCoords.X, targetCoords.Y, targetCoords.Mode); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
 }

@@ -1,4 +1,5 @@
-serverIP = "http://18.117.12.54:3000"
+
+serverIP = "https://18.117.12.54:3000"
 
 
 function getData( location, address ){
@@ -126,10 +127,13 @@ function speedSend(){
 
 
 function sendTargetCoords(x, y){
+
+    mode = document.getElementById("mode").value
     
    var coords = {
         x: x, 
         y: y,
+        mode: mode,
     };
     
     const options = {
