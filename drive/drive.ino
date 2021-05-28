@@ -25,8 +25,7 @@
         1. TODO - Expand once code is fully added
 */
 
-#include <Wire.h>
-#include <INA219_WE.h>
+#include "smps.h"
 #include "SPI.h"
 
 // Pin definitions for the optical flow sensor
@@ -71,37 +70,11 @@
 #define ADNS3080_SROM_LOAD             0x60
 #define ADNS3080_PRODUCT_ID_VAL        0x17
 
-
-// Current sensing chip
-INA219_WE ina219;
-
 // Control frequency (integer multiple of switching frequency)
 float Ts = 0.0004;
 
 // Reference voltage - used for controlling the speed of the rover
 float vref = 3.0;
-
-// Duty cycle required to achieve the desired voltage
-float duty_cycle;
-
-// Measurements from the circuit - output voltage and inductor current
-float vout, iL;
-
-// Internal values needed for the PID controller
-float u0v, u1v, delta_uv, e0v, e1v, e2v; // u->output; e->error; 0->this time; 1->last time; 2->last last time
-float u0i, u1i, delta_ui, e0i, e1i, e2i; // Internal values for the current controller
-
-// PID controller constants for voltage and current
-float kpv = 0.05024, kiv = 15.78, kdv = 0;
-float kpi = 0.02512, kii = 39.4, kdi = 0;
-
-// Limits
-float uv_max = 4, uv_min = 0; // Anti-windup limitation
-float ui_max = 1, ui_min = 0; // Anti-windup limitation
-float current_limit = 3.0;    // Buck current limit
-
-// Used for looping to control the SMPS
-unsigned int loopTrigger;
 
 // Signals for controlling the moverment of the rover
 int DIRRstate = HIGH;
@@ -142,47 +115,45 @@ void setup() {
 
 void loop() {
   //Used for controlling the duty cycle of the SMPS to achieve the required reference voltage, which, in turn, controls the speed of the rover
-  if (loopTrigger) {
-    sampling();                   // Sample all the measurements
-    SMPSControl();                // Control function for duty ref of SMPS
-    loopTrigger = 0;              // Reset loop trigger
-  }
+  SMPSControl(vref, Ts);
 
   // Received and decode current instruction
   recvUARTWithStartEndMarkers();
   processNewUARTData();
-  
+
   // Read the current position of the rover
   opticalFlowRead();
 
   // Set velocity to the desired value - commented out until velocity is accurately calculated using time
   // setVelocity(1.0);
 
-  // Buffer through the instructions in order they arrive
-  if (currentInstruction!=-1){
-    if (!currentInstructionStarted) {
-      currentInstructionStarted = true;
-      currentInstructionCompleted = false;
-      currentInstructionTime = millis();
-      currentInstructionX = totalX;
-      currentInstructionY = totalY;
-    } else {
-      // This has room for improving efficiency; could cut down 2(?) cycles
-      if (!currentInstructionCompleted) {
-        currentInstructionCompleted = callCurrentInstruction();
+  /*
+    // Buffer through the instructions in order they arrive
+    if (currentInstruction!=-1){
+      if (!currentInstructionStarted) {
+        currentInstructionStarted = true;
+        currentInstructionCompleted = false;
+        currentInstructionTime = millis();
+        currentInstructionX = totalX;
+        currentInstructionY = totalY;
       } else {
-        currentInstructionStarted = false;
-        currentInstruction = -1;
-        nextInstructionReady();
+        // This has room for improving efficiency; could cut down 2(?) cycles
+        if (!currentInstructionCompleted) {
+          currentInstructionCompleted = callCurrentInstruction();
+        } else {
+          currentInstructionStarted = false;
+          currentInstruction = -1;
+          nextInstructionReady();
+        }
       }
-    }  
-  } else {
-    stopMoving();
-  }
+    } else {
+      stopMoving();
+    }
 
-  // Output signals for the motors
-  digitalWrite(21, DIRRstate);
-  digitalWrite(20, DIRLstate);
+    // Output signals for the motors
+    digitalWrite(21, DIRRstate);
+    digitalWrite(20, DIRLstate);
+  */
 }
 
 
@@ -253,13 +224,13 @@ boolean anticlockwise90() {
 boolean callCurrentInstruction() {
   switch (currentInstruction) {
     case 1:
-      //return moveForwardForTime(data[currentInstruction]);
+    //return moveForwardForTime(data[currentInstruction]);
     case 2:
-      // return moveBackwardForTime(data[currentInstruction]);
+    // return moveBackwardForTime(data[currentInstruction]);
     case 3:
       return moveForwardForDistance(atof(receivedUARTChars));
     case 4:
-      // return moveBackwardForDistance(data[currentInstruction]);
+    // return moveBackwardForDistance(data[currentInstruction]);
     case 5:
       return clockwise90();
     case 6:
@@ -378,13 +349,13 @@ void processNewUARTData() {
 
     switch (instructionKey) {
       case 'F':
-        currentInstruction = 3;     
+        currentInstruction = 3;
         break;
       case 'R':
-        currentInstruction = 5;   
+        currentInstruction = 5;
         break;
       case 'L':
-        currentInstruction = 6;   
+        currentInstruction = 6;
         break;
       default:
         Serial.print("INVALID INSTRUCTION KEY\n");
@@ -395,9 +366,9 @@ void processNewUARTData() {
   }
 }
 
-// Ready for next instruction signal => should be send after finished with current drive instruction  
-void nextInstructionReady(){
-  Serial.print("R"); 
+// Ready for next instruction signal => should be send after finished with current drive instruction
+void nextInstructionReady() {
+  Serial.print("R");
 }
 
 
@@ -504,114 +475,4 @@ void mousecam_read_motion(struct MD *p) {
   p->max_pix =  SPI.transfer(0xff);
   digitalWrite(PIN_MOUSECAM_CS, HIGH);
   delayMicroseconds(5);
-}
-
-
-
-/*
-  SMPS Control - NO NEED TO EDIT FURTHER FOR MARS ROVER
-*/
-
-// Basic setup for the SMPS pins and current sensing chip
-void SMPSSetup() {
-  noInterrupts();             // Disable all interrupts during setup
-  analogReference(EXTERNAL);  // Eexternal analogue reference for the ADC
-
-  // TimerA0 initialization for control-loop interrupt.
-  TCA0.SINGLE.PER = 999;
-  TCA0.SINGLE.CMP1 = 999;
-  TCA0.SINGLE.CTRLA = TCA_SINGLE_CLKSEL_DIV16_gc | TCA_SINGLE_ENABLE_bm;
-  TCA0.SINGLE.INTCTRL = TCA_SINGLE_CMP1_bm;
-
-  // TimerB0 initialization for PWM output
-  pinMode(6, OUTPUT);
-  TCB0.CTRLA = TCB_CLKSEL_CLKDIV1_gc | TCB_ENABLE_bm;
-  analogWrite(6, 120);
-
-  // Enable interrupts.
-  interrupts();
-  // Current sensor
-  Wire.begin();
-  ina219.init();
-  Wire.setClock(700000);
-}
-
-// A function for controlling the SMPS duty cycle to achieve the desired reference voltage
-void SMPSControl() {
-  /*
-    The closed loop path has a voltage controller cascaded with a current controller. The voltage controller
-    creates a current demand based upon the voltage error. This demand is saturated to give current limiting.
-    The current loop then gives a duty cycle demand based upon the error between demanded current and measured
-    current.
-  */
-  float ev = vref - vout;
-  float cv = pidv(ev);
-  cv = saturation(cv, current_limit, 0);
-  float ei = cv - iL;
-  duty_cycle = pidi(ei);
-  duty_cycle = saturation(duty_cycle, 0.99, 0.01);
-  pwm_modulate(duty_cycle);
-}
-
-// Timer A CMP1 interrupt. Every 800us the program enters this interrupt. This, clears the incoming interrupt flag and triggers the main loop.
-ISR(TCA0_CMP1_vect) {
-  TCA0.SINGLE.INTFLAGS |= TCA_SINGLE_CMP1_bm;
-  loopTrigger = 1;
-}
-
-// This subroutine processes all of the analogue samples, creating the required values for the main loop
-void sampling() {
-  vout = (float)(analogRead(A0)) * (4.096 / 1023.0);
-  iL = (float)(ina219.getCurrent_mA()) / 1000.0;
-}
-
-// Saturation function - used for limiting current/voltage to avoid damaging the circuit
-float saturation( float sat_input, float uplim, float lowlim) {
-  if (sat_input > uplim) sat_input = uplim;
-  else if (sat_input < lowlim ) sat_input = lowlim;
-  else;
-  return sat_input;
-}
-
-// PWM waveform for SMPS duty cycle
-void pwm_modulate(float pwm_input) {
-  analogWrite(6, (int)(255 - pwm_input * 255));
-}
-
-// Voltage PID controller
-float pidv( float pid_input) {
-  float e_integration;
-  e0v = pid_input;
-  e_integration = e0v;
-  if (u1v >= uv_max) {
-    e_integration = 0;
-  } else if (u1v <= uv_min) {
-    e_integration = 0;
-  }
-  delta_uv = kpv * (e0v - e1v) + kiv * Ts * e_integration + kdv / Ts * (e0v - 2 * e1v + e2v);
-  u0v = u1v + delta_uv;  //this time's control output
-  saturation(u0v, uv_max, uv_min);
-  u1v = u0v;
-  e2v = e1v;
-  e1v = e0v;
-  return u0v;
-}
-
-// Current PID Controller
-float pidi(float pid_input) {
-  float e_integration;
-  e0i = pid_input;
-  e_integration = e0i;
-  if (u1i >= ui_max) {
-    e_integration = 0;
-  } else if (u1i <= ui_min) {
-    e_integration = 0;
-  }
-  delta_ui = kpi * (e0i - e1i) + kii * Ts * e_integration + kdi / Ts * (e0i - 2 * e1i + e2i);
-  u0i = u1i + delta_ui;  //this time's control output
-  saturation(u0i, ui_max, ui_min);
-  u1i = u0i;
-  e2i = e1i;
-  e1i = e0i;
-  return u0i;
 }
