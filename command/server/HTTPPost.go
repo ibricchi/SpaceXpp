@@ -78,9 +78,9 @@ func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
 	h.mqtt.publish("/drive/angle", strconv.Itoa(t), 0)
 
 	var a driveInstruction
-	a.instruction = "turnRight"
-	a.value = 180
-	fmt.Println("right instruction")
+	a.instruction = "turnLeft"
+	a.value = 90
+	fmt.Println("left instruction")
 	updateMap(a)
 
 }
