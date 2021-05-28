@@ -26,49 +26,7 @@
 */
 
 #include "smps.h"
-#include "SPI.h"
-
-// Pin definitions for the optical flow sensor
-#define PIN_SS        10
-#define PIN_MISO      12
-#define PIN_MOSI      11
-#define PIN_SCK       13
-#define PIN_MOUSECAM_RESET     8
-#define PIN_MOUSECAM_CS        7
-#define ADNS3080_PIXELS_X                 30
-#define ADNS3080_PIXELS_Y                 30
-#define ADNS3080_PRODUCT_ID            0x00
-#define ADNS3080_REVISION_ID           0x01
-#define ADNS3080_MOTION                0x02
-#define ADNS3080_DELTA_X               0x03
-#define ADNS3080_DELTA_Y               0x04
-#define ADNS3080_SQUAL                 0x05
-#define ADNS3080_PIXEL_SUM             0x06
-#define ADNS3080_MAXIMUM_PIXEL         0x07
-#define ADNS3080_CONFIGURATION_BITS    0x0a
-#define ADNS3080_EXTENDED_CONFIG       0x0b
-#define ADNS3080_DATA_OUT_LOWER        0x0c
-#define ADNS3080_DATA_OUT_UPPER        0x0d
-#define ADNS3080_SHUTTER_LOWER         0x0e
-#define ADNS3080_SHUTTER_UPPER         0x0f
-#define ADNS3080_FRAME_PERIOD_LOWER    0x10
-#define ADNS3080_FRAME_PERIOD_UPPER    0x11
-#define ADNS3080_MOTION_CLEAR          0x12
-#define ADNS3080_FRAME_CAPTURE         0x13
-#define ADNS3080_SROM_ENABLE           0x14
-#define ADNS3080_FRAME_PERIOD_MAX_BOUND_LOWER      0x19
-#define ADNS3080_FRAME_PERIOD_MAX_BOUND_UPPER      0x1a
-#define ADNS3080_FRAME_PERIOD_MIN_BOUND_LOWER      0x1b
-#define ADNS3080_FRAME_PERIOD_MIN_BOUND_UPPER      0x1c
-#define ADNS3080_SHUTTER_MAX_BOUND_LOWER           0x1e
-#define ADNS3080_SHUTTER_MAX_BOUND_UPPER           0x1e
-#define ADNS3080_SROM_ID               0x1f
-#define ADNS3080_OBSERVATION           0x3d
-#define ADNS3080_INVERSE_PRODUCT_ID    0x3f
-#define ADNS3080_PIXEL_BURST           0x40
-#define ADNS3080_MOTION_BURST          0x50
-#define ADNS3080_SROM_LOAD             0x60
-#define ADNS3080_PRODUCT_ID_VAL        0x17
+#include "optical_flow.h"
 
 // Control frequency (integer multiple of switching frequency)
 float Ts = 0.0004;
@@ -77,14 +35,12 @@ float Ts = 0.0004;
 float vref = 3.0;
 
 // Signals for controlling the moverment of the rover
-int DIRRstate = HIGH;
+int DIRRstate = LOW;
 int DIRLstate = LOW;
 
-// Distance moved in each direction, [cm]
+// Displacement in each direction, [cm]
+OpticalFlow opticalFlow;
 float totalX = 0.0, totalY = 0.0;
-
-// Distance moved in each direction, [counts/inch]
-float totalXAlt = 0.0, totalYAlt = 0.0;
 
 // For velocity control, iterative proportional controller
 float kvp = 0.1;   // TO BE TUNED
@@ -108,8 +64,11 @@ boolean newUARTDataAvailable = false;
 
 void setup() {
   // Device setup
+  Serial.begin(38400);
   SMPSSetup();
-  opticalFlowSetup();
+  if(!opticalFlow.setup()){
+    Serial.println("Failed to initialise optical flow sensor");
+  }
   driveSetup();
 }
 
@@ -122,7 +81,12 @@ void loop() {
   processNewUARTData();
 
   // Read the current position of the rover
-  opticalFlowRead();
+  opticalFlow.read();
+  totalX = opticalFlow.getDisplacementX();
+  totalY = opticalFlow.getDisplacementY();
+  Serial.println(String(totalX));
+  Serial.println(String(totalY));
+
 
   // Set velocity to the desired value - commented out until velocity is accurately calculated using time
   // setVelocity(1.0);
@@ -369,110 +333,4 @@ void processNewUARTData() {
 // Ready for next instruction signal => should be send after finished with current drive instruction
 void nextInstructionReady() {
   Serial.print("R");
-}
-
-
-
-/*
-  Optical flow setup - NO NEED TO EDIT FURTHER FOR MARS ROVER
-*/
-
-// A struct contataining all the necessary attributes of movement
-struct MD {
-  byte motion;
-  char dx, dy;
-  byte squal;
-  word shutter;
-  byte max_pix;
-};
-
-// Initialising the optical flow sensor in the setup() function
-void opticalFlowSetup() {
-  pinMode(PIN_SS, OUTPUT);
-  pinMode(PIN_MISO, INPUT);
-  pinMode(PIN_MOSI, OUTPUT);
-  pinMode(PIN_SCK, OUTPUT);
-  SPI.begin();
-  SPI.setClockDivider(SPI_CLOCK_DIV32);
-  SPI.setDataMode(SPI_MODE3);
-  SPI.setBitOrder(MSBFIRST);
-  Serial.begin(38400);
-  if (mousecam_init() == -1) {
-    Serial.println("Mouse cam failed to init");
-    while (1);
-  }
-}
-
-// Finding the displacement in the x- and y- direction -> This can be expanded to fit the required needs
-void opticalFlowRead() {
-  MD md;
-  mousecam_read_motion(&md);
-  // Add incremental changes
-  totalXAlt += md.dx;
-  totalYAlt += md.dy;
-  // Convert from counts/inch to cm
-  totalX = totalXAlt / 157.48;
-  totalY = totalYAlt / 157.48;
-  // Inver to match x-y plane
-  totalX = (-1) * totalX;
-  totalY = (-1) * totalY;
-  Serial.println("Distance_x = " + String(totalX));
-  Serial.println("Distance_y = " + String(totalY));
-  Serial.print('\n');
-}
-
-// Initialising the optical flow sensor
-int mousecam_init() {
-  pinMode(PIN_MOUSECAM_RESET, OUTPUT);
-  pinMode(PIN_MOUSECAM_CS, OUTPUT);
-  digitalWrite(PIN_MOUSECAM_CS, HIGH);
-  mousecam_reset();
-  int pid = mousecam_read_reg(ADNS3080_PRODUCT_ID);
-  if (pid != ADNS3080_PRODUCT_ID_VAL) return -1;
-  mousecam_write_reg(ADNS3080_CONFIGURATION_BITS, 0x19);
-  return 0;
-}
-
-// Reseting the optical flow sensor
-void mousecam_reset() {
-  digitalWrite(PIN_MOUSECAM_RESET, HIGH);
-  delay(1);
-  digitalWrite(PIN_MOUSECAM_RESET, LOW);
-  delay(35);
-}
-
-// Helper function - for writing to registers of the sensor
-void mousecam_write_reg(int reg, int val) {
-  digitalWrite(PIN_MOUSECAM_CS, LOW);
-  SPI.transfer(reg | 0x80);
-  SPI.transfer(val);
-  digitalWrite(PIN_MOUSECAM_CS, HIGH);
-  delayMicroseconds(50);
-}
-
-// Helper function - for writing to registers of the sensor
-int mousecam_read_reg(int reg) {
-  digitalWrite(PIN_MOUSECAM_CS, LOW);
-  SPI.transfer(reg);
-  delayMicroseconds(75);
-  int ret = SPI.transfer(0xff);
-  digitalWrite(PIN_MOUSECAM_CS, HIGH);
-  delayMicroseconds(1);
-  return ret;
-}
-
-// For getting movement data , such as displacement
-void mousecam_read_motion(struct MD *p) {
-  digitalWrite(PIN_MOUSECAM_CS, LOW);
-  SPI.transfer(ADNS3080_MOTION_BURST);
-  delayMicroseconds(75);
-  p->motion =  SPI.transfer(0xff);
-  p->dx =  SPI.transfer(0xff);
-  p->dy =  SPI.transfer(0xff);
-  p->squal =  SPI.transfer(0xff);
-  p->shutter =  SPI.transfer(0xff) << 8;
-  p->shutter |=  SPI.transfer(0xff);
-  p->max_pix =  SPI.transfer(0xff);
-  digitalWrite(PIN_MOUSECAM_CS, HIGH);
-  delayMicroseconds(5);
 }
