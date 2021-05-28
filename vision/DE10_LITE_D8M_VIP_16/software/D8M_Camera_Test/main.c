@@ -1,10 +1,10 @@
 
-
 #include <stdio.h>
 #include "I2C_core.h"
 #include "terasic_includes.h"
 #include "mipi_camera_config.h"
 #include "mipi_bridge_config.h"
+#include "altera_avalon_spi.h"
 
 #include "auto_focus.h"
 
@@ -292,6 +292,14 @@ int main()
        	   	   break;}
        }
 
+       // Send and receive data from esp32
+	  printf("Before SPI commands\n");
+	  const alt_u8* tx_data = (alt_u8*)"Hello from DE10Lite";
+	  alt_u32 tx_length = strlen((char*)tx_data);
+	  alt_u8 rx_data[tx_length];
+	  alt_u32 rx_length = tx_length;
+	  alt_avalon_spi_command(SPI_0_BASE, 0, tx_length, tx_data, rx_length, rx_data, 0);
+	  printf("After SPI commands\n");
 
 	   //Main loop delay
 	   usleep(10000);

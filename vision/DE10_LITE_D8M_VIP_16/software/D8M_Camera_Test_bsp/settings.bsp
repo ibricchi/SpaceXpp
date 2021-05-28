@@ -2,9 +2,9 @@
 <sch:Settings xmlns:sch="http://www.altera.com/embeddedsw/bsp/schema">
         <BspType>hal</BspType>
         <BspVersion>default</BspVersion>
-        <BspGeneratedTimeStamp>May 21, 2021 1:56:20 PM</BspGeneratedTimeStamp>
-        <BspGeneratedUnixTimeStamp>1621601780235</BspGeneratedUnixTimeStamp>
-        <BspGeneratedLocation>/home/ib119/nfshome/year2/SpaceXpp/vision/DE10_LITE_D8M_VIP_16/software/D8M_Camera_Test_bsp</BspGeneratedLocation>
+        <BspGeneratedTimeStamp>May 28, 2021 3:32:59 PM</BspGeneratedTimeStamp>
+        <BspGeneratedUnixTimeStamp>1622212379063</BspGeneratedUnixTimeStamp>
+        <BspGeneratedLocation>/home/nep19/nfshome/ee_year_2/SpaceXpp/vision/DE10_LITE_D8M_VIP_16/software/D8M_Camera_Test_bsp</BspGeneratedLocation>
         <BspSettingsFile>settings.bsp</BspSettingsFile>
         <SopcDesignFile>../../Qsys.sopcinfo</SopcDesignFile>
         <JdiFile>default</JdiFile>
@@ -898,6 +898,12 @@
                 <Enabled>false</Enabled>
                 <Group xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
         </Setting>
+        <MemoryMap>
+                <slaveDescriptor>spi_0</slaveDescriptor>
+                <addressRange>0x00000000 - 0x0000001F</addressRange>
+                <addressSpan>32</addressSpan>
+                <attributes/>
+        </MemoryMap>
         <MemoryMap>
                 <slaveDescriptor>onchip_memory2_0</slaveDescriptor>
                 <addressRange>0x00020000 - 0x0003869F</addressRange>

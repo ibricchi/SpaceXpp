@@ -29,7 +29,7 @@
    {
       datum _originalDeviceFamily
       {
-         value = "Cyclone V";
+         value = "MAX 10";
          type = "String";
       }
    }
@@ -37,7 +37,7 @@
    {
       datum _originalDeviceFamily
       {
-         value = "MAX 10";
+         value = "Cyclone V";
          type = "String";
       }
    }
@@ -278,6 +278,14 @@
          type = "String";
       }
    }
+   element spi_0
+   {
+      datum _sortIndex
+      {
+         value = "20";
+         type = "int";
+      }
+   }
    element sw
    {
       datum _sortIndex
@@ -425,6 +433,11 @@
    dir="end" />
  <interface name="reset" internal="clk_50.clk_in_reset" type="reset" dir="end" />
  <interface name="sdram_wire" internal="sdram.wire" type="conduit" dir="end" />
+ <interface
+   name="spi_0_external"
+   internal="spi_0.external"
+   type="conduit"
+   dir="end" />
  <interface
    name="sw_external_connection"
    internal="sw.external_connection"
@@ -789,7 +802,7 @@
   <parameter name="dataAddrWidth" value="19" />
   <parameter name="dataMasterHighPerformanceAddrWidth" value="1" />
   <parameter name="dataMasterHighPerformanceMapParam" value="" />
-  <parameter name="dataSlaveMapParam"><![CDATA[<address-map><slave name='onchip_memory2_0.s1' start='0x20000' end='0x386A0' type='altera_avalon_onchip_memory2.s1' /><slave name='nios2_gen2.debug_mem_slave' start='0x40800' end='0x41000' type='altera_nios2_gen2.debug_mem_slave' /><slave name='timer.s1' start='0x41000' end='0x41020' type='altera_avalon_timer.s1' /><slave name='TERASIC_AUTO_FOCUS_0.mm_ctrl' start='0x41020' end='0x41040' type='TERASIC_AUTO_FOCUS.mm_ctrl' /><slave name='i2c_opencores_camera.avalon_slave_0' start='0x41040' end='0x41060' type='i2c_opencores.avalon_slave_0' /><slave name='i2c_opencores_mipi.avalon_slave_0' start='0x41060' end='0x41080' type='i2c_opencores.avalon_slave_0' /><slave name='mipi_pwdn_n.s1' start='0x41080' end='0x41090' type='altera_avalon_pio.s1' /><slave name='mipi_reset_n.s1' start='0x41090' end='0x410A0' type='altera_avalon_pio.s1' /><slave name='key.s1' start='0x410A0' end='0x410B0' type='altera_avalon_pio.s1' /><slave name='sw.s1' start='0x410B0' end='0x410C0' type='altera_avalon_pio.s1' /><slave name='led.s1' start='0x410C0' end='0x410D0' type='altera_avalon_pio.s1' /><slave name='altpll_0.pll_slave' start='0x410D0' end='0x410E0' type='altpll.pll_slave' /><slave name='sysid_qsys.control_slave' start='0x410E0' end='0x410E8' type='altera_avalon_sysid_qsys.control_slave' /><slave name='jtag_uart.avalon_jtag_slave' start='0x410E8' end='0x410F0' type='altera_avalon_jtag_uart.avalon_jtag_slave' /><slave name='EEE_IMGPROC_0.s1' start='0x42000' end='0x42020' type='EEE_IMGPROC.s1' /></address-map>]]></parameter>
+  <parameter name="dataSlaveMapParam"><![CDATA[<address-map><slave name='spi_0.spi_control_port' start='0x0' end='0x20' type='altera_avalon_spi.spi_control_port' /><slave name='onchip_memory2_0.s1' start='0x20000' end='0x386A0' type='altera_avalon_onchip_memory2.s1' /><slave name='nios2_gen2.debug_mem_slave' start='0x40800' end='0x41000' type='altera_nios2_gen2.debug_mem_slave' /><slave name='timer.s1' start='0x41000' end='0x41020' type='altera_avalon_timer.s1' /><slave name='TERASIC_AUTO_FOCUS_0.mm_ctrl' start='0x41020' end='0x41040' type='TERASIC_AUTO_FOCUS.mm_ctrl' /><slave name='i2c_opencores_camera.avalon_slave_0' start='0x41040' end='0x41060' type='i2c_opencores.avalon_slave_0' /><slave name='i2c_opencores_mipi.avalon_slave_0' start='0x41060' end='0x41080' type='i2c_opencores.avalon_slave_0' /><slave name='mipi_pwdn_n.s1' start='0x41080' end='0x41090' type='altera_avalon_pio.s1' /><slave name='mipi_reset_n.s1' start='0x41090' end='0x410A0' type='altera_avalon_pio.s1' /><slave name='key.s1' start='0x410A0' end='0x410B0' type='altera_avalon_pio.s1' /><slave name='sw.s1' start='0x410B0' end='0x410C0' type='altera_avalon_pio.s1' /><slave name='led.s1' start='0x410C0' end='0x410D0' type='altera_avalon_pio.s1' /><slave name='altpll_0.pll_slave' start='0x410D0' end='0x410E0' type='altpll.pll_slave' /><slave name='sysid_qsys.control_slave' start='0x410E0' end='0x410E8' type='altera_avalon_sysid_qsys.control_slave' /><slave name='jtag_uart.avalon_jtag_slave' start='0x410E8' end='0x410F0' type='altera_avalon_jtag_uart.avalon_jtag_slave' /><slave name='EEE_IMGPROC_0.s1' start='0x42000' end='0x42020' type='EEE_IMGPROC.s1' /></address-map>]]></parameter>
   <parameter name="data_master_high_performance_paddr_base" value="0" />
   <parameter name="data_master_high_performance_paddr_size" value="0" />
   <parameter name="data_master_paddr_base" value="0" />
@@ -835,7 +848,7 @@
   <parameter name="instruction_master_high_performance_paddr_size" value="0" />
   <parameter name="instruction_master_paddr_base" value="0" />
   <parameter name="instruction_master_paddr_size" value="0" />
-  <parameter name="internalIrqMaskSystemInfo" value="15" />
+  <parameter name="internalIrqMaskSystemInfo" value="31" />
   <parameter name="io_regionbase" value="0" />
   <parameter name="io_regionsize" value="0" />
   <parameter name="master_addr_map" value="false" />
@@ -1005,6 +1018,22 @@
   <parameter name="refreshPeriod" value="15.625" />
   <parameter name="registerDataIn" value="true" />
   <parameter name="rowWidth" value="13" />
+ </module>
+ <module name="spi_0" kind="altera_avalon_spi" version="16.0" enabled="1">
+  <parameter name="avalonSpec" value="2.0" />
+  <parameter name="clockPhase" value="0" />
+  <parameter name="clockPolarity" value="0" />
+  <parameter name="dataWidth" value="8" />
+  <parameter name="disableAvalonFlowControl" value="false" />
+  <parameter name="inputClockRate" value="50000000" />
+  <parameter name="insertDelayBetweenSlaveSelectAndSClk" value="false" />
+  <parameter name="insertSync" value="false" />
+  <parameter name="lsbOrderedFirst" value="false" />
+  <parameter name="masterSPI" value="true" />
+  <parameter name="numberOfSlaves" value="1" />
+  <parameter name="syncRegDepth" value="2" />
+  <parameter name="targetClockRate" value="5000000" />
+  <parameter name="targetSlaveSelectToSClkDelay" value="0.0" />
  </module>
  <module name="sw" kind="altera_avalon_pio" version="16.0" enabled="1">
   <parameter name="bitClearingEdgeCapReg" value="false" />
@@ -1177,6 +1206,15 @@
  <connection
    kind="avalon"
    version="16.0"
+   start="nios2_gen2.data_master"
+   end="spi_0.spi_control_port">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0000" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="16.0"
    start="nios2_gen2.instruction_master"
    end="nios2_gen2.debug_mem_slave">
   <parameter name="arbitrationPriority" value="1" />
@@ -1265,6 +1303,7 @@
  <connection kind="clock" version="16.0" start="clk_50.clk" end="mipi_reset_n.clk" />
  <connection kind="clock" version="16.0" start="clk_50.clk" end="mipi_pwdn_n.clk" />
  <connection kind="clock" version="16.0" start="clk_50.clk" end="nios2_gen2.clk" />
+ <connection kind="clock" version="16.0" start="clk_50.clk" end="spi_0.clk" />
  <connection
    kind="clock"
    version="16.0"
@@ -1312,6 +1351,13 @@
    start="nios2_gen2.irq"
    end="timer.irq">
   <parameter name="irqNumber" value="3" />
+ </connection>
+ <connection
+   kind="interrupt"
+   version="16.0"
+   start="nios2_gen2.irq"
+   end="spi_0.irq">
+  <parameter name="irqNumber" value="4" />
  </connection>
  <connection
    kind="reset"
@@ -1391,6 +1437,11 @@
    version="16.0"
    start="clk_50.clk_reset"
    end="EEE_IMGPROC_0.reset" />
+ <connection
+   kind="reset"
+   version="16.0"
+   start="clk_50.clk_reset"
+   end="spi_0.reset" />
  <connection
    kind="reset"
    version="16.0"
