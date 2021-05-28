@@ -235,6 +235,7 @@ func driveTocoords(driveInstruction driveInstruction, tileWidth int) {
 		Rover.Rotation = (Rover.Rotation + driveInstruction.value) % 360
 	} else if driveInstruction.instruction == "turnLeft" {
 		Rover.Rotation = Abs((Rover.Rotation - driveInstruction.value) % 360)
+		fmt.Println("rotation:", Rover.Rotation)
 	}
 }
 
