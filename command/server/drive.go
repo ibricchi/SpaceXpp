@@ -237,10 +237,3 @@ func driveTocoords(driveInstruction driveInstruction, tileWidth int) {
 		Rover.Rotation = (360 + ((Rover.Rotation - driveInstruction.value) % 360)) % 360
 	}
 }
-
-func Abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
-}

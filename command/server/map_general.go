@@ -95,3 +95,15 @@ func updateMap(driveInstruction driveInstruction) {
 	stashedDriveInstruction = driveInstruction
 
 }
+
+// To be implimented "stop"
+/*
+* Called when rover identifies obstruction
+* Arguments:
+*		- distance / location where obstruction is seen (to be confirmed)
+*		- type of obstruction (to be confirmed)
+* It will:
+*		- update map with stashed instruction
+*		- store nil instruction in stash
+* 		- update map with location of obstruction & type of instruction
+ */
