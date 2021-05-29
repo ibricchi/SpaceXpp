@@ -175,21 +175,3 @@ function sendTargetCoords(x, y){
     fetch(serverIP + "/map/targetCoords", options);
 
 }
-
-function feedback(){
-
-    fetch(serverIP + "/feedback")
-    .then(request => request.json())
-    .then(data => {
-        if(data != null){
-            feed.innerHTML = data;
-        }else{
-            feed.innerHTML = "";
-        }})
-    .catch(err => {
-        console.warn(err);
-        console.warn("Communicator: unable to fetch data from server");
-        feed.innerHTML = " ";
-    });
-
-}

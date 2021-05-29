@@ -55,9 +55,18 @@
             <div class="status">
                 <label for="distace">Distance:</label><br>
                 <input type="number" id="distance" name="Distance" value="0"><br>
+                <button type="button" id="driveD" > Submit </button><br>
                 <label for="angle">Angle:</label><br>
-                <input type="number" id="angle" name="Angle" value="0"><br>
-                <button type="button" id="drive" > Submit </button>
+                <select name="angle" id="angle">
+                    <option value=0>0</option>
+                    <option value=90>90</option>
+                    <option value=180>180</option>
+                    <option value=270>270</option>
+                    <option value=-90>-90</option>
+                    <option value=-180>-180</option>
+                    <option value=-270>-270</option>
+                </select> <br>
+                <button type="button" id="driveA" > Submit </button> 
             </div>
             
     </div>

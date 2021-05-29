@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 )
 
 type coordinates struct {
@@ -49,16 +48,16 @@ func (h *HttpServer) driveD(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 
-	instructions := []driveInstruction{}
+	instruction := []driveInstruction{}
 
-	instructions = append(instructions, driveInstruction{
+	instruction = append(instruction, driveInstruction{
 		instruction: "forward",
 		value:       t,
 	})
 
-	h.mqtt.publishDriveInstructionSequence(instructions)
+	h.mqtt.publishDriveInstructionSequence(instruction)
 
-	updateMap(instructions[0])
+	updateMap(instruction[0])
 
 }
 
@@ -82,29 +81,22 @@ func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Recived drive angle: ", t)
 	// Send data to hardware
 
-	h.mqtt.publish("/drive/angle", strconv.Itoa(t), 0)
-
-	var a driveInstruction
-	a.instruction = "forward"
-	a.value = 1
-	fmt.Println("forward instruction")
-	updateMap(a)
-
 	c := "turnRight"
 	if t < 0 {
 		c = "turnLeft"
 	}
 
-	instructions := []driveInstruction{}
+	instruction := []driveInstruction{}
 
-	instructions = append(instructions, driveInstruction{
+	instruction = append(instruction, driveInstruction{
 		instruction: c,
 		value:       Abs(t),
 	})
 
-	h.mqtt.publishDriveInstructionSequence(instructions)
+	h.mqtt.publishDriveInstructionSequence(instruction)
 
-	updateMap(instructions[0])
+	updateMap(instruction[0])
+
 }
 
 func (h *HttpServer) targetCoords(w http.ResponseWriter, r *http.Request) {
