@@ -82,7 +82,6 @@ func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
 	a.value = 90
 	fmt.Println("left instruction")
 	updateMap(a)
-	stop(0, 0)
 
 }
 
@@ -96,6 +95,8 @@ func (h *HttpServer) targetCoords(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+
+	stop(0, 0)
 
 	if err := h.mapAndDrive(targetCoords.X, targetCoords.Y, targetCoords.Mode); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
