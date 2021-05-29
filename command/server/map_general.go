@@ -34,7 +34,11 @@ var Rover = rover{
 	Rotation: 0,
 }
 
+var latestFeed = ""
+
 func (h *HttpServer) mapAndDrive(destinationCol int, destinationRow int, mode int) error {
+
+	latestFeed = "Acquiring optimum path"
 
 	// Getting optimum path
 	path, err := getShortedPathFromStartToDestination(Rover.Y, Rover.Y, destinationRow, destinationCol, Map)
@@ -43,7 +47,7 @@ func (h *HttpServer) mapAndDrive(destinationCol int, destinationRow int, mode in
 		return fmt.Errorf("Error: Failed to create path from start to destination  %w", err)
 	}
 
-	//fmt.Println("optimum path found")
+	latestFeed = latestFeed + "Optimum path found"
 
 	var direction direction = angle2Direction(Rover.Rotation)
 	var traverseMode traverseMode = value2Mode(mode)
@@ -54,11 +58,11 @@ func (h *HttpServer) mapAndDrive(destinationCol int, destinationRow int, mode in
 		return fmt.Errorf("Error: Failed to create drive instructions  %w", err)
 	}
 
-	//fmt.Println("drive instructions created")
+	latestFeed = latestFeed + "Drive instructions created"
 
 	h.mqtt.publishDriveInstructionSequence(driveInstruction)
 
-	//fmt.Println("drive instructions printed")
+	latestFeed = latestFeed + "Drive instructions sent to rover"
 
 	return nil
 }
@@ -96,6 +100,8 @@ func updateMap(driveInstruction driveInstruction) {
 
 	stashedDriveInstruction = driveInstruction
 
+	latestFeed = "Reciving instructions"
+
 }
 
 // To be implimented "stop"
@@ -128,6 +134,8 @@ func stop(distance int, obstructionType int) {
 	indx := getOneInFront()
 
 	Map.Tiles[indx] = 3
+
+	latestFeed = "Rover stopped due to obstruction"
 
 }
 

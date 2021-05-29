@@ -8,12 +8,13 @@ driveButton.addEventListener('click', drive , false);
 
 document.getElementById("server").innerHTML = "loading"
 document.getElementById("rover").innerHTML = "loading"
-//feedback.innerHTML="Map is loading"
+feedback.innerHTML="Map is loading"
 
 setInterval(function(){
     status();
     updateMap();
     updateRover();
+    feedback();
 }, 3000);
 
 
