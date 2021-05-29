@@ -1,6 +1,8 @@
 package server
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type MQTT interface {
 	publish(topic string, data string, qos byte)

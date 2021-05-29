@@ -89,3 +89,43 @@ func (m *MQTTClient) publish(topic string, data string, qos byte) {
 	token := m.client.Publish(topic, qos, false, data)
 	token.Wait()
 }
+
+// Subscribing to instruction feed
+
+var instructionFeedPubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
+	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
+
+	// ToDo: impliment calling :
+	// updateMap(driveInstruction driveInstruction)
+
+}
+
+var instructionFeedConnectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
+	fmt.Println("Connected to MQTT broker successfully")
+
+	// Subscribe to topics
+	if token := client.Subscribe("/drive/instruction", 2, instructionFeedPubHandler); token.Wait() && token.Error() != nil {
+		log.Fatalf("server: mqtt: failed to subscribe to /drive/instruction: %v", token.Error())
+	}
+	fmt.Println("Subscribed to topic: /drive/instruction")
+}
+
+// Subscribing to stop feed
+
+var stopFeedPubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
+	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
+
+	// ToDo: impliment calling :
+	// stop(distance int, obstructionType int)
+
+}
+
+var stopFeedConnectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
+	fmt.Println("Connected to MQTT broker successfully")
+
+	// Subscribe to topics
+	if token := client.Subscribe("/drive/stop", 2, instructionFeedPubHandler); token.Wait() && token.Error() != nil {
+		log.Fatalf("server: mqtt: failed to subscribe to /drive/stop: %v", token.Error())
+	}
+	fmt.Println("Subscribed to topic: /drive/stop")
+}
