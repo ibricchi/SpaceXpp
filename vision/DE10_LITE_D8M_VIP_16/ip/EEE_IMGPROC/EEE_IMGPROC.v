@@ -79,28 +79,12 @@ wire [7:0]   red_out, green_out, blue_out;
 wire         sop, eop, in_valid, out_ready;
 ////////////////////////////////////////////////////////////////////////
 
-// debug to get max x and max y
-reg [10:0] max_x_screen, max_y_screen;
-always @(*) begin
-    if(!reset_n) begin
-        max_x_screen <= 0;
-        max_y_screen <= 0;
-    end
-    else begin
-        if(y > max_y_screen) begin
-            max_y_screen <= y;
-        end
-        if(x > max_x_screen) begin
-            max_x_screen <= x;
-        end
-    end
-end
-assign led = sw[9]?max_y_screen[9:0]:max_x_screen[9:0];
-
 // setup color detector vairables
 wire [3:0] cd_mode;
 wire bd_is_valid_color;
+wire bd_is_valid_color_2;
 wire [4:0] bd_color_high;
+wire [4:0] bd_color_high_2;
 SXPP_COLOR_DETECT cd1 (
     clk,
     reset_n,
@@ -113,12 +97,25 @@ SXPP_COLOR_DETECT cd1 (
     bd_color_high[3], //blue
     bd_color_high[4]  //pink
 );
+SXPP_COLOR_DETECT_2 cd2 (
+    clk,
+    reset_n,
+    
+    red, green, blue,
+    
+    bd_color_high_2[0], //red
+    bd_color_high_2[1], //yellow
+    bd_color_high_2[2], //green
+    bd_color_high_2[3], //blue
+    bd_color_high_2[4]  //pink
+);
 assign cd_mode = sw[3:1];
-assign bd_is_valid_color = bd_color_high[1<<(cd_mode-1)];
+assign bd_is_valid_color_2 = bd_color_high[1<<(cd_mode-1)];
+assign bd_is_valid_color = bd_color_high_2[1<<(cd_mode-1)];
 
 // setup blob detector params
 parameter screen_w = 640, screen_h = 480;
-parameter grid_w = 160, grid_h = 160;
+parameter grid_w = 100, grid_h = 100;
 parameter grids_x = screen_w / grid_w;
 parameter grids_y = screen_h / grid_h;
 
@@ -126,9 +123,6 @@ parameter grids_y = screen_h / grid_h;
 wire bds_valid[grids_x-1:0][grids_y-1:0];
 
 wire [10:0] bds_rad[grids_x-1:0][grids_y-1:0];
-wire [10:0] bds_max_rad[grids_x-1:0][grids_y-1:0];
-wire [10:0] bds_which_x[grids_x-1:0][grids_y-1:0],
-            bds_which_y[grids_x-1:0][grids_y-1:0];
 wire [10:0] bds_x_min[grids_x-1:0][grids_y-1:0],
             bds_x_max[grids_x-1:0][grids_y-1:0],
             bds_y_min[grids_x-1:0][grids_y-1:0],
@@ -138,86 +132,116 @@ wire [10:0] bds_x_min[grids_x-1:0][grids_y-1:0],
 wire bd_reset;
 wire bd_valid;
 
-wire [10:0] bd_rad;
-wire [10:0] bd_which_x, bd_which_y;
+reg [10:0] bd_rad;
+reg [10:0] bd_which_x, bd_which_y;
 wire [10:0] x_min, y_min, x_max, y_max;
 
-
-assign bd_reset = sop & in_valid;
+assign bd_reset = sop;
 
 genvar i, j;
 generate
     for(i = 0; i < grids_x; i = i + 1) begin : generate_x_loop
         for(j = 0; j < grids_y; j = j + 1) begin : generate_y_loop
-            localparam pi = (i*grids_x+j-1)/grids_x;
-            localparam pj = (j+grids_y-1)%grids_y;
-            if(i == 0 & j == 0) begin
-                SXPP_BLOB_DETECT
-                    #(
-                        i, j,
-                        0,0,
-                        i * grid_w,
-                        (i + 1) * grid_w,
-                        j * grid_h,
-                        (j + 1) * grid_h
-                    )
-                    bd(
-                        clk,
-                        reset_n,
+            SXPP_BLOB_DETECT
+                #(
+                    i, j,
+                    i * grid_w,
+                    (i + 1) * grid_w,
+                    j * grid_h,
+                    (j + 1) * grid_h
+                )
+                bd(
+                    .clk(clk),
+                    .reset_n(reset_n),
 
-                        bd_reset,
+                    .reset(bd_reset),
 
-                        x, y,
-                        bd_is_valid_color,
+                    .x_in(x), .y_in(y),
+                    .is_valid_color(bd_is_valid_color & in_valid),
 
-                        0,0,0,
+                    .valid(bds_valid[i][j]),
 
-                        bds_valid[i][j],
-
-                        bds_which_x[i][j], bds_which_y[i][j], bds_max_rad[i][j],
-                            
-                        bds_rad[i][j],
-                        bds_x_min[i][j], bds_x_max[i][j], bds_y_min[i][j], bds_y_max[i][j]
-                );
-            end
-            else begin
-                SXPP_BLOB_DETECT
-                    #(
-                        i, j,
-                        pi, pj,
-                        i * grid_w,
-                        (i + 1) * grid_w,
-                        j * grid_h,
-                        (j + 1) * grid_h
-                    )
-                    bd(
-                        clk,
-                        reset_n,
-
-                        bd_reset,
-
-                        x, y,
-                        bd_is_valid_color,
-
-                        bds_which_x[pi][pj], bds_which_y[pi][pj], bds_max_rad[pi][pj],
-
-                        bds_valid[i][j],
-
-                        bds_which_x[i][j], bds_which_y[i][j], bds_max_rad[i][j],
-
-                        bds_rad[i][j],
-                        bds_x_min[i][j], bds_x_max[i][j], bds_y_min[i][j], bds_y_max[i][j]
-                );
-            end
+                    .rad(bds_rad[i][j]),
+                    .minx(bds_x_min[i][j]),
+                    .maxx(bds_x_max[i][j]),
+                    .miny(bds_y_min[i][j]),
+                    .maxy(bds_y_max[i][j]),
+            );
         end
     end
 endgenerate
 
-assign bd_which_x = bds_which_x[grids_x-1][grids_y-1];
-assign bd_which_y = bds_which_y[grids_x-1][grids_y-1];
+always @(posedge clk) begin
+    if(sop) begin
+        bd_which_x <= 0;
+        bd_which_y <= 0;
+        bd_rad <= 0;
+    end
+    else if (in_valid) begin
+        if(bd_rad < bds_rad[0][0]) begin
+            bd_which_x <= 0;
+            bd_which_y <= 0;
+            bd_rad <= bds_rad[0][0];
+        end
+        else if(bd_rad < bds_rad[0][1]) begin
+            bd_which_x <= 0;
+            bd_which_y <= 1;
+            bd_rad <= bds_rad[0][1];
+        end
+        else if(bd_rad < bds_rad[0][2]) begin
+            bd_which_x <= 0;
+            bd_which_y <= 2;
+            bd_rad <= bds_rad[0][2];
+        end
+        else if(bd_rad < bds_rad[1][0]) begin
+            bd_which_x <= 1;
+            bd_which_y <= 0;
+            bd_rad <= bds_rad[1][0];
+        end
+        else if(bd_rad < bds_rad[1][1]) begin
+            bd_which_x <= 1;
+            bd_which_y <= 1;
+            bd_rad <= bds_rad[1][1];
+        end
+        else if(bd_rad < bds_rad[1][2]) begin
+            bd_which_x <= 1;
+            bd_which_y <= 2;
+            bd_rad <= bds_rad[1][2];
+        end
+        else if(bd_rad < bds_rad[2][0]) begin
+            bd_which_x <= 2;
+            bd_which_y <= 0;
+            bd_rad <= bds_rad[2][0];
+        end
+        else if(bd_rad < bds_rad[2][1]) begin
+            bd_which_x <= 2;
+            bd_which_y <= 1;
+            bd_rad <= bds_rad[2][1];
+        end
+        else if(bd_rad < bds_rad[2][2]) begin
+            bd_which_x <= 2;
+            bd_which_y <= 2;
+            bd_rad <= bds_rad[2][2];
+        end
+        else if(bd_rad < bds_rad[3][0]) begin
+            bd_which_x <= 3;
+            bd_which_y <= 0;
+            bd_rad <= bds_rad[3][0];
+        end
+        else if(bd_rad < bds_rad[3][1]) begin
+            bd_which_x <= 3;
+            bd_which_y <= 1;
+            bd_rad <= bds_rad[3][1];
+        end
+        else if(bd_rad < bds_rad[3][2]) begin
+            bd_which_x <= 3;
+            bd_which_y <= 2;
+            bd_rad <= bds_rad[3][2];
+        end
+    end
+end
 
 assign bd_valid = sw[9]?bds_valid[bd_which_x][bd_which_y]:bd_is_valid_color;
-assign bd_rad = bds_rad[bd_which_x][bd_which_y];
 assign x_min = bds_x_min[bd_which_x][bd_which_y];
 assign x_max = bds_x_max[bd_which_x][bd_which_y];
 assign y_min = bds_y_min[bd_which_x][bd_which_y];
@@ -302,6 +326,9 @@ always@(posedge clk) begin
         top <= y_min;
         bottom <= y_max;
         
+        // same as above for which x and y
+//        bd_which_x <= bds_which_x[grids_x-1][grids_y-1];
+//        bd_which_y <= bds_which_y[grids_x-1][grids_y-1];
         
         //Start message writer FSM once every MSG_INTERVAL frames, if there is room in the FIFO
         frame_count <= frame_count - 1;

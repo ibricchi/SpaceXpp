@@ -1,8 +1,8 @@
-module SXPP_COLOR_DETECT(
+module SXPP_COLOR_DETECT_2(
 	clk,
 	reset_n,
 	
-	r,g, b,
+	r,g,b,
 	
 	is_red,
 	is_yellow,
@@ -20,7 +20,7 @@ logic[8:0] h;
 logic[6:0] s,v;
 logic[7:0] sv;
 
-SXPP_RGB_TO_HSV(r,g,b,h,s,v);
+SXPP_RGB_TO_HSV_2(r,g,b,h,s,v);
 
 always_comb begin
     sv = s + v;
@@ -31,7 +31,7 @@ always_comb begin
     is_blue = 0;
     is_pink = 0;
 
-    if((330 <= h | h <= 35) & sv > 75 & s > 60) begin // red
+    if(90 <= h & h <= 155 & sv > 75 & s > 60) begin // red
         is_red = 1;
     end
     if(30 <= h & h <= 90 & sv > 95) begin // yellow
