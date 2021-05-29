@@ -49,7 +49,7 @@ func (h *HttpServer) driveD(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 
-	var a []driveInstruction
+	var a [1]driveInstruction
 	a[0].instruction = "forward"
 	a[0].value = t
 	h.mqtt.publishDriveInstructionSequence(a)
@@ -86,7 +86,7 @@ func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("forward instruction")
 	updateMap(a)
 
-	var c []driveInstruction
+	var c [1]driveInstruction
 
 	if t > 0 {
 		c[0].instruction = "turnRight"
