@@ -78,9 +78,9 @@ func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
 	h.mqtt.publish("/drive/angle", strconv.Itoa(t), 0)
 
 	var a driveInstruction
-	a.instruction = "turnLeft"
-	a.value = 90
-	fmt.Println("left instruction")
+	a.instruction = "forward"
+	a.value = 3
+	fmt.Println("forward instruction")
 	updateMap(a)
 
 }
@@ -96,7 +96,7 @@ func (h *HttpServer) targetCoords(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 
-	stop(0, 0)
+	stop(1, 0)
 
 	if err := h.mapAndDrive(targetCoords.X, targetCoords.Y, targetCoords.Mode); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
