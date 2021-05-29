@@ -49,10 +49,15 @@ func (h *HttpServer) driveD(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 
-	fmt.Println("Recived drive distance: ", t)
+	var a driveInstruction
+	a.instruction = "forward"
+	a.value = t
+	var b []driveInstruction
+	b[0] = a
+	h.mqtt.publishDriveInstructionSequence(b)
 
-	// Send data to hardware
-	h.mqtt.publish("/drive/distance", strconv.Itoa(t), 0)
+	updateMap(b[0])
+
 }
 
 func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
@@ -83,6 +88,22 @@ func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("forward instruction")
 	updateMap(a)
 
+	var c driveInstruction
+
+	if t > 0 {
+		c.instruction = "turnRight"
+	} else {
+		c.instruction = "turnLeft"
+	}
+
+	c.value = Abs(t)
+
+	var d []driveInstruction
+	d[0] = a
+	h.mqtt.publishDriveInstructionSequence(d)
+
+	updateMap(d[0])
+
 }
 
 func (h *HttpServer) targetCoords(w http.ResponseWriter, r *http.Request) {
@@ -100,5 +121,13 @@ func (h *HttpServer) targetCoords(w http.ResponseWriter, r *http.Request) {
 
 	if err := h.mapAndDrive(targetCoords.X, targetCoords.Y, targetCoords.Mode); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+}
+
+func Abs(x int) int {
+	if x < 0 {
+		return -1 * x
+	} else {
+		return x
 	}
 }

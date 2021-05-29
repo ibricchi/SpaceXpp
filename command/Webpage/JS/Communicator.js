@@ -178,21 +178,18 @@ function sendTargetCoords(x, y){
 
 function feedback(){
 
-    feed = document.getElementById("feedback")
-
-
     fetch(serverIP + "/feedback")
     .then(request => request.json())
     .then(data => {
         if(data != null){
             feed.innerHTML = data;
         }else{
-            webLocation.innerHTML = "";
+            feed.innerHTML = "";
         }})
     .catch(err => {
         console.warn(err);
         console.warn("Communicator: unable to fetch data from server");
-        webLocation.innerHTML = " ";
+        feed.innerHTML = " ";
     });
 
 }

@@ -84,16 +84,3 @@ func (h *HttpServer) updateRover(w http.ResponseWriter, req *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
-
-func (h *HttpServer) feedback(w http.ResponseWriter, req *http.Request) {
-
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
-	data := latestFeed
-	if err := json.NewEncoder(w).Encode(data); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-
-	w.WriteHeader(http.StatusOK)
-
-}

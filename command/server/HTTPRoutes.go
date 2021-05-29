@@ -34,7 +34,6 @@ func (h *HttpServer) routes(ctx context.Context) error {
 		r.Get("/check", check)
 		r.Get("/map/getMap", h.updateMap)
 		r.Get("/map/getRover", h.updateRover)
-		r.Get("/feedback", h.feedback)
 
 		r.Post("/speed", h.speed)
 		r.Post("/drive/distance", h.driveD)
