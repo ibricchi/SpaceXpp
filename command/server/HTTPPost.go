@@ -49,14 +49,12 @@ func (h *HttpServer) driveD(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 
-	var a driveInstruction
-	a.instruction = "forward"
-	a.value = t
-	var b []driveInstruction
-	b[0] = a
-	h.mqtt.publishDriveInstructionSequence(b)
+	var a []driveInstruction
+	a[0].instruction = "forward"
+	a[0].value = t
+	h.mqtt.publishDriveInstructionSequence(a)
 
-	updateMap(b[0])
+	updateMap(a[0])
 
 }
 
@@ -88,21 +86,19 @@ func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("forward instruction")
 	updateMap(a)
 
-	var c driveInstruction
+	var c []driveInstruction
 
 	if t > 0 {
-		c.instruction = "turnRight"
+		c[0].instruction = "turnRight"
 	} else {
-		c.instruction = "turnLeft"
+		c[0].instruction = "turnLeft"
 	}
 
-	c.value = Abs(t)
+	c[0].value = Abs(t)
 
-	var d []driveInstruction
-	d[0] = a
-	h.mqtt.publishDriveInstructionSequence(d)
+	h.mqtt.publishDriveInstructionSequence(c)
 
-	updateMap(d[0])
+	updateMap(c[0])
 
 }
 
