@@ -82,6 +82,7 @@ func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
 	a.value = 90
 	fmt.Println("left instruction")
 	updateMap(a)
+	stop(0, 0)
 
 }
 

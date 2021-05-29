@@ -1,6 +1,8 @@
 package server
 
-import "fmt"
+import (
+	"fmt"
+)
 
 var tileWidth = 1
 
@@ -104,6 +106,40 @@ func updateMap(driveInstruction driveInstruction) {
 *		- type of obstruction (to be confirmed)
 * It will:
 *		- update map with stashed instruction
+*		- move distance moved before rover halted
 *		- store nil instruction in stash
 * 		- update map with location of obstruction & type of instruction
  */
+
+func stop(distance int, obstructionType int) {
+
+	driveTocoords(stashedDriveInstruction, tileWidth)
+
+	stashedDriveInstruction.instruction = "forward"
+	stashedDriveInstruction.value = distance
+	driveTocoords(stashedDriveInstruction, tileWidth)
+
+	stashedDriveInstruction.instruction = "forward"
+	stashedDriveInstruction.value = 0
+
+	// Assuming obstruction will only ever be in box in front
+	// And for now only one type of instruction
+
+	indx := getOneInFront()
+
+	Map.Tiles[indx] = 3
+
+}
+
+func getOneInFront() int {
+	if Rover.Rotation == 0 {
+		return (Rover.X + 1) + (Rover.Y * Map.Cols)
+	} else if Rover.Rotation == 180 {
+		return (Rover.X - 1) + (Rover.Y * Map.Cols)
+	} else if Rover.Rotation == 90 {
+		return Rover.X + ((Rover.Y + 1) * Map.Cols)
+	} else if Rover.Rotation == 270 {
+		return Rover.X + ((Rover.Y - 1) * Map.Cols)
+	}
+	return 0
+}
