@@ -114,8 +114,8 @@ assign bd_is_valid_color_2 = bd_color_high[1<<(cd_mode-1)];
 assign bd_is_valid_color = bd_color_high_2[1<<(cd_mode-1)];
 
 // setup blob detector params
-parameter screen_w = 640, screen_h = 480;
-parameter grid_w = 100, grid_h = 100;
+parameter screen_w = IMAGE_W, screen_h = IMAGE_H;
+parameter grid_w = 160, grid_h = 160;
 parameter grids_x = screen_w / grid_w;
 parameter grids_y = screen_h / grid_h;
 
@@ -173,79 +173,29 @@ endgenerate
 
 always @(posedge clk) begin
     if(sop) begin
-        bd_which_x <= 0;
-        bd_which_y <= 0;
+        bd_which_x <= -1;
+        bd_which_y <= -1;
         bd_rad <= 0;
     end
     else if (in_valid) begin
-        if(bd_rad < bds_rad[0][0]) begin
-            bd_which_x <= 0;
-            bd_which_y <= 0;
-            bd_rad <= bds_rad[0][0];
-        end
-        else if(bd_rad < bds_rad[0][1]) begin
-            bd_which_x <= 0;
-            bd_which_y <= 1;
-            bd_rad <= bds_rad[0][1];
-        end
-        else if(bd_rad < bds_rad[0][2]) begin
-            bd_which_x <= 0;
-            bd_which_y <= 2;
-            bd_rad <= bds_rad[0][2];
-        end
-        else if(bd_rad < bds_rad[1][0]) begin
-            bd_which_x <= 1;
-            bd_which_y <= 0;
-            bd_rad <= bds_rad[1][0];
-        end
-        else if(bd_rad < bds_rad[1][1]) begin
-            bd_which_x <= 1;
-            bd_which_y <= 1;
-            bd_rad <= bds_rad[1][1];
-        end
-        else if(bd_rad < bds_rad[1][2]) begin
-            bd_which_x <= 1;
-            bd_which_y <= 2;
-            bd_rad <= bds_rad[1][2];
-        end
-        else if(bd_rad < bds_rad[2][0]) begin
-            bd_which_x <= 2;
-            bd_which_y <= 0;
-            bd_rad <= bds_rad[2][0];
-        end
-        else if(bd_rad < bds_rad[2][1]) begin
-            bd_which_x <= 2;
-            bd_which_y <= 1;
-            bd_rad <= bds_rad[2][1];
-        end
-        else if(bd_rad < bds_rad[2][2]) begin
-            bd_which_x <= 2;
-            bd_which_y <= 2;
-            bd_rad <= bds_rad[2][2];
-        end
-        else if(bd_rad < bds_rad[3][0]) begin
-            bd_which_x <= 3;
-            bd_which_y <= 0;
-            bd_rad <= bds_rad[3][0];
-        end
-        else if(bd_rad < bds_rad[3][1]) begin
-            bd_which_x <= 3;
-            bd_which_y <= 1;
-            bd_rad <= bds_rad[3][1];
-        end
-        else if(bd_rad < bds_rad[3][2]) begin
-            bd_which_x <= 3;
-            bd_which_y <= 2;
-            bd_rad <= bds_rad[3][2];
+        integer k, l;
+        for(k = 0; k < grids_x; k = k + 1) begin
+            for(l = 0; l < grids_y; l = l + 1) begin
+                if(bd_rad < bds_rad[k][l]) begin
+                    bd_which_x <= k;
+                    bd_which_y <= l;
+                    bd_rad <= bds_rad[k][l];
+                end
+            end
         end
     end
 end
 
-assign bd_valid = sw[9]?bds_valid[bd_which_x][bd_which_y]:bd_is_valid_color;
-assign x_min = bds_x_min[bd_which_x][bd_which_y];
-assign x_max = bds_x_max[bd_which_x][bd_which_y];
-assign y_min = bds_y_min[bd_which_x][bd_which_y];
-assign y_max = bds_y_max[bd_which_x][bd_which_y];
+assign bd_valid = sw[9]?bds_valid[which_x][which_y]:bd_is_valid_color;
+assign x_min = bds_x_min[which_x][which_y];
+assign x_max = bds_x_max[which_x][which_y];
+assign y_min = bds_y_min[which_x][which_y];
+assign y_max = bds_y_max[which_x][which_y];
 
 // display sensor grids
 reg grid_active;
@@ -316,6 +266,7 @@ end
 //Process bounding box at the end of the frame.
 reg [1:0] msg_state;
 reg [10:0] left, right, top, bottom;
+reg [10:0] which_x, which_y;
 reg [7:0] frame_count;
 always@(posedge clk) begin
     if (eop & in_valid & packet_video) begin  //Ignore non-video packets
@@ -327,8 +278,8 @@ always@(posedge clk) begin
         bottom <= y_max;
         
         // same as above for which x and y
-//        bd_which_x <= bds_which_x[grids_x-1][grids_y-1];
-//        bd_which_y <= bds_which_y[grids_x-1][grids_y-1];
+        which_x <= bd_which_x;
+        which_y <= bd_which_y;
         
         //Start message writer FSM once every MSG_INTERVAL frames, if there is room in the FIFO
         frame_count <= frame_count - 1;
@@ -365,7 +316,7 @@ always@(*) begin    //Write words to FIFO as state machine advances
             msg_buf_wr = 1'b1;
         end
         2'b10: begin
-            msg_buf_in = {5'b0, bd_which_x, 5'b0, bd_which_y};    //Top left coordinate
+            msg_buf_in = {5'b0, which_x, 5'b0, which_y};    //Top left coordinate
             msg_buf_wr = 1'b1;
         end
         2'b11: begin
