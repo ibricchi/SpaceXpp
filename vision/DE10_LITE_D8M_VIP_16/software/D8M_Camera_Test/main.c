@@ -5,6 +5,7 @@
 #include "terasic_includes.h"
 #include "mipi_camera_config.h"
 #include "mipi_bridge_config.h"
+#include "SXPP/FIR.h"
 
 #include "auto_focus.h"
 
@@ -192,7 +193,17 @@ int main()
         OV8865SetExposure(exposureTime);
         OV8865SetGain(gain);
         Focus_Init();
-  while(1){
+
+        SXPP_FIR rad_fir;
+        int rad_fir_coeff[50] = {
+        		0,7,12,15,12,0,-20,-41,-52,-40,0,61,119,143,106,0,-153,-297,-359,-272,0,440,974,1488,1860,1995,1860,1488,974,440,0,-272,-359,-297,-153,0,106,143,119,61,0,-40,-52,-41,-20,0,12,15,12,7,0
+        };
+        int rad_fir_buffer[50] = {0};
+        rad_fir.coeff=rad_fir_coeff;
+        rad_fir.vals=rad_fir_buffer;
+        rad_fir.next = 0;
+        rad_fir.size = 50;
+	while(1){
 
        // touch KEY0 to trigger Auto focus
 	   if((IORD(KEY_BASE,0)&0x03) == 0x02){
@@ -244,13 +255,32 @@ int main()
 	#endif
 
        //Read messages from the image processor and print them on the terminal
-       while ((IORD(0x42000,EEE_IMGPROC_STATUS)>>8) & 0xff) { 	//Find out if there are words to read
-           int word = IORD(0x42000,EEE_IMGPROC_MSG); 			//Get next word from message buffer
-    	   if (word == EEE_IMGPROC_MSG_START){ 					//Newline on message identifier
-    		   printf("\n");
-    	   }
-    	   printf("%08x ",word);
+       int name = 0;
+       int count_messages = 0;
+       int gridx = 0;
+       int gridy = 0;
+       while ((IORD(0x42000,EEE_IMGPROC_STATUS)>>8) & 0xff) {   //Find out if there are words to read
+    	   unsigned int word = IORD(0x42000,EEE_IMGPROC_MSG);                    //Get next word from message buffer
+           if (word == EEE_IMGPROC_MSG_START){                                  //Newline on message identifi$
+                   name = word;
+
+           }
+           else if(count_messages == 1){
+                   gridx = word >> 16;
+                   gridy = word << 16 >> 16;
+           }
+           else{
+                   if(gridx == 0x7ff | gridy == 0x7ff){
+//                           printf("Invalid Message");
+                   }
+                   else{
+                	   printf("\n%c%c%c ", name>>16, name>>8, name);
+                	   printf("girdx: %d, gridy: %d, rad: %u, filtered_rad: %u", gridx, gridy, word, SXPP_FIR_update(&rad_fir, word));
+                   }
+           }
+           count_messages++;
        }
+
 
        //Update the bounding box colour
        boundingBoxColour = ((boundingBoxColour + 1) & 0xff);

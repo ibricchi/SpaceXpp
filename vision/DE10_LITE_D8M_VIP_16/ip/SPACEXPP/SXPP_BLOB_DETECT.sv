@@ -60,7 +60,7 @@ logic[10:0] bw, bh, br;
 always_comb begin
     bw = maxx - minx; // box height
     bh = maxy - miny; // box width
-    br = (bw > bh) ? (bw>>1) : (bh>>1); // average box distance
+    br = (bw+bh)>>2; // average box distance
 end
 // min-max of new point compared to box range
 logic[10:0] new_minx, new_maxx, new_miny, new_maxy;
@@ -76,7 +76,7 @@ logic[31:0] distance;
 logic is_valid_pos;
 logic is_valid_init;
 always_comb begin
-    distance = (cx-x_in)*(cx-x_in) + (cy-y_in)*(cy-y_in) - br * br;
+    distance = (cx-x_in)*(cx-x_in) + (cy-y_in)*(cy-y_in) - bw*bh;
     is_valid_pos = (distance < min_dist | distance[31]) & !just_reset & (x_in > 30) & (y_in > 30) & (x_in < 610) & (y_in < 450);
     is_valid_init = MINX_INIT <= x_in & x_in <= MAXX_INIT &
                     MINY_INIT <= y_in & y_in <= MAXY_INIT &

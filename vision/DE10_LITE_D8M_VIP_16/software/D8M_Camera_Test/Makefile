@@ -148,6 +148,7 @@ C_SRCS += main.c
 C_SRCS += mipi_bridge_config.c
 C_SRCS += mipi_camera_config.c
 C_SRCS += queue.c
+C_SRCS += SXPP/FIR.c
 CXX_SRCS :=
 ASM_SRCS :=
 
