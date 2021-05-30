@@ -1,5 +1,4 @@
-#include <Wire.h>
-#include <INA219_WE.h>
+#include "smps.h"
 
 // Current sensing chip
 INA219_WE ina219;
@@ -9,19 +8,6 @@ float duty_cycle;
 
 // Measurements from the circuit - output voltage and inductor current
 float vout, iL;
-
-// Internal values needed for the PID controller
-float u0v, u1v, delta_uv, e0v, e1v, e2v; // u->output; e->error; 0->this time; 1->last time; 2->last last time
-float u0i, u1i, delta_ui, e0i, e1i, e2i; // Internal values for the current controller
-
-// PID controller constants for voltage and current
-float kpv = 0.05024, kiv = 15.78, kdv = 0;
-float kpi = 0.02512, kii = 39.4, kdi = 0;
-
-// Limits
-float uv_max = 4, uv_min = 0; // Anti-windup limitation
-float ui_max = 1, ui_min = 0; // Anti-windup limitation
-float current_limit = 3.0;    // Buck current limit
 
 // This subroutine processes all of the analogue samples, creating the required values for the main loop
 void sampling() {
@@ -44,6 +30,15 @@ void pwm_modulate(float pwm_input) {
 
 // Voltage PID controller
 float pidv(float pid_input, float Ts) {
+  // Constant
+  const float kpv = 0.05024, kiv = 15.78, kdv = 0;
+  const float uv_max = 4, uv_min = 0;
+
+  // Internal values needed for the PID controller
+  // u->output; e->error; 0->this time; 1->last time; 2->last last time
+  float u0v, u1v, delta_uv, e0v, e1v, e2v;
+
+  // PID
   float e_integration;
   e0v = pid_input;
   e_integration = e0v;
@@ -63,6 +58,15 @@ float pidv(float pid_input, float Ts) {
 
 // Current PID Controller
 float pidi(float pid_input, float Ts) {
+  // Constants
+  const float kpi = 0.02512, kii = 39.4, kdi = 0;
+  const float ui_max = 1, ui_min = 0;
+
+  // Internal values for the current controller
+  // u->output; e->error; 0->this time; 1->last time; 2->last last time
+  float u0i, u1i, delta_ui, e0i, e1i, e2i;
+
+  // PID
   float e_integration;
   e0i = pid_input;
   e_integration = e0i;
@@ -85,7 +89,7 @@ void SMPSSetup() {
   // Need this for millis to work
   interrupts();
 
-  // Eexternal analogue reference for the ADC
+  // External analogue reference for the ADC
   analogReference(EXTERNAL);
 
   // TimerB0 initialization for PWM output
@@ -107,6 +111,7 @@ void SMPSControl(float vref, float Ts) {
     The current loop then gives a duty cycle demand based upon the error between demanded current and measured
     current.
   */
+  const float current_limit = 3.0;
   sampling();
   float ev = vref - vout;
   float cv = pidv(ev, Ts);

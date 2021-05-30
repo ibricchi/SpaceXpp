@@ -1,6 +1,10 @@
 #ifndef SMPS_H
 #define SMPS_H
 
+#include <Wire.h>
+#include <INA219_WE.h>
+#include "Arduino.h"
+
 // This subroutine processes all of the analogue samples, creating the required values for the main loop
 void sampling();
 

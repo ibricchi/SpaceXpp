@@ -1,6 +1,9 @@
 #ifndef MOVE_HL_H
 #define MOVE_HL_H
 
+#include "move_ll.h"
+#include "Arduino.h"
+
 // Sets up the drive functions
 void driveInit();
 

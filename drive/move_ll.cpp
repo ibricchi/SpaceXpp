@@ -1,5 +1,4 @@
 #include "move_ll.h"
-#include "Arduino.h"
 
 // Defines the pins for the motors and initially sets the motors to move forward
 void motorSetup() {

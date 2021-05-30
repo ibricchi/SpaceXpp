@@ -4,36 +4,15 @@
    Final code written by Benjamin Ramhorst and Nicholas Pfaff (UART code)
 */
 
-/*
-   NOTES:
-    Arduino code for controlling the drive module of the Mars Rover 2021
-
-    SMPS:
-        1. Always runs in closed-loop Buck, never Boost
-        3. Control frequency is set to 2.5kHz
-        2. PWM for controlling the SMPS has a frequency of 62.5kHz and a duty cycle range of 2%-98%
-        4. Voltage and current are controlled using a PID controller, to achieve the desired reference voltage
-
-   Movement:
-        1. The speed is controlled by controlling the reference (and output) voltage of the SMPS
-        2. The rover can move forwards and backwards, as well as rotate clockwise and anticlockwise
-
-   Measurements:
-        1. TODO - Expand once optical flow code is added
-
-   UART:
-        1. TODO - Expand once code is fully added
-*/
-
 #include "smps.h"
 #include "optical_flow.h"
 #include "move_hl.h"
 #include "uart.h"
 
-// Control frequency (integer multiple of switching frequency)
+// Control frequency (integer multiple of switching frequency, 62.5kHz)
 float Ts = 0.0004;
 
-// Reference voltage - used for controlling the speed of the rover
+// Reference voltage - used for controlling the speed of the rover; likely to be removed once speed controller is fully functional
 float vref = 4.0;
 
 // Displacement in each direction, [cm]
@@ -43,13 +22,6 @@ float displacementX = 0.0, displacementY = 0.0;
 // UART
 UART uart;
 
-// For velocity control, iterative proportional controller
-float kvp = 0.1;   // TO BE TUNED
-float currentY = 0.0;
-float previousY = 0.0;
-float currentTime = 0.0;
-float previousTime = 0.0;
-
 // The current instruction to be executed
 int currentInstruction = 1;
 bool currentInstructionCompleted = false;
@@ -58,6 +30,13 @@ unsigned long currentInstructionTime = 0;
 float currentInstructionX = 0.0;
 float currentInstructionY = 0.0;
 
+
+// For velocity control, iterative proportional controller - to be fully implemented
+float kvp = 0.1;   // TO BE TUNED
+float currentY = 0.0;
+float previousY = 0.0;
+float currentTime = 0.0;
+float previousTime = 0.0;
 
 void setup() {
   Serial.begin(9600);
@@ -87,7 +66,6 @@ void loop() {
   // Set velocity to the desired value - commented out until velocity is accurately calculated using time
   // setVelocity(1.0);
 
-
   // Buffer through the instructions in order they arrive
   if (currentInstruction != -1) {
     if (!currentInstructionStarted) {
@@ -110,10 +88,11 @@ void loop() {
     stopMoving();
   }
 
+  // Control circuit frequency (SMPS)
   delayMicroseconds((unsigned long)Ts * 1000000.0);
 }
 
-// Decides and calls the current instruction based on the mapping below - these numbers are purely for testing
+// Decides and calls the current instruction based on the mapping below - these numbers are purely for testing; will be replaced with UART data
 boolean callCurrentInstruction() {
   switch (currentInstruction) {
     case 1:

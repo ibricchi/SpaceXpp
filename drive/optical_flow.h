@@ -1,6 +1,8 @@
 #ifndef OPTICAL_FLOW_H
 #define OPTICAL_FLOW_H
 
+#include "SPI.h"
+
 class OpticalFlow{
   private:
     // Distance moved in each direction, [cm]

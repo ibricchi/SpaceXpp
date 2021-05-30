@@ -1,9 +1,7 @@
 #include "uart.h"
-#include "Arduino.h"
 
 // Constructor
 UART::UART(){
-
   instruction = -1;
   newUARTDataAvailable = false;
   if(!Serial.available()) Serial.begin(9600);
