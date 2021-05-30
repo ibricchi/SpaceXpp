@@ -135,8 +135,8 @@ int main()
   usleep(2000);
   IOWR(MIPI_RESET_N_BASE, 0x00, 0xFF);
 
-  printf("Image Processor ID: %x\n",IORD(EEE_IMGPROC_0_BASE,EEE_IMGPROC_ID));
-  //printf("Image Processor ID: %x\n",IORD(EEE_IMGPROC_0_BASE,EEE_IMGPROC_ID)); //Don't know why this doesn't work - definition is in system.h in BSP
+  printf("Image Processor ID: %x\n",IORD(0x42000,EEE_IMGPROC_ID));
+  //printf("Image Processor ID: %x\n",IORD(0x42000,EEE_IMGPROC_ID)); //Don't know why this doesn't work - definition is in system.h in BSP
 
 
   usleep(2000);
