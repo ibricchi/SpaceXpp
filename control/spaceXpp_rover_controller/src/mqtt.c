@@ -82,6 +82,8 @@ void handle_mqtt_event_data(esp_mqtt_event_handle_t event) {
     sprintf(data, "%.*s", event->data_len, event->data);
 
     if (!strcmp(topic, "/drive/instruction")) {
+        ESP_LOGI(MQTT_tag, "MQTT_EVENT_DATA: data from topic: %s", topic);
+
         // Block for 10 ticks if queue is full
         xQueueSend(driveInstructionQueue, (void*)data, (TickType_t)10);
     } else {
