@@ -126,7 +126,6 @@ bool OpticalFlow::setup() {
   SPI.setClockDivider(SPI_CLOCK_DIV32);
   SPI.setDataMode(SPI_MODE3);
   SPI.setBitOrder(MSBFIRST);
-  Serial.begin(38400);
   if (mousecam_init() == -1) {
     return false;
   }
