@@ -177,7 +177,12 @@ Qsys u0 (
 		.altpll_0_phasedone_conduit_export         (),         					//       altpll_0_phasedone_conduit.export		
 		
 		.eee_imgproc_0_sw_new_signal               (SW),
-		.eee_imgproc_0_led_new_signal              (LEDR)
+		.eee_imgproc_0_led_new_signal              (LEDR),
+		
+		.spi_0_external_MISO                       (ARDUINO_IO[12]),                       //                   spi_0_external.MISO
+		.spi_0_external_MOSI                       (ARDUINO_IO[11]),                       //                                 .MOSI
+		.spi_0_external_SCLK                       (ARDUINO_IO[13]),                       //                                 .SCLK
+		.spi_0_external_SS_n                       (ARDUINO_IO[10]),                       //                                 .SS_n
 	);
 
 FpsMonitor uFps(
