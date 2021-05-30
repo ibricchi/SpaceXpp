@@ -95,9 +95,6 @@ always_ff @(posedge clk) begin
         miny <= 0;
         maxy <= 0;
         rad <= 0;
-        
-        fx <= 0;
-        fy <= 0;
     end
     else if(is_valid_color) begin
         if (is_valid_init) begin
@@ -108,9 +105,6 @@ always_ff @(posedge clk) begin
             miny <= y_in;
             maxy <= y_in;
             rad <= br;
-            
-            fx <= x_in;
-            fy <= y_in;
         end
         else if(is_valid_pos) begin
             valid <= 1;

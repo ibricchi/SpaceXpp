@@ -81,37 +81,29 @@ wire         sop, eop, in_valid, out_ready;
 
 // setup color detector vairables
 wire [3:0] cd_mode;
+wire [10:0] cd_x, cd_y;
+
 wire bd_is_valid_color;
-wire bd_is_valid_color_2;
 wire [4:0] bd_color_high;
-wire [4:0] bd_color_high_2;
 SXPP_COLOR_DETECT cd1 (
     clk,
     reset_n,
     
     red, green, blue,
     
+    x, y,
+    
     bd_color_high[0], //red
     bd_color_high[1], //yellow
     bd_color_high[2], //green
     bd_color_high[3], //blue
-    bd_color_high[4]  //pink
-);
-SXPP_COLOR_DETECT_2 cd2 (
-    clk,
-    reset_n,
+    bd_color_high[4],  //pink
     
-    red, green, blue,
-    
-    bd_color_high_2[0], //red
-    bd_color_high_2[1], //yellow
-    bd_color_high_2[2], //green
-    bd_color_high_2[3], //blue
-    bd_color_high_2[4]  //pink
+    cd_x, cd_y
 );
+
 assign cd_mode = sw[3:1];
-assign bd_is_valid_color_2 = bd_color_high[1<<(cd_mode-1)];
-assign bd_is_valid_color = bd_color_high_2[1<<(cd_mode-1)];
+assign bd_is_valid_color = bd_color_high[cd_mode];
 
 // setup blob detector params
 parameter screen_w = IMAGE_W, screen_h = IMAGE_H;
@@ -156,7 +148,7 @@ generate
 
                     .reset(bd_reset),
 
-                    .x_in(x), .y_in(y),
+                    .x_in(cd_x), .y_in(cd_y),
                     .is_valid_color(bd_is_valid_color & in_valid),
 
                     .valid(bds_valid[i][j]),
@@ -214,10 +206,17 @@ always @(*) begin
     end
 end
 
+wire [23:0] highlight_color[4:0];
+assign highlight_color[0] = 23'hffff00;
+assign highlight_color[1] = 23'hff0000;
+assign highlight_color[2] = 23'h00ff00;
+assign highlight_color[3] = 23'h0000ff;
+assign highlight_color[4] = 23'hff00ff;
+
 wire [23:0] blob_high;
 wire [23:0] grid_high;
 assign grey = green[7:1] + red[7:2] + blue[7:2]; //Grey = green/2 + red/4 + blue/4
-assign blob_high = bd_valid ? {8'hff, 8'h0, 8'h0} : {grey, grey, grey};
+assign blob_high = bd_valid ? highlight_color[cd_mode] : {grey, grey, grey};
 assign grid_high = grid_active ? {8'hff, 8'hff, 8'h0} : blob_high;
 
 wire [10:0] bb_ident = (bd_which_x+bd_which_y)%8;
