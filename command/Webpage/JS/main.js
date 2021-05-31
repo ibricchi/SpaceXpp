@@ -1,13 +1,18 @@
 
 
-const connectButton = document.getElementById("connect");
 const driveButton = document.getElementById("drive");
+const feedback = document.getElementById("feedback")
 
-connectButton.addEventListener('click', connect , false);
 driveButton.addEventListener('click', drive , false);
 
+document.getElementById("server").innerHTML = "loading"
+document.getElementById("rover").innerHTML = "loading"
+//feedback.innerHTML="Map is loading"
+
 setInterval(function(){
-    getData('status', '/connect' );
+    status();
+    updateMap();
+    updateRover();
 }, 3000);
 
 
@@ -22,5 +27,7 @@ function drive(){
     sendData('angle', '/drive/angle');
     sendData('distance', '/drive/distance');
 }
+
+
 
 

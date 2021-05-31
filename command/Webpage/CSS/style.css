@@ -11,6 +11,14 @@ body{
   border: 2px solid #4CAF50;
 }
 
+.server{
+  border-radius: 8px;
+  border: 2px solid #4CAF50;
+  width: 200px;
+
+
+}
+
 .container{
         width: 500px;
         margin: auto;
@@ -43,5 +51,21 @@ button:hover {
 input{
   border-radius: 8px;
   border: 2px solid #4CAF50;
+
+}
+
+.main-wrapper {
+  width: 512px;
+  padding-left: 1em;
+  padding-right: 1em;
+  margin: 0 auto;
+}
+
+#feedback{
+  background-color: #353131;
+  border: 2px solid #4CAF50;
+  padding: 50px;
+  color:aqua; 
+
 
 }

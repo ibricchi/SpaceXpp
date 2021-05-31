@@ -8,6 +8,7 @@
 #include "mqtt.h"
 #include "wifi.h"
 #include "uart.h"
+#include "drive.h"
 
 void app_main()
 {
@@ -22,6 +23,8 @@ void app_main()
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     wifi_init_sta();
+
+    drive_init();
 
     esp_mqtt_client_handle_t client = mqtt_init();
 

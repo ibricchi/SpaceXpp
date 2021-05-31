@@ -144,6 +144,7 @@
 #define __ALTERA_AVALON_JTAG_UART
 #define __ALTERA_AVALON_ONCHIP_MEMORY2
 #define __ALTERA_AVALON_PIO
+#define __ALTERA_AVALON_SPI
 #define __ALTERA_AVALON_SYSID_QSYS
 #define __ALTERA_AVALON_TIMER
 #define __ALTERA_NIOS2_GEN2
@@ -423,6 +424,37 @@
 #define ONCHIP_MEMORY2_0_SPAN 100000
 #define ONCHIP_MEMORY2_0_TYPE "altera_avalon_onchip_memory2"
 #define ONCHIP_MEMORY2_0_WRITABLE 1
+
+
+/*
+ * spi_0 configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_spi_0 altera_avalon_spi
+#define SPI_0_BASE 0x0
+#define SPI_0_CLOCKMULT 1
+#define SPI_0_CLOCKPHASE 0
+#define SPI_0_CLOCKPOLARITY 0
+#define SPI_0_CLOCKUNITS "Hz"
+#define SPI_0_DATABITS 8
+#define SPI_0_DATAWIDTH 16
+#define SPI_0_DELAYMULT "1.0E-9"
+#define SPI_0_DELAYUNITS "ns"
+#define SPI_0_EXTRADELAY 0
+#define SPI_0_INSERT_SYNC 0
+#define SPI_0_IRQ 4
+#define SPI_0_IRQ_INTERRUPT_CONTROLLER_ID 0
+#define SPI_0_ISMASTER 1
+#define SPI_0_LSBFIRST 0
+#define SPI_0_NAME "/dev/spi_0"
+#define SPI_0_NUMSLAVES 1
+#define SPI_0_PREFIX "spi_"
+#define SPI_0_SPAN 32
+#define SPI_0_SYNC_REG_DEPTH 2
+#define SPI_0_TARGETCLOCK 5000000u
+#define SPI_0_TARGETSSDELAY "0.0"
+#define SPI_0_TYPE "altera_avalon_spi"
 
 
 /*

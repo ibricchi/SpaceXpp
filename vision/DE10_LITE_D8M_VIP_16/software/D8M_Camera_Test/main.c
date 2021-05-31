@@ -1,11 +1,12 @@
 
-
 #include <stdio.h>
+#include <system.h>
 #include "I2C_core.h"
 #include "terasic_includes.h"
 #include "mipi_camera_config.h"
 #include "mipi_bridge_config.h"
 #include "SXPP/FIR.h"
+#include "altera_avalon_spi.h"
 
 #include "auto_focus.h"
 
@@ -136,7 +137,7 @@ int main()
   IOWR(MIPI_RESET_N_BASE, 0x00, 0xFF);
 
   printf("Image Processor ID: %x\n",IORD(0x42000,EEE_IMGPROC_ID));
-  //printf("Image Processor ID: %x\n",IORD(EEE_IMGPROC_0_BASE,EEE_IMGPROC_ID)); //Don't know why this doesn't work - definition is in system.h in BSP
+  //printf("Image Processor ID: %x\n",IORD(0x42000,EEE_IMGPROC_ID)); //Don't know why this doesn't work - definition is in system.h in BSP
 
 
   usleep(2000);
@@ -322,6 +323,12 @@ int main()
        	   	   break;}
        }
 
+       // Send and receive data from esp32
+	  const alt_u8* tx_data = (alt_u8*)"Hello from DE10Lite";
+	  alt_u32 tx_length = strlen((char*)tx_data);
+	  alt_u8 rx_data[tx_length];
+	  alt_u32 rx_length = tx_length;
+	  alt_avalon_spi_command(SPI_0_BASE, 0, tx_length, tx_data, rx_length, rx_data, 0);
 
 	   //Main loop delay
 	   usleep(10000);
