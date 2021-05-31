@@ -2,13 +2,13 @@
 
 // Constructor
 UART::UART(){
-  instruction = -1;
+  instruction = doNothing;
   newUARTDataAvailable = false;
   if(!Serial.available()) Serial.begin(9600);
 }
 
 // Getters
-int UART::getInstruction(){ return instruction; }
+instructions UART::getInstruction(){ return instruction; }
 bool UART::getNewUARTDataAvailable(){ return newUARTDataAvailable; }
 char* UART::getReceivedUARTCharts(){ return receivedUARTChars; }
 
@@ -52,13 +52,13 @@ void UART::processNewUARTData() {
 
     switch (instructionKey) {
       case 'F':
-        instruction = 3;
+        instruction = forwardForDistance;
         break;
       case 'R':
-        instruction = 5;
+        instruction = turnR;
         break;
       case 'L':
-        instruction = 6;
+        instruction = turnL;
         break;
       default:
         Serial.print("INVALID INSTRUCTION KEY\n");

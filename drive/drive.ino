@@ -23,13 +23,12 @@ float displacementX = 0.0, displacementY = 0.0;
 UART uart;
 
 // The current instruction to be executed
-int currentInstruction = 1;
+instructions currentInstruction = doNothing;
 bool currentInstructionCompleted = false;
 bool currentInstructionStarted = false;
 unsigned long currentInstructionTime = 0;
 float currentInstructionX = 0.0;
 float currentInstructionY = 0.0;
-
 
 // For velocity control, iterative proportional controller - to be fully implemented
 float kvp = 0.1;   // TO BE TUNED
@@ -37,6 +36,7 @@ float currentY = 0.0;
 float previousY = 0.0;
 float currentTime = 0.0;
 float previousTime = 0.0;
+
 
 void setup() {
   Serial.begin(9600);
@@ -54,6 +54,7 @@ void loop() {
   // Received and decode current instruction
   uart.recvUARTWithStartEndMarkers();
   uart.processNewUARTData();
+  currentInstruction = uart.getInstruction();
 
   // Read the current position of the rover
   opticalFlow.read();
@@ -67,7 +68,7 @@ void loop() {
   // setVelocity(1.0);
 
   // Buffer through the instructions in order they arrive
-  if (currentInstruction != -1) {
+  if (currentInstruction != doNothing) {
     if (!currentInstructionStarted) {
       currentInstructionStarted = true;
       currentInstructionCompleted = false;
@@ -80,7 +81,7 @@ void loop() {
         currentInstructionCompleted = callCurrentInstruction();
       } else {
         currentInstructionStarted = false;
-        currentInstruction = -1;
+        currentInstruction = doNothing;
         uart.nextInstructionReady();
       }
     }
@@ -95,17 +96,17 @@ void loop() {
 // Decides and calls the current instruction based on the mapping below - these numbers are purely for testing; will be replaced with UART data
 boolean callCurrentInstruction() {
   switch (currentInstruction) {
-    case 1:
+    case forwardForTime:
       return moveForwardForTime(10000, currentInstructionTime);
-    case 2:
+    case backwardForTime:
       return moveBackwardForTime(10000, currentInstructionTime);
-    case 3:
+    case forwardForDistance:
       return moveForwardForDistance(20, currentInstructionY, displacementY);
-    case 4:
+    case backwardForDistance:
       return moveBackwardForDistance(20, currentInstructionY, displacementY);
-    case 5:
+    case turnR:
       return turnRight(displacementX, displacementY, currentInstructionX, currentInstructionY);
-    case 6:
+    case turnL:
       return turnLeft(displacementX, displacementY, currentInstructionX, currentInstructionY);
     default:
       return false;

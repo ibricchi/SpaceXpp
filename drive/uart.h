@@ -3,20 +3,24 @@
 
 #include "Arduino.h"
 
+// List of all the possible instructions
+enum instructions {doNothing, forwardForTime, backwardForTime, forwardForDistance, backwardForDistance, turnR, turnL};
+
 class UART{
   private:
     // UART constants
-    const byte numUARTChars = 40;
-    int instruction;
+    static const byte numUARTChars = 40;
+    instructions instruction;
     char* receivedUARTChars;
     bool newUARTDataAvailable;
+
 
   public:
     // Default constructor
     UART();
 
     // Getters
-    int getInstruction();
+    instructions getInstruction();
     bool getNewUARTDataAvailable();
     char* getReceivedUARTCharts();
 

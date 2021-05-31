@@ -5,6 +5,8 @@
 #include <INA219_WE.h>
 #include "Arduino.h"
 
+#define PIN_PWM_OUT 6
+
 // This subroutine processes all of the analogue samples, creating the required values for the main loop
 void sampling();
 

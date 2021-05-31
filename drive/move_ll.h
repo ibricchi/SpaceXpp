@@ -3,6 +3,11 @@
 
 #include "Arduino.h"
 
+#define MR 5
+#define ML 9
+#define DIRR 21
+#define DIRL 20
+
 // Defines the pins for the motors and initially sets the motors to move forward
 void motorSetup();
 
