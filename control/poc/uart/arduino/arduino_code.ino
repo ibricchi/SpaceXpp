@@ -15,9 +15,9 @@ void loop() {
     processNewUARTData();
 
     unsigned long currentMillis = millis();
-    if (currentMillis - previousMillis > 1000) {
+    if (currentMillis - previousMillis > 5000) {
       previousMillis = currentMillis;
-      Serial.println("<Data from Arduino>");
+      Serial.print("R"); // Ready for next instruction signal => should be send after finished with current drive instruction
     }
 }
 
@@ -33,8 +33,7 @@ void recvUARTWithStartEndMarkers() {
 
         if (recvInProgress) {
             if (received != endMarker) {
-                receivedUARTChars[idx] = received;
-                idx++;
+                receivedUARTChars[idx++] = received;
                 
                 if (idx >= numUARTChars) {
                     idx = numUARTChars - 1;
@@ -54,25 +53,28 @@ void recvUARTWithStartEndMarkers() {
 
 void processNewUARTData() {
     if (newUARTDataAvailable) {
-        // Read and pop key
-        const char key = receivedUARTChars[strlen(receivedUARTChars)-1];
+        // Read and pop instruction key
+        const char instructionKey = receivedUARTChars[strlen(receivedUARTChars)-1];
         receivedUARTChars[strlen(receivedUARTChars)-1] = '\0';
 
-        // Data encoding defined in esp32 => Will probably want both way data encoding
-        switch(key) {
+        switch(instructionKey) {
           case 'F':
             Serial.print("FORWARD VALUE: ");
             Serial.print(receivedUARTChars);
             break;
-          case 'T':
-            Serial.print("TURN VALUE: ");
+          case 'R':
+            Serial.print("TURN RIGHT VALUE: ");
+            Serial.print(receivedUARTChars);
+            break;
+          case 'L':
+            Serial.print("TURN LEFT VALUE: ");
             Serial.print(receivedUARTChars);
             break;
           default:
-            Serial.print("INVALID KEY\n");
+            Serial.print("INVALID INSTRUCTION KEY\n");
             break;
         }
-        
+
         newUARTDataAvailable = false;
     }
 }

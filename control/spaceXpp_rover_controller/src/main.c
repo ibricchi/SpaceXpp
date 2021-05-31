@@ -8,6 +8,8 @@
 #include "mqtt.h"
 #include "wifi.h"
 #include "uart.h"
+#include "spi.h"
+#include "drive.h"
 
 void app_main()
 {
@@ -23,15 +25,21 @@ void app_main()
 
     wifi_init_sta();
 
+    drive_init();
+
     esp_mqtt_client_handle_t client = mqtt_init();
 
     drive_uart_init();
     // vision_uart_init();
     // energy_uart_init();
 
+    vision_spi_init();
+
     xTaskCreate(mqtt_task, "mqtt_task", 2048, (void*)client, 10, NULL);
 
     xTaskCreate(drive_uart_task, "drive_uart_task", 2048, NULL, 10, NULL);
     // xTaskCreate(vision_uart_task, "vision_uart_task", 2048, NULL, 10, NULL);
     // xTaskCreate(energy_uart_task, "energy_uart_task", 2048, NULL, 5, NULL);
+
+    xTaskCreate(vision_spi_task, "vision_spi_task", 2048, NULL, 11, NULL);
 }

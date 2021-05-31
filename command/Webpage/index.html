@@ -12,6 +12,9 @@
         <script src="JS/Communicator.js"></script>
         <script src="JS/speed.js"></script>
 
+        <script src="JS/map/common.js"></script>
+        <script src="JS/map/logic-grid.js"></script>
+
 
     </head>
 
@@ -22,11 +25,33 @@
 
             <h2 for="status"> Status </h2>
             <div class="status">
-                <p>Status: <span id="status" ></span></p> <button id="connect"> Connect </button>
+                <p>Server: <span id="server"></span></p>
+                <p>Rover: <span id="rover"></span></p>
+
             </div>
 
             
-            <h2> Drive </h2>
+            <h2> Map </h2>
+            <h3> Controlls</h3>
+            <p> Arrow Keys: Control cursor</p>
+            <p> Enter Key: Sends rover to location of cursor</p>
+
+            <h3>Routing Options</h3>
+                <label for="cars">Choose a mode:</label>
+                <select name="mode" id="mode">
+                  <option value=0>Simple</option>
+                  <option value=1>Full Discovery</option>
+                  <option value=2>Destination Discovery</option>
+                </select>
+            <br></br>
+            <div class="main-wrapper">
+                <canvas id="demo" width="512" height="512"></canvas>
+            </div>
+
+            <h3> Feedback </h3>
+            <div id="feedback"> </div>
+
+            <h2> Manual Drive </h2>
             <div class="status">
                 <label for="distace">Distance:</label><br>
                 <input type="number" id="distance" name="Distance" value="0"><br>
@@ -34,7 +59,8 @@
                 <input type="number" id="angle" name="Angle" value="0"><br>
                 <button type="button" id="drive" > Submit </button>
             </div>
-        </div>
+            
+    </div>
 
     </body>
 

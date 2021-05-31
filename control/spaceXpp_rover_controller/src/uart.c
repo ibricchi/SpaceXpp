@@ -2,8 +2,8 @@
 
 static const char *UART_tag = "UART";
 
-// Data encodings
-const DriveEncoding driveEncoding = {"F", "T"};
+extern const DriveEncoding driveEncoding;
+extern QueueHandle_t driveInstructionQueue;
 
 void drive_uart_init()
 {
@@ -33,21 +33,50 @@ void energy_uart_init()
 
 void drive_uart_task(void *arg)
 {
+    static bool driveIsReady = false;
+
     uint8_t* rx_data = (uint8_t*) malloc(DRIVE_BUFFER_SIZE+1);
+    char* queue_data = (char*) malloc(32*8);
+
     while (1) {
         int rxBytes = uart_read_bytes(DRIVE_UART_NUM, rx_data, DRIVE_BUFFER_SIZE, 1000 / portTICK_RATE_MS);
         if (rxBytes > 0) {
             rx_data[rxBytes] = 0; // End of received string
-            printf("UART data from drive: %s", (char*)rx_data);
+            printf("UART data from drive: %s\n", (char*)rx_data);
 
-            // Send string data
-            const char* tx_data = "Message from ESP32";
-            send_drive_uart_data(driveEncoding.forward, tx_data);
+            char quickInstruction = rx_data[0];
+            if (quickInstruction == 'R') { // Drive is ready for next instruction
+                driveIsReady = true;
+            }
         }
 
-         vTaskDelay(1000 / portTICK_PERIOD_MS);
+        // Don't block if queue is empty, only send next instruction if drive is ready
+        if (driveIsReady && xQueueReceive(driveInstructionQueue, queue_data, (TickType_t)0)) {
+            // Decode drive instruction data
+            char* instruction = strtok(queue_data, DRIVE_INSTRUCTION_DELIMITER);
+            char* value = strtok(NULL, DRIVE_INSTRUCTION_DELIMITER);
+
+            char* encodedInstruction = "";
+            if (strcmp(instruction, "F") || strcmp(instruction, "forward")) {
+                encodedInstruction = driveEncoding.forward;
+            } else if (strcmp(instruction, "R") || strcmp(instruction, "turnRight")) {
+                encodedInstruction = driveEncoding.turnRight;
+            } else if (strcmp(instruction, "L") || strcmp(instruction, "turnLeft")) {
+                encodedInstruction = driveEncoding.turnLeft;
+            } else {
+                ESP_LOGE(UART_tag, "Unknown drive instruction: %s", instruction);
+            }
+
+            // Send instruction to drive
+            send_drive_uart_data(encodedInstruction, value);
+            driveIsReady = false;
+        }
+
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
+
     free(rx_data);
+    free(queue_data);
 }
 
 void vision_uart_task(void *arg)

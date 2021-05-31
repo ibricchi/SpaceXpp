@@ -7,6 +7,12 @@ import (
 	"strconv"
 )
 
+type coordinates struct {
+	X    int `json:"x"`
+	Y    int `json:"y"`
+	Mode int `json:"mode"`
+}
+
 func (h *HttpServer) speed(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	defer r.Body.Close()
@@ -71,4 +77,26 @@ func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
 
 	h.mqtt.publish("/drive/angle", strconv.Itoa(t), 0)
 
+	var a driveInstruction
+	a.instruction = "turnLeft"
+	a.value = 90
+	fmt.Println("left instruction")
+	updateMap(a)
+
+}
+
+func (h *HttpServer) targetCoords(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	defer r.Body.Close()
+
+	var targetCoords coordinates
+	if err := decoder.Decode(&targetCoords); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+
+	w.WriteHeader(http.StatusOK)
+
+	if err := h.mapAndDrive(targetCoords.X, targetCoords.Y, targetCoords.Mode); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
 }
