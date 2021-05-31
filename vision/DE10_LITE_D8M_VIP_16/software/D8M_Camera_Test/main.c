@@ -194,15 +194,14 @@ int main()
         OV8865SetGain(gain);
         Focus_Init();
 
-        SXPP_FIR rad_fir;
-        int rad_fir_coeff[50] = {
-        		0,7,12,15,12,0,-20,-41,-52,-40,0,61,119,143,106,0,-153,-297,-359,-272,0,440,974,1488,1860,1995,1860,1488,974,440,0,-272,-359,-297,-153,0,106,143,119,61,0,-40,-52,-41,-20,0,12,15,12,7,0
+        char* color_names[5] = {
+        		"RED",
+        		"YELLOW",
+        		"GREEN",
+        		"BLUE",
+        		"PINK"
         };
-        int rad_fir_buffer[50] = {0};
-        rad_fir.coeff=rad_fir_coeff;
-        rad_fir.vals=rad_fir_buffer;
-        rad_fir.next = 0;
-        rad_fir.size = 50;
+
 	while(1){
 
        // touch KEY0 to trigger Auto focus
@@ -257,8 +256,7 @@ int main()
        //Read messages from the image processor and print them on the terminal
        int name = 0;
        int count_messages = 0;
-       int gridx = 0;
-       int gridy = 0;
+       int last_message = 2;
        while ((IORD(0x42000,EEE_IMGPROC_STATUS)>>8) & 0xff) {   //Find out if there are words to read
     	   unsigned int word = IORD(0x42000,EEE_IMGPROC_MSG);                    //Get next word from message buffer
            if (word == EEE_IMGPROC_MSG_START){                                  //Newline on message identifi$
@@ -266,17 +264,19 @@ int main()
 
            }
            else if(count_messages == 1){
-                   gridx = word >> 16;
-                   gridy = word << 16 >> 16;
+                   char gridx = word >> 24;
+                   char gridy = word << 8 >> 24;
+                   char* color = color_names[word << 16 >> 27];
+                   int rad = word << 21 >> 21;
+                   if(gridx != -1 & gridy != -1){
+                	   printf("\n%c%c%c: girdx: %d, gridy: %d, color:%s rad: %d",
+                			   name>>16, name>>8, name,
+                			   gridx, gridy, color, rad
+                	   );
+                   }
            }
            else{
-                   if(gridx == 0x7ff | gridy == 0x7ff){
-//                           printf("Invalid Message");
-                   }
-                   else{
-                	   printf("\n%c%c%c ", name>>16, name>>8, name);
-                	   printf("girdx: %d, gridy: %d, rad: %u, filtered_rad: %u", gridx, gridy, word, SXPP_FIR_update(&rad_fir, word));
-                   }
+//			   printf("\n%c%c%c", word>>16,word>>8,word);
            }
            count_messages++;
        }
