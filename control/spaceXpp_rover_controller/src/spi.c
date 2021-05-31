@@ -19,11 +19,13 @@ void vision_spi_init() {
     };
 
     // Prevent detection of pulses when no master is connected
-    gpio_set_pull_mode(VISION_MOSI_PIN, GPIO_PULLUP_ONLY);
-    gpio_set_pull_mode(VISION_SCLK_PIN, GPIO_PULLUP_ONLY);
-    gpio_set_pull_mode(VISION_CS_PIN, GPIO_PULLUP_ONLY);
+    ESP_ERROR_CHECK(gpio_set_pull_mode(VISION_MOSI_PIN, GPIO_PULLUP_ONLY));
+    ESP_ERROR_CHECK(gpio_set_pull_mode(VISION_SCLK_PIN, GPIO_PULLUP_ONLY));
+    ESP_ERROR_CHECK(gpio_set_pull_mode(VISION_CS_PIN, GPIO_PULLUP_ONLY));
 
     ESP_ERROR_CHECK(spi_slave_initialize(VISION_SPI_HOST, &buscfg, &slvcfg, VISION_DMA_CHAN));
+
+    ESP_LOGI(SPI_tag, "Vision SPI setup completed");
 }
 
 void vision_spi_task(void *arg) {

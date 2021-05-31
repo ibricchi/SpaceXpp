@@ -13,4 +13,6 @@ void drive_init() {
         ESP_LOGE(DRIVE_tag, "Failed to create drive instruction queue");
         abort();
     }
+
+    ESP_LOGI(DRIVE_tag, "Drive setup completed");
 }
