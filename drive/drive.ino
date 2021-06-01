@@ -5,15 +5,15 @@
 */
 
 #include "smps.h"
-#include "optical_flow.h"
 #include "move_hl.h"
 #include "uart.h"
+#include "optical_flow.h"
 
 // Control frequency (integer multiple of switching frequency, 62.5kHz)
-float Ts = 0.0004;
+float Ts = 0.0008;
 
 // Reference voltage - used for controlling the speed of the rover; likely to be removed once speed controller is fully functional
-float vref = 4.0;
+float vref = 3.0;
 
 // Displacement in each direction, [cm]
 OpticalFlow opticalFlow;
@@ -38,9 +38,8 @@ float previousY = 0.0;
 float currentTime = 0.0;
 float previousTime = 0.0;
 
-
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(38400);
   SMPSSetup();
   driveInit();
   if (!opticalFlow.setup()) {
@@ -48,6 +47,7 @@ void setup() {
   }
   uart.setup();
   uart.nextInstructionReady();
+  
 }
 
 void loop() {
@@ -68,13 +68,13 @@ void loop() {
   opticalFlow.read();
   displacementX = opticalFlow.getDisplacementX();
   displacementY = opticalFlow.getDisplacementY();
-  //Serial.println("Displacement x-direction: " + String(displacementX));
-  //Serial.println("Displacement y-driection: " + String(displacementY));
+  Serial.println("Displacement x-direction: " + String(displacementX));
+  Serial.println("Displacement y-driection: " + String(displacementY));
 
 
   // Set velocity to the desired value - commented out until velocity is accurately calculated using time
   // setVelocity(1.0);
-
+  
   // Buffer through the instructions in order they arrive
   if (currentInstruction != doNothing) {
     Serial.println("Current instruction is different from doNothing");
@@ -100,9 +100,9 @@ void loop() {
   } else {
     stopMoving();
   }
-
+  
   // Control circuit frequency (SMPS)
-  delayMicroseconds((unsigned long)Ts * 1000000.0);
+  delayMicroseconds((unsigned long)(Ts * 1000000.0));
 }
 
 // Decides and calls the current instruction based on the mapping below - these numbers are purely for testing; will be replaced with UART data
@@ -131,6 +131,7 @@ boolean callCurrentInstruction() {
 /*
    Velocity control functions - to be implemented
 */
+/*
 // Sets the speed of the rover
 void setVelocity(float velocityReference) {
   previousY = currentY;
@@ -140,7 +141,7 @@ void setVelocity(float velocityReference) {
   float velocityCurrent = (currentY - previousY) / (currentTime - previousTime);
   float velocityError = velocityReference - velocityCurrent;
   vref += kvp * velocityError;
-}
+}*/
 
 // Causes the rover to stop moving
 void stopMoving() {
