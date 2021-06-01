@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-var tileWidth = 1
+var tileWidth = 10
 
 // Initilising starting map: unknown (1) with boarders (3)
 
