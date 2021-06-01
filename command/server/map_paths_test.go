@@ -16,6 +16,16 @@ func TestGetShortedPathFromStartToDestination(t *testing.T) {
 	}
 
 	tests := []test{
+		{0, 1, 0, 2, tileMap{5, 5, []int{
+			0, 1, 0, 0, 1,
+			0, 2, 2, 3, 0,
+			0, 1, 0, 1, 0,
+			2, 0, 3, 4, 5,
+			0, 0, 0, 1, 0,
+		}}, [][]int{
+			{0, 1},
+			{0, 2},
+		}},
 		{0, 1, 4, 3, tileMap{5, 5, []int{
 			0, 1, 0, 0, 1,
 			0, 2, 2, 3, 0,

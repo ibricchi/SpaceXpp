@@ -72,6 +72,14 @@ func pathToDriveInstructions(path [][]int, tileWidth int, initialDirection direc
 		})
 	}
 
+	// Check for special case of only one forward instruction
+	if len(path) == 2 {
+		instructions = append(instructions, driveInstruction{
+			instruction: "forward",
+			value:       currentDistance,
+		})
+	}
+
 	// Skip start tile (already there)
 	for i := 2; i < len(path); i++ {
 		currentRow := path[i][0]
