@@ -36,6 +36,8 @@ var Rover = rover{
 
 func (h *HttpServer) mapAndDrive(destinationCol int, destinationRow int, mode int) error {
 
+	//fmt.Fprint("aim: ", destinationCol, ", ", destinationRow)
+
 	// Getting optimum path
 	path, err := getShortedPathFromStartToDestination(Rover.Y, Rover.Y, destinationRow, destinationCol, Map)
 
@@ -105,7 +107,7 @@ func updateMap(driveInstruction driveInstruction) {
 * 		- update map with location of obstruction & type of instruction
  */
 
-func stop(distance int, obstructionType int) {
+func stop(distance int, obstructionType string) {
 
 	driveTocoords(stashedDriveInstruction, tileWidth)
 
@@ -121,8 +123,25 @@ func stop(distance int, obstructionType int) {
 
 	indx := getOneInFront()
 
-	Map.Tiles[indx] = 3
+	Map.Tiles[indx] = obstacleToValue(obstructionType)
 
+}
+
+func obstacleToValue(obstacle string) int {
+
+	if obstacle == "B" {
+		return 6
+	} else if obstacle == "R" {
+		return 7
+	} else if obstacle == "Y" {
+		return 8
+	} else if obstacle == "T" {
+		return 9
+	} else if obstacle == "V" {
+		return 10
+	}
+
+	return 5
 }
 
 func getOneInFront() int {

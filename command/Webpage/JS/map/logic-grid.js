@@ -42,7 +42,7 @@ var map = {
         // loop through all layers and return TRUE if any tile is solid
         return this.layers.reduce(function (res, layer, index) {
             var tile = this.getTile(index, col, row);
-            var isSolid = tile === 3 || tile === 5;
+            var isSolid = tile === 3 || tile === 5 || tile === 6 || tile === 7 || tile === 8 || tile === 9 || tile === 10 ;
             return res || isSolid;
         }.bind(this), false);
     },
