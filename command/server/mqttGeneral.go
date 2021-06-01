@@ -97,6 +97,8 @@ func (m *MQTTClient) publish(topic string, data string, qos byte) {
 var instructionFeedPubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
 
+	//var stopData string
+
 	s := strings.Split(string(msg.Payload()), ":")
 	value := s[1]
 	v, _ := strconv.Atoi(value)
@@ -115,10 +117,9 @@ var instructionFeedPubHandler mqtt.MessageHandler = func(client mqtt.Client, msg
 		instruction.value = v
 		updateMap(instruction)
 	} else if s[0] == "S" {
-
+		//stopData = s[1]
 	} else if s[0] == "SD" {
-
-		//stop(distance int, obstructionType int)
+		stop(v, 1)
 	}
 
 }
