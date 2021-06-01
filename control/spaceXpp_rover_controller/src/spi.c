@@ -127,8 +127,8 @@ void vision_spi_task_simulated(void *arg) {
 }
 
 void handle_vision_stop_instruction(char* stopInformation) {
-    // No need to avoid obstructions identified while turning
-    if (strcmp(currentDriveInstruction, driveEncoding.turnLeft) == 0 || strcmp(currentDriveInstruction, driveEncoding.turnRight) == 0) {
+    // Only need to stop if moving forward
+    if (strcmp(currentDriveInstruction, driveEncoding.forward) != 0) {
         return;
     }
 
