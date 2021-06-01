@@ -66,6 +66,13 @@ var mqttConnectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
 		log.Fatalf("server: mqtt: failed to subscribe to /test/status: %v", token.Error())
 	}
 	fmt.Println("Subscribed to topic: /test/status")
+
+	// Subscribe to topics
+	if token := client.Subscribe("/feedback/instruction", 2, instructionFeedPubHandler); token.Wait() && token.Error() != nil {
+		log.Fatalf("server: mqtt: failed to subscribe to /feedback/instruction: %v", token.Error())
+	}
+	fmt.Println("Subscribed to topic: /feedback/instruction")
+
 }
 
 var mqttConnectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
@@ -123,15 +130,3 @@ var instructionFeedPubHandler mqtt.MessageHandler = func(client mqtt.Client, msg
 	}
 
 }
-
-var instructionFeedConnectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
-	fmt.Println("Connected to MQTT broker successfully")
-
-	// Subscribe to topics
-	if token := client.Subscribe("/feedback/instruction", 2, instructionFeedPubHandler); token.Wait() && token.Error() != nil {
-		log.Fatalf("server: mqtt: failed to subscribe to /feedback/instruction: %v", token.Error())
-	}
-	fmt.Println("Subscribed to topic: /feedback/instruction")
-}
-
-// Subscribing to stop feed
