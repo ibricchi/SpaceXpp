@@ -84,17 +84,20 @@ void vision_spi_task_simulated(void *arg) {
         // Clear rx_buff
         memset(rx_buff, 0, VISION_BUFFER_SIZE);
 
-        switch (esp_random() % 6) {
+        switch (esp_random() % 7) {
             case 0: // STOP: General obstruction in field before rover
-                strcpy(rx_buff, "ObstructionS");
+                strcpy(rx_buff, "US");
                 break;
             case 1:  // STOP: Blue ball in field before rover
-                strcpy(rx_buff, "Blue ballS");
+                strcpy(rx_buff, "BS");
                 break;
-            case 2:
+            case 2:  // STOP: Red ball in field before rover
+                strcpy(rx_buff, "RS");
+                break;
             case 3:
             case 4:
-            case 5: // Nothing detected => No data from vision
+            case 5:
+            case 6: // Nothing detected => No data from vision
                 vTaskDelay(1000 / portTICK_PERIOD_MS);
                 continue;
             default:
