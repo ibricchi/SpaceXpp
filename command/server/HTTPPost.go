@@ -140,4 +140,8 @@ func (h *HttpServer) resetMap(w http.ResponseWriter, r *http.Request) {
 		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
 		3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3}
 
+	Rover.X = 5
+	Rover.Y = 5
+	Rover.Rotation = 0
+
 }
