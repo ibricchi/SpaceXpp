@@ -5,7 +5,7 @@ void motorSetup() {
   // Right (5) and Left (9) motor & setting their speed to 0 (stationary initially)
   pinMode(MR, OUTPUT);
   pinMode(ML, OUTPUT);
-  digitalWrite(MR, HIGH);
+  digitalWrite(MR, LOW);
   digitalWrite(ML, LOW);
 
   // Direction pins for the motors: Right(21) and Left(20)

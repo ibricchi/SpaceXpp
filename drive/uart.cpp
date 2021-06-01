@@ -16,6 +16,8 @@ instructions UART::getInstruction(){ return instruction; }
 bool UART::getNewUARTDataAvailable(){ return newUARTDataAvailable; }
 float UART::getReceivedUARTCharts(){ return atof(receivedUARTChars); }
 
+void UART::setInstruction(instructions i){ instruction = i; }
+
 // Receving new instruction from UART
 void UART::recvUARTWithStartEndMarkers() {
   static boolean recvInProgress = false;
