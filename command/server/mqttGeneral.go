@@ -128,10 +128,10 @@ var instructionFeedConnectHandler mqtt.OnConnectHandler = func(client mqtt.Clien
 	fmt.Println("Connected to MQTT broker successfully")
 
 	// Subscribe to topics
-	if token := client.Subscribe("/vision/instruction", 2, instructionFeedPubHandler); token.Wait() && token.Error() != nil {
-		log.Fatalf("server: mqtt: failed to subscribe to /vision/instruction: %v", token.Error())
+	if token := client.Subscribe("/feedback/instruction", 2, instructionFeedPubHandler); token.Wait() && token.Error() != nil {
+		log.Fatalf("server: mqtt: failed to subscribe to /feedback/instruction: %v", token.Error())
 	}
-	fmt.Println("Subscribed to topic: /vision/instruction")
+	fmt.Println("Subscribed to topic: /feedback/instruction")
 }
 
 // Subscribing to stop feed
