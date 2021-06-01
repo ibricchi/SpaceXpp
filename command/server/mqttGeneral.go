@@ -98,6 +98,29 @@ var instructionFeedPubHandler mqtt.MessageHandler = func(client mqtt.Client, msg
 	// ToDo: impliment calling :
 	// updateMap(driveInstruction driveInstruction)
 
+	s := string.Split(msg.Payload(), ':')
+
+	var instruction driveInstruction
+
+	if s[0] == 'F' {
+		instruction.instruction = "forward"
+		instruction.value = s[1]
+		updateMap(instruction)
+	} else if s[0] == 'R' {
+		instruction.instruction = "turnRight"
+		instruction.value = s[1]
+		updateMap(instruction)
+	} else if s[0] == 'L' {
+		instruction.instruction = "turnLeft"
+		instruction.value = s[1]
+		updateMap(instruction)
+	} else if s[0] == 'S' {
+
+	} else if s[0] == "SD" {
+
+		//stop(distance int, obstructionType int)
+	}
+
 }
 
 var instructionFeedConnectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
@@ -111,21 +134,3 @@ var instructionFeedConnectHandler mqtt.OnConnectHandler = func(client mqtt.Clien
 }
 
 // Subscribing to stop feed
-
-var stopFeedPubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
-	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
-
-	// ToDo: impliment calling :
-	// stop(distance int, obstructionType int)
-
-}
-
-var stopFeedConnectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
-	fmt.Println("Connected to MQTT broker successfully")
-
-	// Subscribe to topics
-	if token := client.Subscribe("/vision/stop", 2, instructionFeedPubHandler); token.Wait() && token.Error() != nil {
-		log.Fatalf("server: mqtt: failed to subscribe to /drive/stop: %v", token.Error())
-	}
-	fmt.Println("Subscribed to topic: /drive/stop")
-}
