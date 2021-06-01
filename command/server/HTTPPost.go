@@ -57,7 +57,7 @@ func (h *HttpServer) driveD(w http.ResponseWriter, r *http.Request) {
 
 	h.mqtt.publishDriveInstructionSequence(instruction)
 
-	//updateMap(instruction[0])
+	updateMap(instruction[0])
 
 }
 
@@ -95,7 +95,7 @@ func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
 
 	h.mqtt.publishDriveInstructionSequence(instruction)
 
-	//updateMap(instruction[0])
+	updateMap(instruction[0])
 
 }
 
@@ -123,4 +123,25 @@ func Abs(x int) int {
 	} else {
 		return x
 	}
+}
+
+func (h *HttpServer) resetMap(w http.ResponseWriter, r *http.Request) {
+	Map.Tiles = []int{
+		3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+		3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3}
+
+	Rover.X = 5
+	Rover.Y = 5
+	Rover.Rotation = 0
+
 }
