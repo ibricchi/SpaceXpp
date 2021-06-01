@@ -42,7 +42,10 @@ func (h *HttpServer) mapAndDrive(destinationCol int, destinationRow int, mode in
 	path, err := getShortedPathFromStartToDestination(Rover.Y, Rover.Y, destinationRow, destinationCol, Map)
 
 	fmt.Println(path[0][0])
-	fmt.Println(path[1][1])
+	fmt.Println(path[0][1])
+	fmt.Println(path[1][0])
+	fmt.Println(path[0][1])
+	fmt.Println(path[0][2])
 
 	if err != nil {
 		return fmt.Errorf("Error: Failed to create path from start to destination  %w", err)
