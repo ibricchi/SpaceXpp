@@ -46,8 +46,8 @@ func getShortedPathFromStartToDestination(startRow int, startCol int, destinatio
 		// Look at neighbor nodes and check if we found a shorter path to them
 		neighbors := getNeighborNodes(current, nodes)
 		for _, neighbor := range neighbors {
-			// Check for obstruction (0 = unknown, 1 = empty space, >1 = some kind of obstruction)
-			if neighbor.val > 1 {
+			// Check for obstruction (1 = unknown, 2 = empty space, >2 = some kind of obstruction)
+			if neighbor.val > 2 {
 				continue
 			}
 
