@@ -2,6 +2,17 @@
     "files.associations": {
         "string": "c",
         "array": "c",
-        "string_view": "c"
+        "string_view": "c",
+        "*.tcc": "c",
+        "optional": "c",
+        "istream": "c",
+        "ostream": "c",
+        "ratio": "c",
+        "system_error": "c",
+        "functional": "c",
+        "regex": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "utility": "c"
     }
 }
