@@ -245,7 +245,7 @@ func driveTocoords(driveInstruction driveInstruction, tileWidth int) {
 			Rover.Y = end
 		} else if Rover.Rotation == 270 {
 			end := Rover.Y - (driveInstruction.value / tileWidth)
-			changeTerrainX(Rover.X, end, Rover.Y)
+			changeTerrainY(Rover.X, end, Rover.Y)
 			Rover.Y = end
 		}
 	} else if driveInstruction.instruction == "turnRight" {
