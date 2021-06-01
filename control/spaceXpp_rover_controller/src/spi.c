@@ -128,7 +128,7 @@ void vision_spi_task_simulated(void *arg) {
 
 void handle_vision_stop_instruction(char* stopInformation) {
     // Only need to stop if moving forward
-    if (strcmp(currentDriveInstruction, driveEncoding.forward) == 0) {
+    if (strcmp(currentDriveInstruction, driveEncoding.forward) != 0) {
         return;
     }
 
