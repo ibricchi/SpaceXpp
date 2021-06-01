@@ -92,7 +92,7 @@ func updateMap(driveInstruction driveInstruction) {
 
 }
 
-// To be implimented "stop"
+// "stop"
 /*
 * Called when rover identifies obstruction
 * Arguments:

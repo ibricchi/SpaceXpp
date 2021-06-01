@@ -104,7 +104,7 @@ var instructionFeedConnectHandler mqtt.OnConnectHandler = func(client mqtt.Clien
 	fmt.Println("Connected to MQTT broker successfully")
 
 	// Subscribe to topics
-	if token := client.Subscribe("/drive/instruction", 2, instructionFeedPubHandler); token.Wait() && token.Error() != nil {
+	if token := client.Subscribe("/vision/instruction", 2, instructionFeedPubHandler); token.Wait() && token.Error() != nil {
 		log.Fatalf("server: mqtt: failed to subscribe to /drive/instruction: %v", token.Error())
 	}
 	fmt.Println("Subscribed to topic: /drive/instruction")
@@ -124,7 +124,7 @@ var stopFeedConnectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
 	fmt.Println("Connected to MQTT broker successfully")
 
 	// Subscribe to topics
-	if token := client.Subscribe("/drive/stop", 2, instructionFeedPubHandler); token.Wait() && token.Error() != nil {
+	if token := client.Subscribe("/vision/stop", 2, instructionFeedPubHandler); token.Wait() && token.Error() != nil {
 		log.Fatalf("server: mqtt: failed to subscribe to /drive/stop: %v", token.Error())
 	}
 	fmt.Println("Subscribed to topic: /drive/stop")

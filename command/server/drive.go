@@ -252,7 +252,7 @@ func changeTerrainX(startX int, y int, endX int) {
 	s := startX + (y * Map.Cols)
 	e := endX + (y * Map.Cols)
 
-	for i := s; i < e; i++ {
+	for i := s; i <= e; i++ {
 		Map.Tiles[i] = 2
 	}
 }
@@ -262,7 +262,7 @@ func changeTerrainY(x int, startY int, endY int) {
 	s := x + (startY * Map.Cols)
 	e := x + (endY * Map.Cols)
 
-	for i := s; i < e; i = i + 12 {
+	for i := s; i <= e; i = i + 12 {
 		Map.Tiles[i] = 2
 	}
 }

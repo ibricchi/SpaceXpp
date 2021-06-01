@@ -57,7 +57,7 @@ func (h *HttpServer) driveD(w http.ResponseWriter, r *http.Request) {
 
 	h.mqtt.publishDriveInstructionSequence(instruction)
 
-	updateMap(instruction[0])
+	//updateMap(instruction[0])
 
 }
 
@@ -95,7 +95,7 @@ func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
 
 	h.mqtt.publishDriveInstructionSequence(instruction)
 
-	updateMap(instruction[0])
+	//updateMap(instruction[0])
 
 }
 
@@ -110,7 +110,7 @@ func (h *HttpServer) targetCoords(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 
-	stop(1, 0)
+	//stop(1, 0)
 
 	if err := h.mapAndDrive(targetCoords.X, targetCoords.Y, targetCoords.Mode); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

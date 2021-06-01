@@ -12,7 +12,6 @@ drivea.addEventListener('click', driveA , false);
 
 document.getElementById("server").innerHTML = "loading"
 document.getElementById("rover").innerHTML = "loading"
-feed.innerHTML="Map is loading"
 
 setInterval(function(){
     status();
