@@ -21,10 +21,11 @@ class UART{
 
     void setup();
 
-    // Getters
+    // Getters and setters
     instructions getInstruction();
     bool getNewUARTDataAvailable();
     float getReceivedUARTCharts();
+    void setInstruction(instructions i);
 
     // Receving new instruction from UART
     void recvUARTWithStartEndMarkers();

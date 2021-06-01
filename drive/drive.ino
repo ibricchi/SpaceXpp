@@ -13,7 +13,7 @@
 float Ts = 0.0008;
 
 // Reference voltage - used for controlling the speed of the rover; likely to be removed once speed controller is fully functional
-float vref = 3.0;
+float vref = 4.0;
 
 // Displacement in each direction, [cm]
 OpticalFlow opticalFlow;
@@ -23,7 +23,7 @@ float displacementX = 0.0, displacementY = 0.0;
 UART uart;
 
 // The current instruction to be executed
-instructions currentInstruction = forwardForDistance;
+instructions currentInstruction = doNothing;
 float receivedUARTChars;
 bool currentInstructionCompleted = false;
 bool currentInstructionStarted = false;
@@ -57,7 +57,7 @@ void loop() {
   // Received and decode current instruction
   uart.recvUARTWithStartEndMarkers();
   uart.processNewUARTData();
-  //currentInstruction = uart.getInstruction();
+  currentInstruction = uart.getInstruction();
   receivedUARTChars = uart.getReceivedUARTCharts();
   
   Serial.print(currentInstruction);
@@ -94,6 +94,7 @@ void loop() {
         currentInstructionStarted = false;
         currentInstruction = doNothing;
         uart.nextInstructionReady();
+        uart.setInstruction(doNothing);
         Serial.println("Current instruction is now do nothing");
       }
     }
@@ -102,7 +103,7 @@ void loop() {
   }
   
   // Control circuit frequency (SMPS)
-  delayMicroseconds((unsigned long)(Ts * 1000000.0));
+  delayMicroseconds(800);
 }
 
 // Decides and calls the current instruction based on the mapping below - these numbers are purely for testing; will be replaced with UART data
@@ -115,7 +116,7 @@ boolean callCurrentInstruction() {
        return false;
       //return moveBackwardForTime(10000, currentInstructionTime);
     case forwardForDistance:
-      return moveForwardForDistance(10, currentInstructionY, displacementY);
+      return moveForwardForDistance(receivedUARTChars, currentInstructionY, displacementY);
     case backwardForDistance:
        return false;
       //return moveBackwardForDistance(20, currentInstructionY, displacementY);
@@ -147,5 +148,5 @@ void setVelocity(float velocityReference) {
 void stopMoving() {
   digitalWrite(5, LOW);
   digitalWrite(9, LOW);
-  vref = 0.0;
+  //vref = 0.0;
 }
