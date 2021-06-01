@@ -44,6 +44,6 @@ void app_main()
 
     // xTaskCreate(energy_uart_task, "energy_uart_task", 2048, NULL, 5, NULL);
 
-    xTaskCreate(vision_spi_task, "vision_spi_task", 2048, NULL, 11, NULL);
-    // xTaskCreate(vision_spi_task_simulated, "vision_spi_task_simulated", 2048, NULL, 11, NULL);
+    xTaskCreate(vision_spi_task, "vision_spi_task", 16384, NULL, 11, NULL);
+    // xTaskCreate(vision_spi_task_simulated, "vision_spi_task_simulated", 16384, NULL, 11, NULL);
 }
