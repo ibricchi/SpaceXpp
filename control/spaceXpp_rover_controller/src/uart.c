@@ -69,6 +69,7 @@ void drive_uart_task(void *arg)
             // Check if end of instruction sequence signal (used by server for updating map)
             if (strcmp(queue_data, "X") == 0) {
                 publish_drive_instruction_to_server(queue_data, "0");
+                continue;
             }
 
             // Decode drive instruction data
@@ -163,6 +164,7 @@ void drive_uart_task_simulated(void *arg) {
             // Check if end of instruction sequence signal (used by server for updating map)
             if (strcmp(queue_data, "X") == 0) {
                 publish_drive_instruction_to_server(queue_data, "0");
+                continue;
             }
             
             // Decode drive instruction data
