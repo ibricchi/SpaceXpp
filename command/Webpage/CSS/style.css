@@ -30,7 +30,7 @@ body {
 
 .main-wrapper {
     float: left;
-    padding: 5px;
+    padding: 60px 5px;
     width: 60%;
     text-align: center;
 }
@@ -41,8 +41,9 @@ body {
     width: 20%;
 }
 
-.infoBox {
+.infoBoxBox {
     position: absolute;
+    display: flex;
     visibility: hidden;
     opacity: 0;
     top: 0;
@@ -53,7 +54,7 @@ body {
     transition: 100ms linear;
 }
 
-#show-controls:checked~.infoBox {
+#show-controls:checked~.infoBoxBox {
     visibility: visible;
     opacity: 1;
 }
@@ -62,11 +63,14 @@ body {
     color: black;
     background-color: #ffffffbf;
     text-align: center;
-    padding: 7%;
-    display: block;
-    margin: 10vh 10vw;
-    width: 80vw;
+    margin: auto;
+    display: flex;
     height: 30vh;
+    width: 80%;
+}
+
+.info {
+    margin: auto;
 }
 
 .status {
@@ -134,17 +138,23 @@ input {
     border-radius: 8px;
 }
 
-@media screen and (max-width: 1000px) {
+@media screen and (max-width: 900px) {
     .container {
-        width: 90vw;
-        margin-left: 5vw;
+        width: 80vw;
+        margin-left: 10vw;
+    }
+    .infoBox {
+        height: 60vh;
     }
 }
 
-@media screen and (min-width: 1000px) and (max-width: 1100px) {
+@media screen and (min-width: 900px) and (max-width: 1100px) {
     .container {
         width: 60vw;
         margin-left: 20vw;
+    }
+    .infoBox {
+        height: 40vh;
     }
 }
 
@@ -158,9 +168,6 @@ input {
     }
     .right {
         width: 100%;
-    }
-    .infoBox {
-        height: 80vh;
     }
     #show-control-label {
         right: 10vw;
