@@ -127,6 +127,9 @@ void vision_spi_task_simulated(void *arg) {
 }
 
 void handle_vision_stop_instruction(char* stopInformation) {
+    // Inform server of stop to allow for map update
+    publish_drive_instruction_to_server(driveEncoding.stop, stopInformation);
+
     // Only need to stop if moving forward
     if (strcmp(currentDriveInstruction, driveEncoding.forward) != 0) {
         return;
@@ -139,7 +142,4 @@ void handle_vision_stop_instruction(char* stopInformation) {
 
     // Don't send any of remaining instructions in queue to drive
     flush_drive_instruction_queue();
-
-    // Inform server of stop to allow for map update and new path computation
-    publish_drive_instruction_to_server(driveEncoding.stop, stopInformation);
 }
