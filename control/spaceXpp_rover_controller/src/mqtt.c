@@ -100,7 +100,7 @@ void publish_drive_instruction_to_server(const char* instruction, const char* da
     sprintf(stopMsg, "%s%s%s", instruction, DRIVE_INSTRUCTION_DELIMITER, data);
 
     int msg_id = esp_mqtt_client_publish(mqttClient, "/feedback/instruction", stopMsg, 0, 2, 0);
-    ESP_LOGI(MQTT_tag, "publish successful, msg_id=%d, data=%s", msg_id, stopMsg);
+    ESP_LOGI(MQTT_tag, "publish drive instruction to server successful, msg_id=%d, data=%s", msg_id, stopMsg);
 }
 
 // Used to send status to server e.g battery percentage remaining
