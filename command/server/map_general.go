@@ -36,7 +36,7 @@ var Rover = rover{
 
 func (h *HttpServer) mapAndDrive(destinationCol int, destinationRow int, mode int) error {
 
-	//fmt.Fprint("aim: ", destinationCol, ", ", destinationRow)
+	fmt.Println("dest: ", destinationCol, destinationRow)
 
 	// Getting optimum path
 	path, err := getShortedPathFromStartToDestination(Rover.Y, Rover.Y, destinationRow, destinationCol, Map)
