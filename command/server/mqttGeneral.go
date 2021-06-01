@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"strconv"
+	"strings"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"go.uber.org/zap"
@@ -64,6 +66,13 @@ var mqttConnectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
 		log.Fatalf("server: mqtt: failed to subscribe to /test/status: %v", token.Error())
 	}
 	fmt.Println("Subscribed to topic: /test/status")
+
+	// Subscribe to topics
+	if token := client.Subscribe("/feedback/instruction", 2, instructionFeedPubHandler); token.Wait() && token.Error() != nil {
+		log.Fatalf("server: mqtt: failed to subscribe to /feedback/instruction: %v", token.Error())
+	}
+	fmt.Println("Subscribed to topic: /feedback/instruction")
+
 }
 
 var mqttConnectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
@@ -88,4 +97,40 @@ func NewTlsConfig() (*tls.Config, error) {
 func (m *MQTTClient) publish(topic string, data string, qos byte) {
 	token := m.client.Publish(topic, qos, false, data)
 	token.Wait()
+}
+
+// Subscribing to instruction feed
+
+var instructionFeedPubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
+	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
+
+	var stopData string
+
+	s := strings.Split(string(msg.Payload()), ":")
+	value := s[1]
+	v, _ := strconv.Atoi(value)
+	var instruction driveInstruction
+
+	if s[0] == "F" {
+		instruction.instruction = "forward"
+		instruction.value = v
+		updateMap(instruction)
+	} else if s[0] == "R" {
+		instruction.instruction = "turnRight"
+		instruction.value = v
+		updateMap(instruction)
+	} else if s[0] == "L" {
+		instruction.instruction = "turnLeft"
+		instruction.value = v
+		updateMap(instruction)
+	} else if s[0] == "X" {
+		instruction.instruction = "nil"
+		instruction.value = 0
+		updateMap(instruction)
+	} else if s[0] == "S" {
+		stopData = s[1]
+	} else if s[0] == "SD" {
+		stop(v, stopData)
+	}
+
 }
