@@ -11,7 +11,7 @@ class UART{
     // UART constants
     static const byte numUARTChars = 40;
     instructions instruction;
-    char* receivedUARTChars;
+    char receivedUARTChars[numUARTChars];
     bool newUARTDataAvailable;
 
 
@@ -19,10 +19,12 @@ class UART{
     // Default constructor
     UART();
 
+    void setup();
+
     // Getters
     instructions getInstruction();
     bool getNewUARTDataAvailable();
-    char* getReceivedUARTCharts();
+    float getReceivedUARTCharts();
 
     // Receving new instruction from UART
     void recvUARTWithStartEndMarkers();

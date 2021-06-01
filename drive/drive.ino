@@ -23,7 +23,8 @@ float displacementX = 0.0, displacementY = 0.0;
 UART uart;
 
 // The current instruction to be executed
-instructions currentInstruction = doNothing;
+instructions currentInstruction = forwardForDistance;
+float receivedUARTChars;
 bool currentInstructionCompleted = false;
 bool currentInstructionStarted = false;
 unsigned long currentInstructionTime = 0;
@@ -45,6 +46,8 @@ void setup() {
   if (!opticalFlow.setup()) {
     Serial.println("Failed to initialise optical flow sensor");
   }
+  uart.setup();
+  uart.nextInstructionReady();
 }
 
 void loop() {
@@ -54,14 +57,19 @@ void loop() {
   // Received and decode current instruction
   uart.recvUARTWithStartEndMarkers();
   uart.processNewUARTData();
-  currentInstruction = uart.getInstruction();
+  //currentInstruction = uart.getInstruction();
+  receivedUARTChars = uart.getReceivedUARTCharts();
+  
+  Serial.print(currentInstruction);
+  Serial.print(" ");
+  Serial.println(receivedUARTChars);
 
   // Read the current position of the rover
   opticalFlow.read();
   displacementX = opticalFlow.getDisplacementX();
   displacementY = opticalFlow.getDisplacementY();
-  Serial.println("Displacement x-direction: " + String(displacementX));
-  Serial.println("Displacement y-driection: " + String(displacementY));
+  //Serial.println("Displacement x-direction: " + String(displacementX));
+  //Serial.println("Displacement y-driection: " + String(displacementY));
 
 
   // Set velocity to the desired value - commented out until velocity is accurately calculated using time
@@ -69,20 +77,24 @@ void loop() {
 
   // Buffer through the instructions in order they arrive
   if (currentInstruction != doNothing) {
+    Serial.println("Current instruction is different from doNothing");
     if (!currentInstructionStarted) {
       currentInstructionStarted = true;
       currentInstructionCompleted = false;
       currentInstructionTime = millis();
       currentInstructionX = displacementX;
       currentInstructionY = displacementY;
+      Serial.println("Current instruction is now started");
     } else {
       // This has room for improving efficiency; could cut down 2(?) cycles
       if (!currentInstructionCompleted) {
         currentInstructionCompleted = callCurrentInstruction();
+        Serial.println("Current instruction still being executed");
       } else {
         currentInstructionStarted = false;
         currentInstruction = doNothing;
         uart.nextInstructionReady();
+        Serial.println("Current instruction is now do nothing");
       }
     }
   } else {
@@ -97,13 +109,16 @@ void loop() {
 boolean callCurrentInstruction() {
   switch (currentInstruction) {
     case forwardForTime:
-      return moveForwardForTime(10000, currentInstructionTime);
+       return false;
+      //return moveForwardForTime(10000, currentInstructionTime);
     case backwardForTime:
-      return moveBackwardForTime(10000, currentInstructionTime);
+       return false;
+      //return moveBackwardForTime(10000, currentInstructionTime);
     case forwardForDistance:
-      return moveForwardForDistance(20, currentInstructionY, displacementY);
+      return moveForwardForDistance(10, currentInstructionY, displacementY);
     case backwardForDistance:
-      return moveBackwardForDistance(20, currentInstructionY, displacementY);
+       return false;
+      //return moveBackwardForDistance(20, currentInstructionY, displacementY);
     case turnR:
       return turnRight(displacementX, displacementY, currentInstructionX, currentInstructionY);
     case turnL:
