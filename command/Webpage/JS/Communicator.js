@@ -67,13 +67,13 @@ function updateMap() {
 
 function getVal(angle){
     if(angle == 0){
-        return 1;
+        return 6;
     } else if (angle == 90){
-        return 2;
+        return 7;
     } else if (angle == 180){
-        return 3;
+        return 8;
     } else if (angle == 270){
-        return 4;
+        return 9;
     }
 
 }

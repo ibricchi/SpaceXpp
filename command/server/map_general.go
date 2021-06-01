@@ -1,8 +1,10 @@
 package server
 
-import "fmt"
+import (
+	"fmt"
+)
 
-var tileWidth = 1
+var tileWidth = 10
 
 // Initilising starting map: unknown (1) with boarders (3)
 
@@ -15,7 +17,7 @@ var Map = tileMap{
 		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
 		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
 		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
-		3, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 3,
+		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
 		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
 		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
 		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
@@ -34,14 +36,14 @@ var Rover = rover{
 
 func (h *HttpServer) mapAndDrive(destinationCol int, destinationRow int, mode int) error {
 
+	fmt.Println("dest: ", destinationCol, destinationRow)
+
 	// Getting optimum path
 	path, err := getShortedPathFromStartToDestination(Rover.Y, Rover.Y, destinationRow, destinationCol, Map)
 
 	if err != nil {
 		return fmt.Errorf("Error: Failed to create path from start to destination  %w", err)
 	}
-
-	//fmt.Println("optimum path found")
 
 	var direction direction = angle2Direction(Rover.Rotation)
 	var traverseMode traverseMode = value2Mode(mode)
@@ -52,11 +54,7 @@ func (h *HttpServer) mapAndDrive(destinationCol int, destinationRow int, mode in
 		return fmt.Errorf("Error: Failed to create drive instructions  %w", err)
 	}
 
-	//fmt.Println("drive instructions created")
-
 	h.mqtt.publishDriveInstructionSequence(driveInstruction)
-
-	//fmt.Println("drive instructions printed")
 
 	return nil
 }
@@ -94,4 +92,67 @@ func updateMap(driveInstruction driveInstruction) {
 
 	stashedDriveInstruction = driveInstruction
 
+}
+
+// "stop"
+/*
+* Called when rover identifies obstruction
+* Arguments:
+*		- distance / location where obstruction is seen (to be confirmed)
+*		- type of obstruction (to be confirmed)
+* It will:
+*		- update map with stashed instruction
+*		- move distance moved before rover halted
+*		- store nil instruction in stash
+* 		- update map with location of obstruction & type of instruction
+ */
+
+func stop(distance int, obstructionType string) {
+
+	driveTocoords(stashedDriveInstruction, tileWidth)
+
+	stashedDriveInstruction.instruction = "forward"
+	stashedDriveInstruction.value = distance
+	driveTocoords(stashedDriveInstruction, tileWidth)
+
+	stashedDriveInstruction.instruction = "forward"
+	stashedDriveInstruction.value = 0
+
+	// Assuming obstruction will only ever be in box in front
+	// And for now only one type of instruction
+
+	indx := getOneInFront()
+
+	Map.Tiles[indx] = obstacleToValue(obstructionType)
+
+}
+
+func obstacleToValue(obstacle string) int {
+
+	if obstacle == "B" {
+		return 6
+	} else if obstacle == "R" {
+		return 7
+	} else if obstacle == "Y" {
+		return 8
+	} else if obstacle == "T" {
+		return 9
+	} else if obstacle == "V" {
+		return 10
+	}
+
+	return 5
+}
+
+func getOneInFront() int {
+	if Rover.Rotation == 0 {
+		return (Rover.X + 1) + (Rover.Y * Map.Cols)
+	} else if Rover.Rotation == 180 {
+		return (Rover.X - 1) + (Rover.Y * Map.Cols)
+	} else if Rover.Rotation == 90 {
+		return Rover.X + ((Rover.Y + 1) * Map.Cols)
+	} else if Rover.Rotation == 270 {
+		return Rover.X + ((Rover.Y - 1) * Map.Cols)
+	}
+	return 0
 }

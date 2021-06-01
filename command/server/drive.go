@@ -231,13 +231,22 @@ func driveTocoords(driveInstruction driveInstruction, tileWidth int) {
 
 	if driveInstruction.instruction == "forward" {
 		if Rover.Rotation == 0 {
-			Rover.X = Rover.X + (driveInstruction.value / tileWidth)
+			end := Rover.X + (driveInstruction.value / tileWidth)
+			changeTerrainX(Rover.X, Rover.Y, end)
+			Rover.X = end
+
 		} else if Rover.Rotation == 180 {
-			Rover.X = Rover.X - (driveInstruction.value / tileWidth)
+			end := Rover.X - (driveInstruction.value / tileWidth)
+			changeTerrainX(end, Rover.Y, Rover.X)
+			Rover.X = end
 		} else if Rover.Rotation == 90 {
-			Rover.Y = Rover.Y + (driveInstruction.value / tileWidth)
+			end := Rover.Y + (driveInstruction.value / tileWidth)
+			changeTerrainY(Rover.X, Rover.Y, end)
+			Rover.Y = end
 		} else if Rover.Rotation == 270 {
-			Rover.Y = Rover.Y - (driveInstruction.value / tileWidth)
+			end := Rover.Y - (driveInstruction.value / tileWidth)
+			changeTerrainX(Rover.X, end, Rover.Y)
+			Rover.Y = end
 		}
 	} else if driveInstruction.instruction == "turnRight" {
 		Rover.Rotation = (Rover.Rotation + driveInstruction.value) % 360
@@ -246,9 +255,22 @@ func driveTocoords(driveInstruction driveInstruction, tileWidth int) {
 	}
 }
 
-func Abs(x int) int {
-	if x < 0 {
-		return -x
+func changeTerrainX(startX int, y int, endX int) {
+
+	s := startX + (y * Map.Cols)
+	e := endX + (y * Map.Cols)
+
+	for i := s; i <= e; i++ {
+		Map.Tiles[i] = 2
 	}
-	return x
+}
+
+func changeTerrainY(x int, startY int, endY int) {
+
+	s := x + (startY * Map.Cols)
+	e := x + (endY * Map.Cols)
+
+	for i := s; i <= e; i = i + 12 {
+		Map.Tiles[i] = 2
+	}
 }
