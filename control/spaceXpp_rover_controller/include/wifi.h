@@ -8,10 +8,10 @@
 #define WIFI_H
 
 // Must insert WiFi data here
-#define ESP_WIFI_SSID      "???"
-#define ESP_WIFI_PASS      "???"
+#define WIFI_SSID      "???"
+#define WIFI_PASS      "???"
 
-#define ESP_MAXIMUM_RETRY  10
+#define WIFI_MAXIMUM_RETRY  10
 
 /* 
     The event group allows multiple bits for each event, but we only care about two events:

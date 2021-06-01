@@ -18,6 +18,40 @@ func TestPathToDriveInstructions(t *testing.T) {
 		{
 			path: [][]int{
 				{0, 1},
+				{0, 2},
+			},
+			tileWidth:        10,
+			initialDirection: east,
+			traverseMode:     simple,
+			expectedInstructions: []driveInstruction{
+				{
+					instruction: "forward",
+					value:       10,
+				},
+			},
+		},
+		{
+			path: [][]int{
+				{0, 1},
+				{0, 2},
+			},
+			tileWidth:        10,
+			initialDirection: north,
+			traverseMode:     simple,
+			expectedInstructions: []driveInstruction{
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "forward",
+					value:       10,
+				},
+			},
+		},
+		{
+			path: [][]int{
+				{0, 1},
 				{0, 0},
 				{1, 0},
 				{2, 0},

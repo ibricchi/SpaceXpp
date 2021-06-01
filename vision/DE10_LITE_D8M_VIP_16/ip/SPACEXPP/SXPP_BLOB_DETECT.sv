@@ -1,122 +1,131 @@
 module SXPP_BLOB_DETECT (
-	// global clock & reset
-	clk,
-	reset_n,
-	
-	// setup
-	reset,
-	
-	// input pixel data
-	x_in, y_in,
-	is_valid_color,
+    // global clock & reset
+    clk,
+    reset_n,
+    
+    // setup
+    reset,
+    
+    // input pixel data
+    x_in, y_in,
+    is_valid_color,
 
-	// output data
-	valid,
-	
-	rad_out,
-	minx_out, maxx_out, miny_out, maxy_out
+    // output data
+    valid,
+    
+    rad,
+    minx, maxx, miny, maxy,
+    
+    fx, fy
 );
 
 // parameters
-parameter MINX_INIT = 0,
+parameter X_POS=0,
+          Y_POS=0,
+          MINX_INIT = 0,
           MAXX_INIT = 100,
           MINY_INIT = 0,
-		  MAXY_INIT = 100;
+          MAXY_INIT = 100,
+          min_dist = 1024;
 
 // inputs
-input clk;
-input reset_n;
+input logic clk;
+input logic reset_n;
 
-input reset;
+input logic reset;
 
-input [10:0] x_in, y_in;
-input is_valid_color;
+input logic[10:0] x_in, y_in;
+input logic is_valid_color;
 
 // outputs
-output valid;
+output logic valid;
 
-output [10:0] minx_out, maxx_out, miny_out, maxy_out;
-output [10:0] rad_out;
-	
-// constants
-integer min_dist = 1024;
+output logic[31:0] rad;
+output logic[10:0] minx, maxx, miny, maxy;
+
+output logic[10:0] fx, fy;
 
 // blob state
-reg validp;
-reg just_reset;
-reg [10:0] minx, miny, maxx, maxy;
-reg [10:0] box_rad;
-
-// link outputs to local vairables
-assign valid = validp;
-assign minx_out = minx;
-assign maxx_out = maxx;
-assign miny_out = miny;
-assign maxy_out = maxy;
-assign rad_out = box_rad;
+logic just_reset;
 
 // process blob information
 // box center
-wire [10:0] cx, cy;
-assign cx = (minx + maxx) >> 1; // center x
-assign cy = (miny + maxy) >> 1; // center y
+logic[10:0] cx, cy;
+always_comb begin
+    cx = (minx + maxx) >> 1; // center x
+    cy = (miny + maxy) >> 1; // center y
+end
 // box size
-wire [10:0] bw, bh, br;
-assign bw = maxx - minx; // box height
-assign bh = maxy - miny; // box width
-assign br = (bw + bh) >> 2; // average box distance
+logic[10:0] bw, bh, br;
+always_comb begin
+    bw = maxx - minx; // box height
+    bh = maxy - miny; // box width
+    br = (bw > bh) ? (bw>>1) : (bh>>1); // average box distance
+end
 // min-max of new point compared to box range
-wire [10:0] new_minx, new_maxx, new_miny, new_maxy;
-assign new_minx = (minx < x_in)?minx:x_in;
-assign new_maxx = (maxx < x_in)?x_in:maxx;
-assign new_miny = (miny < y_in)?miny:y_in;
-assign new_maxy = (maxy < y_in)?y_in:maxy;
+logic[10:0] new_minx, new_maxx, new_miny, new_maxy;
+always_comb begin
+    new_minx = (minx < x_in)?minx:x_in;
+    new_maxx = (maxx < x_in)?x_in:maxx;
+    new_miny = (miny < y_in)?miny:y_in;
+    new_maxy = (maxy < y_in)?y_in:maxy;
+end
 
 // check current pixels distance
-wire [31:0] distance;
-wire is_valid_pos;
-wire is_valid_init;
-assign distance = (cx-x_in)*(cx-x_in) + (cy-y_in)*(cy-y_in) - br * br;
-assign is_valid_pos = (distance < min_dist | distance[31]) & !just_reset;
-assign is_valid_init = MINX_INIT <= x_in & x_in <= MAXX_INIT &
-                       MINY_INIT <= y_in & y_in <= MAXY_INIT &
-                       just_reset;
-							  
+logic[31:0] distance;
+logic is_valid_pos;
+logic is_valid_init;
+always_comb begin
+    distance = (cx-x_in)*(cx-x_in) + (cy-y_in)*(cy-y_in) - br * br;
+    is_valid_pos = (distance < min_dist | distance[31]) & !just_reset & (x_in > 30) & (y_in > 30) & (x_in < 610) & (y_in < 450);
+    is_valid_init = MINX_INIT <= x_in & x_in <= MAXX_INIT &
+                    MINY_INIT <= y_in & y_in <= MAXY_INIT &
+                    (x_in > 30) & (y_in > 30) & (x_in < 610) & (y_in < 450) &
+                    just_reset;
+end
+
 // adjust blob at each clock edge with new data
-always @(posedge clk) begin
-	 if(!reset_n | reset) begin
-		  validp <= 0;
+always_ff @(posedge clk) begin
+    if(!reset_n | reset) begin
+        valid <= 0;
         just_reset <= 1;
-		  minx <= 0;
-		  maxx <= 0;
-		  miny <= 0;
-		  maxy <= 0;
-		  box_rad <= 0;
-	 end
-	 else if(is_valid_color) begin
+
+        minx <= 0;
+        maxx <= 0;
+        miny <= 0;
+        maxy <= 0;
+        rad <= 0;
+        
+        fx <= 0;
+        fy <= 0;
+    end
+    else if(is_valid_color) begin
         if (is_valid_init) begin
-				validp <= 1;
+            valid <= 1;
             just_reset <= 0;
             minx <= x_in;
             maxx <= x_in;
             miny <= y_in;
             maxy <= y_in;
-				box_rad <= br;
+            rad <= br;
+            
+            fx <= x_in;
+            fy <= y_in;
         end
-		  else if(is_valid_pos) begin
-    			validp <= 1;
+        else if(is_valid_pos) begin
+            valid <= 1;
             minx <= new_minx;
             maxx <= new_maxx;
             miny <= new_miny;
             maxy <= new_maxy;
-				box_rad <= br;
+            rad <= br;
         end
-		  else begin
-				validp <= 0;
-		  end
+        else begin
+            valid <= 0;
+        end
     end
-	 else begin
-		  validp <= 0;
+    else begin
+        valid <= 0;
     end
 end
 

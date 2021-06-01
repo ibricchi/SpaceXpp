@@ -19,6 +19,8 @@ void drive_uart_init()
     ESP_ERROR_CHECK(uart_set_pin(DRIVE_UART_NUM, DRIVE_TXD_PIN, DRIVE_RXD_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
 
     ESP_ERROR_CHECK(uart_driver_install(DRIVE_UART_NUM, DRIVE_BUFFER_SIZE, DRIVE_BUFFER_SIZE, 0, NULL, 0));
+
+    ESP_LOGI(UART_tag, "Drive UART setup completed");
 }
 
 void vision_uart_init()
