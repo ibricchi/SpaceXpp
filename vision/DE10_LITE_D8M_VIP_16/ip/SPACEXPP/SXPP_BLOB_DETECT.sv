@@ -16,7 +16,7 @@ module SXPP_BLOB_DETECT (
     rad,
     minx, maxx, miny, maxy,
     
-    fx, fy
+    active
 );
 
 // parameters
@@ -43,10 +43,20 @@ output logic valid;
 output logic[31:0] rad;
 output logic[10:0] minx, maxx, miny, maxy;
 
-output logic[10:0] fx, fy;
+output logic active;
 
 // blob state
 logic just_reset;
+logic [31:0] min_area;
+logic [31:0] pixel_count;
+always_comb begin
+    if(pixel_count < 20) begin
+        active = 0;
+    end
+    else begin
+        active = pixel_count > bd;
+    end
+end
 
 // process blob information
 // box center
@@ -57,10 +67,12 @@ always_comb begin
 end
 // box size
 logic[10:0] bw, bh, br;
+logic[31:0] bd;
 always_comb begin
     bw = maxx - minx; // box height
     bh = maxy - miny; // box width
     br = (bw+bh)>>2; // average box distance
+    bd = br * br;
 end
 // min-max of new point compared to box range
 logic[10:0] new_minx, new_maxx, new_miny, new_maxy;
@@ -89,6 +101,8 @@ always_ff @(posedge clk) begin
     if(!reset_n | reset) begin
         valid <= 0;
         just_reset <= 1;
+        min_area <= 0;
+        pixel_count <= 0;
 
         minx <= 0;
         maxx <= 0;
@@ -100,6 +114,8 @@ always_ff @(posedge clk) begin
         if (is_valid_init) begin
             valid <= 1;
             just_reset <= 0;
+            min_area <= bd;
+            pixel_count <= 1;
             minx <= x_in;
             maxx <= x_in;
             miny <= y_in;
@@ -108,6 +124,8 @@ always_ff @(posedge clk) begin
         end
         else if(is_valid_pos) begin
             valid <= 1;
+            min_area <= bd;
+            pixel_count <= pixel_count + 1;
             minx <= new_minx;
             maxx <= new_maxx;
             miny <= new_miny;

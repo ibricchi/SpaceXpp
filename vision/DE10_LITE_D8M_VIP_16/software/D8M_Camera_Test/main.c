@@ -195,13 +195,7 @@ int main()
         OV8865SetGain(gain);
         Focus_Init();
 
-        char* color_names[5] = {
-        		"RED",
-        		"YELLOW",
-        		"GREEN",
-        		"BLUE",
-        		"PINK"
-        };
+        char color_names[5] = "RYTBV";
 
 	while(1){
 
@@ -254,10 +248,15 @@ int main()
        }
 	#endif
 
-       //Read messages from the image processor and print them on the terminal
-       int name = 0;
-       int count_messages = 0;
-       int last_message = 2;
+      // Send and receive data from esp32
+	  alt_u8 tx_data[24];
+	  alt_u32 tx_length = 24;
+	  alt_u8 rx_data[tx_length];
+	  alt_u32 rx_length = tx_length;
+      //Read messages from the image processor and print them on the terminal
+      int name = 0;
+      int count_messages = 0;
+      int last_message = 2;
        while ((IORD(0x42000,EEE_IMGPROC_STATUS)>>8) & 0xff) {   //Find out if there are words to read
     	   unsigned int word = IORD(0x42000,EEE_IMGPROC_MSG);                    //Get next word from message buffer
            if (word == EEE_IMGPROC_MSG_START){                                  //Newline on message identifi$
@@ -270,10 +269,34 @@ int main()
                    char* color = color_names[word << 16 >> 27];
                    int rad = word << 21 >> 21;
                    if(gridx != -1 & gridy != -1){
-                	   printf("\n%c%c%c: girdx: %d, gridy: %d, color:%s rad: %d",
-                			   name>>16, name>>8, name,
-                			   gridx, gridy, color, rad
-                	   );
+                	   int idx = 0;
+                	   tx_data[0] = name >> 16;
+                	   tx_data[1] = name >> 8;
+                	   tx_data[2] = name;
+                	   tx_data[3] = ':';
+                	   tx_data[4] = ' ';
+                	   tx_data[5] = 'x';
+                	   tx_data[6] = ':';
+                	   tx_data[7] = 48 + gridx;
+                	   tx_data[8] = ' ';
+                	   tx_data[9] = 'y';
+                	   tx_data[10] = ':';
+                	   tx_data[11] = 48 + gridy;
+                	   tx_data[12] = ' ';
+                	   tx_data[13] = 'c';
+                	   tx_data[14] = ':';
+                	   tx_data[15] = color;
+                	   tx_data[16] = ' ';
+                	   tx_data[17] = 'r';
+                	   tx_data[18] = ':';
+                	   tx_data[19] = 48 + rad/1000%10;
+                	   tx_data[20] = 48 + rad/100%10;
+                	   tx_data[21] = 48 + rad/10%10;
+                	   tx_data[22] = 48 + rad%10;
+                	   tx_data[23] = 'S';
+                	   tx_data[24] = 0;
+                	   printf("\n%s", tx_data);
+				       alt_avalon_spi_command(SPI_0_BASE, 0, tx_length, tx_data, rx_length, rx_data, 0);
                    }
            }
            else{
@@ -322,13 +345,6 @@ int main()
         	   printf("\nFocus = %x ",current_focus);
        	   	   break;}
        }
-
-       // Send and receive data from esp32
-	  const alt_u8* tx_data = (alt_u8*)"Hello from DE10Lite";
-	  alt_u32 tx_length = strlen((char*)tx_data);
-	  alt_u8 rx_data[tx_length];
-	  alt_u32 rx_length = tx_length;
-	  alt_avalon_spi_command(SPI_0_BASE, 0, tx_length, tx_data, rx_length, rx_data, 0);
 
 	   //Main loop delay
 	   usleep(10000);

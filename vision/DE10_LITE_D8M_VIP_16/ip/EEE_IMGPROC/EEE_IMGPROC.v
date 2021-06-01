@@ -105,13 +105,14 @@ assign cd_mode = sw[3:1];
 
 // setup blob detector params
 parameter screen_w = IMAGE_W, screen_h = IMAGE_H;
-parameter grid_w = 230, grid_h = 160;
+parameter grid_w = 160, grid_h = 160;
 parameter grids_x = screen_w / grid_w;
 parameter grids_y = screen_h / grid_h;
 parameter color_count = 5;
 
 // blob detector variables global
 wire bds_valid[color_count-1:0][grids_x-1:0][grids_y-1:0];
+wire bds_active[color_count-1:0][grids_x-1:0][grids_y-1:0];
 
 wire [10:0] bds_rad[color_count-1:0][grids_x-1:0][grids_y-1:0];
 wire [10:0] bds_x_min[color_count-1:0][grids_x-1:0][grids_y-1:0],
@@ -158,6 +159,7 @@ generate
                         .maxx(bds_x_max[c][i][j]),
                         .miny(bds_y_min[c][i][j]),
                         .maxy(bds_y_max[c][i][j]),
+                        .active(bds_active[c][i][j])
                 );
             end
         end
@@ -176,7 +178,7 @@ always @(posedge clk) begin
         for(d = 0; d < color_count; d = d + 1) begin
             for(k = 0; k < grids_x; k = k + 1) begin
                 for(l = 0; l < grids_y; l = l + 1) begin
-                    if(bd_rad < bds_rad[d][k][l]) begin
+                    if(bds_active[d][k][l] & bd_rad < bds_rad[d][k][l]) begin
                         bd_which_c <= d;
                         bd_which_x <= k;
                         bd_which_y <= l;
