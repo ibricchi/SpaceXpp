@@ -97,9 +97,6 @@ func (m *MQTTClient) publish(topic string, data string, qos byte) {
 var instructionFeedPubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
 
-	// ToDo: impliment calling :
-	// updateMap(driveInstruction driveInstruction)
-
 	s := strings.Split(string(msg.Payload()), ":")
 	value := s[1]
 	v, _ := strconv.Atoi(value)
@@ -131,9 +128,9 @@ var instructionFeedConnectHandler mqtt.OnConnectHandler = func(client mqtt.Clien
 
 	// Subscribe to topics
 	if token := client.Subscribe("/vision/instruction", 2, instructionFeedPubHandler); token.Wait() && token.Error() != nil {
-		log.Fatalf("server: mqtt: failed to subscribe to /drive/instruction: %v", token.Error())
+		log.Fatalf("server: mqtt: failed to subscribe to /vision/instruction: %v", token.Error())
 	}
-	fmt.Println("Subscribed to topic: /drive/instruction")
+	fmt.Println("Subscribed to topic: /vision/instruction")
 }
 
 // Subscribing to stop feed
