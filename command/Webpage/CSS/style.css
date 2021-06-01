@@ -1,71 +1,168 @@
-body{
-    background-color: #f4f4f4;
-    color: #705b5b;
-    font: sans-serif;
-    font-family: Gill Sans, sans-serif;
+:root {
+    --main-back: #363333;
+    --main-text: #f6e9e9;
+    --status-back: #e16428;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--main-back);
+    color: var(--main-text);
+    font-family: 'Roboto', sans-serif;
     font-stretch: ultra-expanded;
+    padding: none;
+    white-space: none;
 }
 
-.status{
-  border-radius: 8px;
-  border: 2px solid #4CAF50;
+.container {
+    width: 90vw;
+    margin-left: 5vw;
 }
 
-.server{
-  border-radius: 8px;
-  border: 2px solid #4CAF50;
-  width: 200px;
-
-
+.left {
+    float: left;
+    padding: 5px;
+    width: 20%;
 }
 
-.container{
-        width: 500px;
-        margin: auto;
+.main-wrapper {
+    float: left;
+    padding: 5px;
+    width: 60%;
+    text-align: center;
 }
 
-button{
-  background-color: #af4c9e; /* Green */
-  border: none;
-  color: white;
-  padding: 16px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  transition-duration: 0.4s;
-  cursor: pointer;
-  background-color: white; 
-  color: black; 
-  border: 2px solid #4CAF50;
-  border-radius: 8px;
+.right {
+    float: left;
+    padding: 5px;
+    width: 20%;
+}
 
+.infoBox {
+    position: absolute;
+    visibility: hidden;
+    opacity: 0;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9;
+    transition: 100ms linear;
+}
+
+#show-controls:checked~.infoBox {
+    visibility: visible;
+    opacity: 1;
+}
+
+.infoBox {
+    color: black;
+    background-color: #ffffffbf;
+    text-align: center;
+    padding: 7%;
+    display: block;
+    margin: 10vh 10vw;
+    width: 80vw;
+    height: 30vh;
+}
+
+.status {
+    padding: 10px;
+    border-radius: 8px;
+    background-color: var(--status-back);
+}
+
+.controlls {}
+
+.routingOptions {}
+
+.server {
+    border-radius: 8px;
+    border: 2px solid #4CAF50;
+    width: 200px;
+}
+
+#feedback {
+    overflow-y: scroll;
+    height: 300px;
+    font-family: 'Share Tech Mono', monospace;
+    background-color: black;
+    padding: 10px;
+    border: 2px solid #4CAF50;
+    color: aqua;
+}
+
+h1 {
+    text-align: center;
+}
+
+#show-control-label {
+    position: fixed;
+    font-size: xxx-large;
+    top: 15px;
+    right: 30vw;
+    z-index: 100;
+}
+
+button {
+    background-color: #af4c9e;
+    /* Green */
+    border: none;
+    color: white;
+    padding: 16px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    background-color: white;
+    color: black;
+    border-radius: 8px;
 }
 
 button:hover {
     background-color: #4CAF50;
     color: white;
-  }
-
-input{
-  border-radius: 8px;
-  border: 2px solid #4CAF50;
-
 }
 
-.main-wrapper {
-  width: 512px;
-  padding-left: 1em;
-  padding-right: 1em;
-  margin: 0 auto;
+input {
+    border-radius: 8px;
 }
 
-#feedback{
-  background-color: #353131;
-  border: 2px solid #4CAF50;
-  padding: 50px;
-  color:aqua; 
+@media screen and (max-width: 1000px) {
+    .container {
+        width: 90vw;
+        margin-left: 5vw;
+    }
+}
 
+@media screen and (min-width: 1000px) and (max-width: 1100px) {
+    .container {
+        width: 60vw;
+        margin-left: 20vw;
+    }
+}
 
+@media screen and (max-width: 1100px) {
+    .left {
+        width: 100%;
+    }
+    .main-wrapper {
+        width: 100%;
+        padding: 20px;
+    }
+    .right {
+        width: 100%;
+    }
+    .infoBox {
+        height: 80vh;
+    }
+    #show-control-label {
+        right: 10vw;
+    }
 }
