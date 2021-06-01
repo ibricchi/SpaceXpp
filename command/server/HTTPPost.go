@@ -57,7 +57,7 @@ func (h *HttpServer) driveD(w http.ResponseWriter, r *http.Request) {
 
 	h.mqtt.publishDriveInstructionSequence(instruction)
 
-	//updateMap(instruction[0])
+	updateMap(instruction[0])
 
 }
 
