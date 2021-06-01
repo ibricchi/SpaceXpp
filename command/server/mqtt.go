@@ -18,4 +18,7 @@ func (m *MQTTClient) publishDriveInstructionSequence(instructionSequence []drive
 		encodedInstruction := fmt.Sprintf("%s%s%d", instruction.instruction, driveInstructionDelimiter, instruction.value)
 		m.publish(topic, encodedInstruction, qos)
 	}
+
+	m.publish(topic, "X", qos)
+
 }

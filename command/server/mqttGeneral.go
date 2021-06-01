@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"strconv"
+	"strings"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"go.uber.org/zap"
@@ -98,23 +100,24 @@ var instructionFeedPubHandler mqtt.MessageHandler = func(client mqtt.Client, msg
 	// ToDo: impliment calling :
 	// updateMap(driveInstruction driveInstruction)
 
-	s := string.Split(msg.Payload(), ':')
-
+	s := strings.Split(string(msg.Payload()), ":")
+	value := s[1]
+	v, _ := strconv.Atoi(value)
 	var instruction driveInstruction
 
-	if s[0] == 'F' {
+	if s[0] == "F" {
 		instruction.instruction = "forward"
-		instruction.value = s[1]
+		instruction.value = v
 		updateMap(instruction)
-	} else if s[0] == 'R' {
+	} else if s[0] == "R" {
 		instruction.instruction = "turnRight"
-		instruction.value = s[1]
+		instruction.value = v
 		updateMap(instruction)
-	} else if s[0] == 'L' {
+	} else if s[0] == "L" {
 		instruction.instruction = "turnLeft"
-		instruction.value = s[1]
+		instruction.value = v
 		updateMap(instruction)
-	} else if s[0] == 'S' {
+	} else if s[0] == "S" {
 
 	} else if s[0] == "SD" {
 
