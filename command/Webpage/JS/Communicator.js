@@ -175,3 +175,18 @@ function sendTargetCoords(x, y){
     fetch(serverIP + "/map/targetCoords", options);
 
 }
+
+
+function mapReset(){
+    
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(0)
+    };
+
+    fetch(serverIP + "/map/reset", options);
+
+}
