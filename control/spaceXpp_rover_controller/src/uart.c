@@ -56,7 +56,7 @@ void drive_uart_task(void *arg)
                     break;
                 case 'S': // Stop: Distance of last forward instruction driven
                     drive_backwards_to_last_valid_tile(atoi((char*)rx_data));
-                    publish_drive_instruction_to_server("SD", (char*)rx_data); // second part of stop instruction for server
+                    publish_drive_instruction_to_server("SD", (char*)rx_data); // second part of stop instruction for server (required for server to stop on correct tile)
                     break;
                 default:
                     ESP_LOGE(UART_tag, "Instruction from drive not valid: %d", instruction);
@@ -150,7 +150,7 @@ void drive_uart_task_simulated(void *arg) {
                     break;
                 case 'S': // Stop: Distance of last forward instruction driven
                     drive_backwards_to_last_valid_tile(atoi((char*)rx_data));
-                    publish_drive_instruction_to_server("SD", (char*)rx_data); // second part of stop instruction for server
+                    publish_drive_instruction_to_server("SD", (char*)rx_data); // second part of stop instruction for server (required for server to stop on correct tile)
                     currentDriveInstruction = ""; // needed in simulation to prevent drive from sending stop distance multiple times
                     break;
                 default:
