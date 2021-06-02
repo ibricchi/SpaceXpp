@@ -37,8 +37,13 @@ var Rover = rover{
 	Rotation: 0, // angle (x-axis = 0°)
 }
 
-func (h *HttpServer) mapAndDrive(destinationCol int, destinationRow int, mode int) error {
-	h.logger.Info("starting map and drive", zap.Int("startRow", Rover.Y), zap.Int("startCol", Rover.X), zap.Int("destinationRow", destinationRow), zap.Int("destinationCol", destinationCol))
+// Used for case when having to recompute path due to obstruction avoidance
+var previousDestinationRow int
+var previousDestinationCol int
+var previousDestinationMode int
+
+func mapAndDrive(mqtt MQTT, destinationCol int, destinationRow int, mode int) error {
+	mqtt.getLogger().Info("starting map and drive", zap.Int("startRow", Rover.Y), zap.Int("startCol", Rover.X), zap.Int("destinationRow", destinationRow), zap.Int("destinationCol", destinationCol))
 
 	// Getting optimum path
 	path, err := getShortedPathFromStartToDestination(Rover.Y, Rover.X, destinationRow, destinationCol, Map)
@@ -61,7 +66,7 @@ func (h *HttpServer) mapAndDrive(destinationCol int, destinationRow int, mode in
 		return fmt.Errorf("server: map_general: mapAndDrive: failed to create drive instructions: %w", err)
 	}
 
-	h.mqtt.publishDriveInstructionSequence(driveInstructions)
+	mqtt.publishDriveInstructionSequence(driveInstructions)
 
 	return nil
 }
@@ -114,7 +119,7 @@ func updateMap(driveInstruction driveInstruction) {
 * 		- update map with location of obstruction & type of instruction
  */
 
-func stop(distance int, obstructionType string) {
+func stop(mqtt MQTT, distance int, obstructionType string) {
 	stashedDriveInstruction.instruction = "forward"
 	stashedDriveInstruction.value = distance
 	driveTocoords(stashedDriveInstruction, tileWidth)
@@ -129,6 +134,11 @@ func stop(distance int, obstructionType string) {
 
 	Map.Tiles[indx] = obstacleToValue(obstructionType)
 
+	fmt.Println("Stopped due to obstruction. Computing new shortest path.")
+	if err := mapAndDrive(mqtt, previousDestinationRow, previousDestinationCol, previousDestinationMode); err != nil {
+		// Enough to log error => Error is handled manually by clicking again on map
+		mqtt.getLogger().Error("server: map_general: stop: failed to compute new shortest path")
+	}
 }
 
 func updateMapWithObstructionWhileTurning(obstructionType string) {
