@@ -47,7 +47,7 @@ bool turnRight(float totalX, float totalY, float currentInstructionX, float curr
   float currentHypotenuse = (totalX - currentInstructionX) * (totalX - currentInstructionX) + (totalY - currentInstructionY) * (totalY - currentInstructionY);
   float desiredHypotenuse = 2 * distanceFromRoverCentreToSensor * distanceFromRoverCentreToSensor;
   if (currentHypotenuse < desiredHypotenuse) {
-    clockwise();
+    anticlockwise();
     return false;
   }
   return true;
@@ -59,7 +59,7 @@ bool turnLeft(float totalX, float totalY, float currentInstructionX, float curre
   float currentHypotenuse = (totalX - currentInstructionX) * (totalX - currentInstructionX) + (totalY - currentInstructionY) * (totalY - currentInstructionY);
   float desiredHypotenuse = 2 * distanceFromRoverCentreToSensor * distanceFromRoverCentreToSensor;
   if (currentHypotenuse < desiredHypotenuse) {
-    anticlockwise();
+    clockwise();
     return false;
   }
   return true;

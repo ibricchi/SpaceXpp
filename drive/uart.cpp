@@ -4,13 +4,19 @@
 UART::UART(){
   instruction = doNothing;
   newUARTDataAvailable = false;
-  if(!Serial.available()) Serial.begin(9600);
+  
+}
+
+void UART::setup(){
+  if(!Serial1.available()) Serial1.begin(115200);
 }
 
 // Getters
 instructions UART::getInstruction(){ return instruction; }
 bool UART::getNewUARTDataAvailable(){ return newUARTDataAvailable; }
-char* UART::getReceivedUARTCharts(){ return receivedUARTChars; }
+float UART::getReceivedUARTCharts(){ return atof(receivedUARTChars); }
+
+void UART::setInstruction(instructions i){ instruction = i; }
 
 // Receving new instruction from UART
 void UART::recvUARTWithStartEndMarkers() {
@@ -19,10 +25,10 @@ void UART::recvUARTWithStartEndMarkers() {
   const char startMarker = '<';
   const char endMarker = '>';
   char received;
-
-  while (Serial.available() && !newUARTDataAvailable) {
-    received = Serial.read();
-
+  
+  while (Serial1.available() && !newUARTDataAvailable) {
+    received = Serial1.read();
+    
     if (recvInProgress) {
       if (received != endMarker) {
         receivedUARTChars[idx++] = received;
@@ -49,7 +55,8 @@ void UART::processNewUARTData() {
     // Read and pop instruction key
     const char instructionKey = receivedUARTChars[strlen(receivedUARTChars) - 1];
     receivedUARTChars[strlen(receivedUARTChars) - 1] = '\0';
-
+    
+    
     switch (instructionKey) {
       case 'F':
         instruction = forwardForDistance;
@@ -71,5 +78,5 @@ void UART::processNewUARTData() {
 
 // Ready for next instruction signal => should be send after finished with current drive instruction
 void UART::nextInstructionReady() {
-  Serial.print("R");
+  Serial1.print("R");
 }

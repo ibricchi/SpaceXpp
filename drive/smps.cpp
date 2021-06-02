@@ -9,9 +9,25 @@ float duty_cycle;
 // Measurements from the circuit - output voltage and inductor current
 float vout, iL;
 
+// Constants
+const float kpv = 0.05024, kiv = 15.78, kdv = 0;
+const float uv_max = 4, uv_min = 0;
+const float kpi = 0.02512, kii = 39.4, kdi = 0;
+const float ui_max = 1, ui_min = 0;
+const float current_limit = 3.0;
+
+// Internal values needed for the PID controller
+// u->output; e->error; 0->this time; 1->last time; 2->last last time
+float u0v, u1v, delta_uv, e0v, e1v, e2v;
+
+// Internal values for the current controller
+// u->output; e->error; 0->this time; 1->last time; 2->last last time
+float u0i, u1i, delta_ui, e0i, e1i, e2i;
+
 // This subroutine processes all of the analogue samples, creating the required values for the main loop
 void sampling() {
   vout = (float)(analogRead(A0)) * (4.096 / 1023.0);
+  Serial.println(vout);
   iL = (float)(ina219.getCurrent_mA()) / 1000.0;
 }
 
@@ -24,20 +40,11 @@ float saturation(float sat_input, float uplim, float lowlim) {
 
 // PWM waveform for SMPS duty cycle
 void pwm_modulate(float pwm_input) {
-  analogWrite(PIN_PWM_OUT, (int)(255 - pwm_input * 255));
+  analogWrite(6, (int)(255 - pwm_input * 255));
 }
 
 // Voltage PID controller
 float pidv(float pid_input, float Ts) {
-  // Constant
-  const float kpv = 0.05024, kiv = 15.78, kdv = 0;
-  const float uv_max = 4, uv_min = 0;
-
-  // Internal values needed for the PID controller
-  // u->output; e->error; 0->this time; 1->last time; 2->last last time
-  float u0v, u1v, delta_uv, e0v, e1v, e2v;
-
-  // PID
   float e_integration;
   e0v = pid_input;
   e_integration = e0v;
@@ -57,15 +64,6 @@ float pidv(float pid_input, float Ts) {
 
 // Current PID Controller
 float pidi(float pid_input, float Ts) {
-  // Constants
-  const float kpi = 0.02512, kii = 39.4, kdi = 0;
-  const float ui_max = 1, ui_min = 0;
-
-  // Internal values for the current controller
-  // u->output; e->error; 0->this time; 1->last time; 2->last last time
-  float u0i, u1i, delta_ui, e0i, e1i, e2i;
-
-  // PID
   float e_integration;
   e0i = pid_input;
   e_integration = e0i;
@@ -92,9 +90,9 @@ void SMPSSetup() {
   analogReference(EXTERNAL);
 
   // TimerB0 initialization for PWM output
-  pinMode(PIN_PWM_OUT, OUTPUT);
+  pinMode(6, OUTPUT);
   TCB0.CTRLA = TCB_CLKSEL_CLKDIV1_gc | TCB_ENABLE_bm;
-  analogWrite(PIN_PWM_OUT, 120);
+  analogWrite(6, 120);
 
   // Current sensor
   Wire.begin();
@@ -110,7 +108,6 @@ void SMPSControl(float vref, float Ts) {
     The current loop then gives a duty cycle demand based upon the error between demanded current and measured
     current.
   */
-  const float current_limit = 3.0;
   sampling();
   float ev = vref - vout;
   float cv = pidv(ev, Ts);

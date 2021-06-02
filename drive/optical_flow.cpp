@@ -91,8 +91,8 @@ void OpticalFlow::read() {
   displacementX = displacementXAlt / 157.48;
   displacementY = displacementYAlt / 157.48;
   // Invert to match x-y plane
-  displacementX = (-1) * displacementX;
-  displacementY = (-1) * displacementY;
+  //displacementX = (-1) * displacementX;
+  //displacementY = (-1) * displacementY;
 }
 
 // Get x-position

@@ -2,6 +2,8 @@
 
 static const char *MQTT_tag = "MQTT";
 
+esp_mqtt_client_handle_t mqttClient;
+
 extern QueueHandle_t driveInstructionQueue;
 
 void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
@@ -9,15 +11,12 @@ void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event
     ESP_LOGD(MQTT_tag, "Event dispatched from event loop base=%s, event_id=%d", base, event_id);
 
     esp_mqtt_event_handle_t event = event_data;
-    esp_mqtt_client_handle_t client = event->client;
-    int msg_id;
 
     switch ((esp_mqtt_event_id_t)event_id) {
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(MQTT_tag, "MQTT_EVENT_CONNECTED");
 
-        msg_id = esp_mqtt_client_subscribe(client, "/drive/instruction", 2);
-        ESP_LOGI(MQTT_tag, "sent subscribe successful for path '/drive/instruction', msg_id=%d", msg_id);
+        subscribe_to_mqtt_topics();
 
         break;
 
@@ -60,21 +59,24 @@ void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event
     }
 }
 
-esp_mqtt_client_handle_t mqtt_init()
+void mqtt_init()
 {
     esp_mqtt_client_config_t mqtt_cfg = {
         .uri = MQTT_BROKER_URI,
         .cert_pem = (const char*)mqtt_cert, // Used for TLS/SSL
         .skip_cert_common_name_check = true, // Required as esp32 seems to use common name instead of SANs, even though this was depreciated in 2000
     };
-    esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
+    mqttClient = esp_mqtt_client_init(&mqtt_cfg);
 
-    ESP_ERROR_CHECK(esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL));
-    ESP_ERROR_CHECK(esp_mqtt_client_start(client));
+    ESP_ERROR_CHECK(esp_mqtt_client_register_event(mqttClient, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL));
+    ESP_ERROR_CHECK(esp_mqtt_client_start(mqttClient));
 
     ESP_LOGI(MQTT_tag, "MQTT setup completed");
+}
 
-    return client;
+void subscribe_to_mqtt_topics() {
+    int msg_id = esp_mqtt_client_subscribe(mqttClient, "/drive/instruction", 2);
+    ESP_LOGI(MQTT_tag, "sent subscribe successful for path '/drive/instruction', msg_id=%d", msg_id);
 }
 
 void handle_mqtt_event_data(esp_mqtt_event_handle_t event) {
@@ -83,7 +85,7 @@ void handle_mqtt_event_data(esp_mqtt_event_handle_t event) {
     char data[32];
     sprintf(data, "%.*s", event->data_len, event->data);
 
-    if (!strcmp(topic, "/drive/instruction")) {
+    if (strcmp(topic, "/drive/instruction") == 0) {
         ESP_LOGI(MQTT_tag, "MQTT_EVENT_DATA: data from topic: %s", topic);
 
         // Block for 10 ticks if queue is full
@@ -93,25 +95,25 @@ void handle_mqtt_event_data(esp_mqtt_event_handle_t event) {
     }
 }
 
-// Used to send status to server
+void publish_drive_instruction_to_server(const char* instruction, const char* data) {
+    char stopMsg[32];
+    sprintf(stopMsg, "%s%s%s", instruction, DRIVE_INSTRUCTION_DELIMITER, data);
+
+    int msg_id = esp_mqtt_client_publish(mqttClient, "/feedback/instruction", stopMsg, 0, 2, 0);
+    ESP_LOGI(MQTT_tag, "publish drive instruction to server successful, msg_id=%d, data=%s", msg_id, stopMsg);
+}
+
+// Used to send status to server e.g battery percentage remaining
 void mqtt_task(void *arg)
 {
-    esp_mqtt_client_handle_t client = (esp_mqtt_client_handle_t)arg;
-
     int counter = 0;
     int msg_id;
     while (1) {
         char statusData[20];
 
-        sprintf(statusData, "Counter is %d", counter);
-        msg_id = esp_mqtt_client_publish(client, "/test/status", statusData, 0, 0, 0); // qos of 0 is enough for status
-        ESP_LOGI(MQTT_tag, "sent publish successful, msg_id=%d, data=%s", msg_id, statusData);
-
-        // Testing
-        char driveData[32];
-        sprintf(driveData, "F:%d", counter);
-        msg_id = esp_mqtt_client_publish(client, "/drive/instruction", driveData, 0, 2, 0); // want qos of 2 for important drive data
-        ESP_LOGI(MQTT_tag, "sent publish successful, msg_id=%d, data=%s", msg_id, driveData);
+        // sprintf(statusData, "Counter is %d", counter);
+        // msg_id = esp_mqtt_client_publish(mqttClient, "/test/status", statusData, 0, 0, 0); // qos of 0 is enough for status
+        // ESP_LOGI(MQTT_tag, "sent publish successful, msg_id=%d, data=%s", msg_id, statusData);
 
         ++counter;
 

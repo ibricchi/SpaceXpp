@@ -5,6 +5,7 @@
 #include "driver/gpio.h"
 
 #include "drive.h"
+#include "mqtt.h"
 
 #ifndef UART_H
 #define UART_H
@@ -39,6 +40,12 @@ void energy_uart_init();
 
 // Simple receiver task => Change to UART event based task if this is not sufficient
 void drive_uart_task(void *arg);
+
+/* 
+    Simulates drive communication when used instead of "drive_uart_task".
+    Used for testing without the drive component being connected.
+*/
+void drive_uart_task_simulated(void *arg);
 
 void vision_uart_task(void *arg);
 
