@@ -130,7 +130,11 @@ func TestPathToDriveInstructions(t *testing.T) {
 			expectedInstructions: []driveInstruction{
 				{
 					instruction: "turnRight",
-					value:       180,
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
 				},
 				{
 					instruction: "forward",
@@ -247,7 +251,11 @@ func TestPathToDriveInstructions(t *testing.T) {
 			expectedInstructions: []driveInstruction{
 				{
 					instruction: "turnRight",
-					value:       180,
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
 				},
 				{
 					instruction: "forward",
@@ -466,7 +474,11 @@ func TestPathToDriveInstructions(t *testing.T) {
 			expectedInstructions: []driveInstruction{
 				{
 					instruction: "turnRight",
-					value:       180,
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
 				},
 				{
 					instruction: "forward",
