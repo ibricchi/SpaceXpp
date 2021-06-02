@@ -106,11 +106,7 @@ var instructionFeedPubHandler mqtt.MessageHandler = func(client mqtt.Client, msg
 
 	s := strings.Split(string(msg.Payload()), ":")
 	value := s[1]
-	v, err := strconv.Atoi(value)
-	if err != nil {
-		fmt.Printf("server: mqttGeneral: instructionFeedPubHandler: failed to convert string into int: %s", err.Error())
-		return
-	}
+	v, _ := strconv.Atoi(value) // No error checking as this is supposed to fail for stop instructions
 
 	var instruction driveInstruction
 	if s[0] == "F" {
