@@ -50,6 +50,7 @@ func (s *SQLiteDB) retriveData(ctx context.Context) (string, error) {
 			); err != nil {
 				return fmt.Errorf("server: sqlite_db_retrieve: failed to scan creds row: %w", err)
 			}
+			fmt.Println("name:", name)
 		}
 
 		if err := rows.Err(); err != nil {
