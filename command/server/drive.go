@@ -97,6 +97,11 @@ func pathToDriveInstructions(path [][]int, tileWidth int, initialDirection direc
 			instruction: "forward",
 			value:       currentDistance,
 		})
+
+		if traverseMode == fullDiscovery || traverseMode == destinationDiscovery {
+			// Add instructions for full roation
+			instructions = append(instructions, getInstructionForFullRotation(currentDirection)...)
+		}
 	}
 
 	// Skip start tile (already there)

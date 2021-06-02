@@ -132,7 +132,7 @@ func stop(distance int, obstructionType string) {
 }
 
 func updateMapWithObstructionWhileTurning(obstructionType string) {
-	if stashedDriveInstruction.instruction != "turnRight" || stashedDriveInstruction.instruction != "turnLeft" {
+	if stashedDriveInstruction.instruction != "turnRight" && stashedDriveInstruction.instruction != "turnLeft" {
 		fmt.Println("server: map_general: updateMapWithObstructionWhileTurning fail, not currently turning")
 		return
 	}
