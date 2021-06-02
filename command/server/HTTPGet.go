@@ -1,7 +1,9 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -30,18 +32,6 @@ func (h *HttpServer) connect(w http.ResponseWriter, req *http.Request) {
 
 func (h *HttpServer) battery(w http.ResponseWriter, req *http.Request) {
 
-	err, _, level := h.db.retriveData()
-	if err != nil {
-		//return error
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
-	if err := json.NewEncoder(w).Encode(level); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-
-	w.WriteHeader(http.StatusOK)
 }
 
 func check(w http.ResponseWriter, req *http.Request) {
@@ -84,15 +74,21 @@ func (h *HttpServer) updateRover(w http.ResponseWriter, req *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+func (h *HttpServer) loadMap(ctx context.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 
-func (h *HttpServer) loadMap(w http.ResponseWriter, req *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		data := dbMap
+		if err := json.NewEncoder(w).Encode(data); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 
-	data := dbMap
-	if err := json.NewEncoder(w).Encode(data); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		w.WriteHeader(http.StatusOK)
+
+		name, _ := h.db.retriveData(ctx)
+
+		fmt.Println("name: ", name)
+
 	}
-
-	w.WriteHeader(http.StatusOK)
 }

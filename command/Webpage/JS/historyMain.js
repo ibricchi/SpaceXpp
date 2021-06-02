@@ -4,5 +4,8 @@ document.getElementById("mapOpen").addEventListener('click', getNameAndLoad, fal
 
 function getNameAndLoad(){
   var name = document.getElementById("open").value
-  requestMap(name)
+  requestMap(name);
+  console.log("loading map")
+  loadMap();
+
 }
