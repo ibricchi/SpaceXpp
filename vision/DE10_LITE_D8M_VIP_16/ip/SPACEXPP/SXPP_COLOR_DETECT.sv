@@ -5,7 +5,7 @@ module SXPP_COLOR_DETECT(
     r, g, b,
     x_in, y_in,
 
-    is_red, is_yellow, is_green, is_blue, is_pink,
+    is_red, is_yellow, is_green, is_blue, is_pink, is_unknown,
     x_out, y_out
 );
 
@@ -13,13 +13,13 @@ input logic clk, reset_n;
 input logic [7:0] r, g, b;
 input logic [10:0] x_in, y_in;
 
-output logic is_red, is_yellow, is_green, is_blue, is_pink;
+output logic is_red, is_yellow, is_green, is_blue, is_pink, is_unknown;
 output logic [10:0] x_out, y_out;
 
 // color calculations
 logic [10:0] pr, pg, pb;
 logic [10:0] ppr, ppg, ppb;
-logic [31:0] distance_r,distance_y,distance_g,distance_b,distance_p;
+logic [31:0] distance_r,distance_y,distance_g,distance_b,distance_p,distance_u;
 
 // x and y propagation
 logic [10:0] x1, y1, x2, y2;
@@ -41,6 +41,7 @@ always_ff @(posedge clk) begin
     distance_g <= pr*pr+(pg-255)*(pg-255)+pb*pb;
     distance_b <= pr*pr+pg*pg+(pb-255)*(pb-255);
     distance_p <= (pr-255)*(pr-255)+pg*pg+(pb-170)*(pb-170);
+    distance_u <= pr*pr+pg*pg+pb*pb;
     
     x2 <= x1;
     y2 <= y1;
@@ -53,6 +54,7 @@ always_comb begin
     is_green = (distance_g < 35000) & (pg > pb) & (pg > pr) & (pb-10 > pr);
     is_blue = (distance_b < 44000) & (pb > pg) & (pg > pr);
     is_pink = (distance_p < 35000) & (pr > pb) & (pr < (pg+pb));
+    is_unknown = (distance_u < 3000);
     
     x_out = x2;
     y_out = y2;

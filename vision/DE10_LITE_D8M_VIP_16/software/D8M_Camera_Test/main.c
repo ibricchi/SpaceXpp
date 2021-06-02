@@ -195,7 +195,7 @@ int main()
         OV8865SetGain(gain);
         Focus_Init();
 
-        char color_names[5] = "RYTBV";
+        char color_names[6] = "RYTBVU";
         char last_sent;
 
         char last_seen;
@@ -295,7 +295,7 @@ int main()
 //                	   printf("Color already matched saw:%c expected: %c\n", color, last_seen);
                    }
 
-                   if(color != 3 & color != last_sent & last_seen_count > 3){
+                   if(gridx!=-1&gridy!=-1){//color != last_sent & last_seen_count > 3){
                 	   tx_data[0] = name >> 16;
                 	   tx_data[1] = name >> 8;
                 	   tx_data[2] = name;
@@ -327,6 +327,15 @@ int main()
 				       alt_avalon_spi_command(SPI_0_BASE, 0, tx_length, tx_data, rx_length, rx_data, 0);
 				       last_sent = color;
                    }
+           }
+           else if(count_messages == 2){
+               char gridx = word >> 24;
+               char gridy = word << 8 >> 24;
+               char color = color_names[word << 16 >> 27];
+               int rad = word << 21 >> 21;
+        	   if(gridx != -1 & gridy != -1){
+        		   printf("\nColor: %c", color);
+        	   }
            }
            else{
 //			   printf("\n%c%c%c", word>>16,word>>8,word);
