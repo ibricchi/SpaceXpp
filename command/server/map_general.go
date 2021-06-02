@@ -3,6 +3,8 @@ package server
 import (
 	"errors"
 	"fmt"
+
+	"go.uber.org/zap"
 )
 
 var tileWidth = 10
@@ -36,11 +38,10 @@ var Rover = rover{
 }
 
 func (h *HttpServer) mapAndDrive(destinationCol int, destinationRow int, mode int) error {
-
-	fmt.Println("dest: ", destinationCol, destinationRow)
+	h.logger.Info("starting map and drive", zap.Int("startRow", Rover.Y), zap.Int("startCol", Rover.X), zap.Int("destinationRow", destinationRow), zap.Int("destinationCol", destinationCol))
 
 	// Getting optimum path
-	path, err := getShortedPathFromStartToDestination(Rover.Y, Rover.Y, destinationRow, destinationCol, Map)
+	path, err := getShortedPathFromStartToDestination(Rover.X, Rover.Y, destinationRow, destinationCol, Map)
 	if err != nil {
 		return fmt.Errorf("server: map_general: mapAndDrive: failed to create path from start to destination: %w", err)
 	}
