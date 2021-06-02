@@ -196,6 +196,10 @@ int main()
         Focus_Init();
 
         char color_names[5] = "RYTBV";
+        char last_sent;
+
+        char last_seen;
+        int last_seen_count;
 
 	while(1){
 
@@ -256,7 +260,6 @@ int main()
       //Read messages from the image processor and print them on the terminal
       int name = 0;
       int count_messages = 0;
-      int last_message = 2;
        while ((IORD(0x42000,EEE_IMGPROC_STATUS)>>8) & 0xff) {   //Find out if there are words to read
     	   unsigned int word = IORD(0x42000,EEE_IMGPROC_MSG);                    //Get next word from message buffer
            if (word == EEE_IMGPROC_MSG_START){                                  //Newline on message identifi$
@@ -266,10 +269,33 @@ int main()
            else if(count_messages == 1){
                    char gridx = word >> 24;
                    char gridy = word << 8 >> 24;
-                   char* color = color_names[word << 16 >> 27];
+                   char color = color_names[word << 16 >> 27];
                    int rad = word << 21 >> 21;
-                   if(gridx != -1 & gridy != -1){
-                	   int idx = 0;
+
+                   if(color == last_seen & color != last_sent){
+//                	   printf("Color match %c \n", color);
+                	   bool valid_pos = gridx == 1 | gridx == 2;
+                	   bool valid_rad = rad > 60;
+                	   bool valid_data = valid_pos & valid_rad;
+                	   if(valid_data){
+                		   last_seen_count++;
+//                		   printf("\tValid match, count: %d \n", last_seen_count);
+                	   }
+                	   else{
+//                		   printf("\tInvalid match\n");
+                		   last_seen_count = 0;
+                	   }
+                   }
+                   else if(color != last_seen){
+//                	   printf("Invalid color saw:%c expected: %c\n", color, last_seen);
+                	   last_seen = color;
+                	   last_seen_count = 0;
+                   }
+                   else{
+//                	   printf("Color already matched saw:%c expected: %c\n", color, last_seen);
+                   }
+
+                   if(color != 3 & color != last_sent & last_seen_count > 3){
                 	   tx_data[0] = name >> 16;
                 	   tx_data[1] = name >> 8;
                 	   tx_data[2] = name;
@@ -295,8 +321,11 @@ int main()
                 	   tx_data[22] = 48 + rad%10;
                 	   tx_data[23] = 'S';
                 	   tx_data[24] = 0;
+//                	   tx_data[0] = color;
+//                	   tx_data[1] = 0;
                 	   printf("\n%s", tx_data);
 				       alt_avalon_spi_command(SPI_0_BASE, 0, tx_length, tx_data, rx_length, rx_data, 0);
+				       last_sent = color;
                    }
            }
            else{

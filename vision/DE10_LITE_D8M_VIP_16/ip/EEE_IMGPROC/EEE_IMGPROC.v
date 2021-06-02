@@ -105,7 +105,7 @@ assign cd_mode = sw[3:1];
 
 // setup blob detector params
 parameter screen_w = IMAGE_W, screen_h = IMAGE_H;
-parameter grid_w = 160, grid_h = 160;
+parameter grid_w = 320, grid_h = 240;
 parameter grids_x = screen_w / grid_w;
 parameter grids_y = screen_h / grid_h;
 parameter color_count = 5;

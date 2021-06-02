@@ -54,7 +54,7 @@ always_comb begin
         active = 0;
     end
     else begin
-        active = pixel_count > bd;
+        active = pixel_count > (br << 5);
     end
 end
 
