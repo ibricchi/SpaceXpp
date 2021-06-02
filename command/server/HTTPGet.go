@@ -10,15 +10,9 @@ type staticTestData struct {
 	Data []int  `json:"data"`
 }
 
-type mAp struct {
-	Info   string `json:"info"`
-	Cols   int    `json:"cols"`
-	Rows   int    `json:"rows"`
-	Layout []int  `json:"layout"`
-}
-
 type rover struct {
-	Index    int `json:"indx"`
+	X        int `json:"x"`
+	Y        int `json:"y"`
 	Rotation int `json:"rotation"`
 }
 
@@ -71,7 +65,7 @@ func (h *HttpServer) updateMap(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	data := getMap()
+	data := Map
 	if err := json.NewEncoder(w).Encode(data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -83,7 +77,7 @@ func (h *HttpServer) updateRover(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	data := getRover()
+	data := Rover
 	if err := json.NewEncoder(w).Encode(data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

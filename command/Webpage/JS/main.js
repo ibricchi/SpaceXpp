@@ -1,13 +1,18 @@
 
 
-const driveButton = document.getElementById("drive");
-const feedback = document.getElementById("feedback")
+const drived = document.getElementById("driveD");
+const drivea = document.getElementById("driveA");
+const resetMap = document.getElementById("resetMap");
 
-driveButton.addEventListener('click', drive , false);
+const feed = document.getElementById("feedback")
+
+
+drived.addEventListener('click', driveD , false);
+drivea.addEventListener('click', driveA , false);
+resetMap.addEventListener('click', mapReset, false);
 
 document.getElementById("server").innerHTML = "loading"
 document.getElementById("rover").innerHTML = "loading"
-//feedback.innerHTML="Map is loading"
 
 setInterval(function(){
     status();
@@ -18,16 +23,16 @@ setInterval(function(){
 
 
 
-
 function connect(){
     getData('status', '/connect' );
 }
 
-function drive(){
-    sendData('angle', '/drive/angle');
+function driveD(){
     sendData('distance', '/drive/distance');
 }
 
-
+function driveA(){
+sendData('angle', '/drive/angle');
+}
 
 

@@ -1,63 +1,99 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>
-           Mars Rover
-        </title>
 
-        <link rel="stylesheet" type="text/css" href="CSS/style.css">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>
+        Mars Rover
+    </title>
 
-        <script src="JS/Communicator.js"></script>
-        <script src="JS/speed.js"></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://pagecdn.io/lib/normalize/8.0.1/normalize.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="CSS/style.css">
 
-        <script src="JS/map/common.js"></script>
-        <script src="JS/map/logic-grid.js"></script>
+    <script src="JS/Communicator.js"></script>
+    <script src="JS/speed.js"></script>
 
+    <script src="JS/map/common.js"></script>
+    <script src="JS/map/logic-grid.js"></script>
+</head>
 
-    </head>
+<body>
 
-    <body>
+    <div class="container">
+        <h1>SpaceX++ Rover</h1>
 
-        <div class="container">
-            <h1> SpaceX++ Rover </h1>
-
-            <h2 for="status"> Status </h2>
+        <div class="left">
+            <h2>Status</h2>
             <div class="status">
                 <p>Server: <span id="server"></span></p>
                 <p>Rover: <span id="rover"></span></p>
-
-            </div>
-
-            
-            <h2> Map </h2>
-            <h3> Controlls</h3>
-            <p> Arrow Keys: Control cursor</p>
-            <p> Enter Key: Sends rover to location of cursor</p>
-
-            <div class="main-wrapper">
-                <canvas id="demo" width="512" height="512"></canvas>
             </div>
 
             <h3> Feedback </h3>
-            <div id="feedback"> </div>
-
-            <h2> Manual Drive </h2>
-            <div class="status">
-                <label for="distace">Distance:</label><br>
-                <input type="number" id="distance" name="Distance" value="0"><br>
-                <label for="angle">Angle:</label><br>
-                <input type="number" id="angle" name="Angle" value="0"><br>
-                <button type="button" id="drive" > Submit </button>
+            <div id="feedback">
+                This is some sample text
             </div>
-            
+        </div>
+
+        <div class="main-wrapper">
+            <canvas id="demo" width="512" height="512"></canvas>
+        </div>
+
+        <div class="right">
+            <h2>Routing Options</h2>
+            <div class="routingOptions">
+                <label for="cars">Choose a mode:</label>
+                <select name="mode" id="mode">
+                    <option value=0>Simple</option>
+                    <option value=1>Full Discovery</option>
+                    <option value=2>Destination Discovery</option>
+                </select>
+            </div>
+          
+            <h2> Manual Drive </h2>
+            <div class="manControls">
+                <label for="distace">Distance (cm):</label><br>
+                <input type="number" id="distance" name="Distance" value="0"><br>
+                <button type="button" id="driveD" > Submit </button><br>
+                <label for="angle">Angle (degree):</label><br>
+                <select name="angle" id="angle">
+                    <option value=0>0</option>
+                    <option value=90>90</option>
+                    <option value=180>180</option>
+                    <option value=270>270</option>
+                    <option value=-90>-90</option>
+                    <option value=-180>-180</option>
+                    <option value=-270>-270</option>
+                </select> <br>
+                <button type="button" id="driveA" > Submit </button> 
+            </div>
+
+            <h2> Map Reset </h2>
+            <button type="button" id="resetMap" > Reset </button><br>
+
+        </div>
+
+        <label for="show-controls" class="material-icons" id="show-control-label">info</label>
+        <input type="checkbox" id="show-controls" hidden/>
+        <div class="infoBoxBox">
+            <div class="infoBox">
+                <div class="info">
+                    <h3> Controlls</h3>
+                    <div class="controlls">
+                        <p> Arrow Keys: Control cursor</p>
+                        <p> Enter Key: Sends rover to location of cursor</p>
+                        <p> Each square is 10cm by 10cm</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+</body>
 
-    </body>
-
-    <script src="JS/main.js"></script>
-
-
+<script src="JS/main.js"></script>
 
 </html>

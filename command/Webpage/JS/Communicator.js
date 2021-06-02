@@ -1,4 +1,5 @@
-serverIP = "http://18.117.12.54:3000"
+
+serverIP = "https://18.117.12.54:3000"
 
 
 function getData( location, address ){
@@ -56,7 +57,6 @@ function updateMap() {
         .then(request => request.json())
         .then(data => {
             if(data != null){
-                console.log("changing layout");
                 map.cols = data.cols;
                 map.rows = data.rows
                 map.layers[0] = data.layout;
@@ -65,16 +65,44 @@ function updateMap() {
         })
 }
 
+function getVal(angle){
+    if(angle == 0){
+        return 6;
+    } else if (angle == 90){
+        return 7;
+    } else if (angle == 180){
+        return 8;
+    } else if (angle == 270){
+        return 9;
+    }
+
+}
+
 function updateRover(){
     fetch(serverIP + '/map/getRover')
         .then(request => request.json())
         .then(data => {
             if(data != null){
-                console.log("Updating rover location");
-                map.layers[1][data.indx] = 4;
+                map.layers[1] = [
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                indx = data.x + (data.y * map.cols );
+                map.layers[1][indx] = getVal(data.rotation);
             }
         })
 }
+
+
 
 function check(){
 
@@ -126,10 +154,14 @@ function speedSend(){
 
 
 function sendTargetCoords(x, y){
+
+    mode = parseInt(document.getElementById("mode").value);
+    
     
    var coords = {
         x: x, 
         y: y,
+        mode: mode,
     };
     
     const options = {
@@ -141,5 +173,20 @@ function sendTargetCoords(x, y){
     };
 
     fetch(serverIP + "/map/targetCoords", options);
+
+}
+
+
+function mapReset(){
+    
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(0)
+    };
+
+    fetch(serverIP + "/map/reset", options);
 
 }

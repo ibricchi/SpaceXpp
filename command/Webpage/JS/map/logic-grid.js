@@ -42,7 +42,7 @@ var map = {
         // loop through all layers and return TRUE if any tile is solid
         return this.layers.reduce(function (res, layer, index) {
             var tile = this.getTile(index, col, row);
-            var isSolid = tile === 3 || tile === 5;
+            var isSolid = tile === 3 || tile === 5 || tile === 6 || tile === 7 || tile === 8 || tile === 9 || tile === 10 ;
             return res || isSolid;
         }.bind(this), false);
     },
@@ -125,9 +125,6 @@ function rover(map, x, y) {
     this.image = Loader.getImage('cursor');
 }
 
-rover._drawRover = function(indx){
-    map.layers[1][indx] = 3;
-}
 
 cursor.SPEED = 1; // pixels per second
 
@@ -194,6 +191,7 @@ cursor.prototype.select = function(entr) {
 Game.load = function () {
     return [
         Loader.loadImage('tiles', 'assets/tiles.png'),
+        Loader.loadImage('rover', 'assets/rover.png'),
         Loader.loadImage('cursor', 'assets/cursor.png')
     ];
 };
@@ -202,6 +200,7 @@ Game.init = function () {
     Keyboard.listenForEvents(
         [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN, Keyboard.ENTER]);
     this.tileAtlas = Loader.getImage('tiles');
+    this.roverAtlas = Loader.getImage('rover')
 
     this.cursor = new cursor(map, 352, 352);
     this.rover = new rover(map, 0, 0);
@@ -231,6 +230,10 @@ Game._drawLayer = function (layer) {
     var endRow = startRow + (this.camera.height / map.tsize);
     var offsetX = -this.camera.x + startCol * map.tsize;
     var offsetY = -this.camera.y + startRow * map.tsize;
+    var images = this.tileAtlas
+    if(layer == 1){
+        images = this.roverAtlas
+    }
 
     for (var c = startCol; c <= endCol; c++) {
         for (var r = startRow; r <= endRow; r++) {
@@ -239,7 +242,7 @@ Game._drawLayer = function (layer) {
             var y = (r - startRow) * map.tsize + offsetY;
             if (tile !== 0) { // 0 => empty tile
                 this.ctx.drawImage(
-                    this.tileAtlas, // image
+                    images, // image
                     (tile - 1) * map.tsize, // source x
                     0, // source y
                     map.tsize, // source width

@@ -46,8 +46,8 @@ func getShortedPathFromStartToDestination(startRow int, startCol int, destinatio
 		// Look at neighbor nodes and check if we found a shorter path to them
 		neighbors := getNeighborNodes(current, nodes)
 		for _, neighbor := range neighbors {
-			// Check for obstruction (0 = unknown, 1 = empty space, >1 = some kind of obstruction)
-			if neighbor.val > 1 {
+			// Check for obstruction (1 = unknown, 2 = empty space, >2 = some kind of obstruction)
+			if neighbor.val > 2 {
 				continue
 			}
 
@@ -88,9 +88,9 @@ func h(currentNode *node, destinationNode *node) int {
 
 func initNodes(tileMap tileMap) [][]*node {
 	nodes := [][]*node{}
-	for row := 0; row < tileMap.rows; row++ {
+	for row := 0; row < tileMap.Rows; row++ {
 		newRow := []*node{}
-		for col := 0; col < tileMap.cols; col++ {
+		for col := 0; col < tileMap.Cols; col++ {
 			val := tileMap.getTile(row, col)
 			newRow = append(newRow, newNode(row, col, val))
 		}

@@ -72,6 +72,14 @@ func pathToDriveInstructions(path [][]int, tileWidth int, initialDirection direc
 		})
 	}
 
+	// Check for special case of only one forward instruction
+	if len(path) == 2 {
+		instructions = append(instructions, driveInstruction{
+			instruction: "forward",
+			value:       currentDistance,
+		})
+	}
+
 	// Skip start tile (already there)
 	for i := 2; i < len(path); i++ {
 		currentRow := path[i][0]
@@ -214,5 +222,55 @@ func getTurnInstructionFromAngle(angle int) (string, int, error) {
 		return "turnLeft", 90, nil
 	default:
 		return "", 0, fmt.Errorf("server: drive: invalid turn angle of %v degrees", angle)
+	}
+}
+
+// Converting drive instruction into the coordinates that the rover will end up in
+
+func driveTocoords(driveInstruction driveInstruction, tileWidth int) {
+
+	if driveInstruction.instruction == "forward" {
+		if Rover.Rotation == 0 {
+			end := Rover.X + (driveInstruction.value / tileWidth)
+			changeTerrainX(Rover.X, Rover.Y, end)
+			Rover.X = end
+
+		} else if Rover.Rotation == 180 {
+			end := Rover.X - (driveInstruction.value / tileWidth)
+			changeTerrainX(end, Rover.Y, Rover.X)
+			Rover.X = end
+		} else if Rover.Rotation == 90 {
+			end := Rover.Y + (driveInstruction.value / tileWidth)
+			changeTerrainY(Rover.X, Rover.Y, end)
+			Rover.Y = end
+		} else if Rover.Rotation == 270 {
+			end := Rover.Y - (driveInstruction.value / tileWidth)
+			changeTerrainX(Rover.X, end, Rover.Y)
+			Rover.Y = end
+		}
+	} else if driveInstruction.instruction == "turnRight" {
+		Rover.Rotation = (Rover.Rotation + driveInstruction.value) % 360
+	} else if driveInstruction.instruction == "turnLeft" {
+		Rover.Rotation = (360 + ((Rover.Rotation - driveInstruction.value) % 360)) % 360
+	}
+}
+
+func changeTerrainX(startX int, y int, endX int) {
+
+	s := startX + (y * Map.Cols)
+	e := endX + (y * Map.Cols)
+
+	for i := s; i <= e; i++ {
+		Map.Tiles[i] = 2
+	}
+}
+
+func changeTerrainY(x int, startY int, endY int) {
+
+	s := x + (startY * Map.Cols)
+	e := x + (endY * Map.Cols)
+
+	for i := s; i <= e; i = i + 12 {
+		Map.Tiles[i] = 2
 	}
 }

@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 )
 
 type coordinates struct {
-	X int `json:"x"`
-	Y int `json:"y"`
+	X    int `json:"x"`
+	Y    int `json:"y"`
+	Mode int `json:"mode"`
 }
 
 func (h *HttpServer) speed(w http.ResponseWriter, r *http.Request) {
@@ -48,10 +48,17 @@ func (h *HttpServer) driveD(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 
-	fmt.Println("Recived drive distance: ", t)
+	instruction := []driveInstruction{}
 
-	// Send data to hardware
-	h.mqtt.publish("/drive/distance", strconv.Itoa(t), 0)
+	instruction = append(instruction, driveInstruction{
+		instruction: "forward",
+		value:       t,
+	})
+
+	h.mqtt.publishDriveInstructionSequence(instruction)
+
+	updateMap(instruction[0])
+
 }
 
 func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
@@ -74,7 +81,21 @@ func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Recived drive angle: ", t)
 	// Send data to hardware
 
-	h.mqtt.publish("/drive/angle", strconv.Itoa(t), 0)
+	c := "turnRight"
+	if t < 0 {
+		c = "turnLeft"
+	}
+
+	instruction := []driveInstruction{}
+
+	instruction = append(instruction, driveInstruction{
+		instruction: c,
+		value:       Abs(t),
+	})
+
+	h.mqtt.publishDriveInstructionSequence(instruction)
+
+	updateMap(instruction[0])
 
 }
 
@@ -89,8 +110,38 @@ func (h *HttpServer) targetCoords(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 
-	fmt.Println("Target Coordinates: ", targetCoords.X, targetCoords.Y)
+	//stop(1, 0)
 
-	// TODO: add optimum path function here
+	if err := h.mapAndDrive(targetCoords.X, targetCoords.Y, targetCoords.Mode); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+}
+
+func Abs(x int) int {
+	if x < 0 {
+		return -1 * x
+	} else {
+		return x
+	}
+}
+
+func (h *HttpServer) resetMap(w http.ResponseWriter, r *http.Request) {
+	Map.Tiles = []int{
+		3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+		3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3}
+
+	Rover.X = 5
+	Rover.Y = 5
+	Rover.Rotation = 0
 
 }
