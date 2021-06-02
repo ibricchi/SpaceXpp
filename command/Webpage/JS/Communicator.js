@@ -67,13 +67,13 @@ function updateMap() {
 
 function getVal(angle){
     if(angle == 0){
-        return 1;
+        return 6;
     } else if (angle == 90){
-        return 2;
+        return 7;
     } else if (angle == 180){
-        return 3;
+        return 8;
     } else if (angle == 270){
-        return 4;
+        return 9;
     }
 
 }
@@ -173,5 +173,20 @@ function sendTargetCoords(x, y){
     };
 
     fetch(serverIP + "/map/targetCoords", options);
+
+}
+
+
+function mapReset(){
+    
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(0)
+    };
+
+    fetch(serverIP + "/map/reset", options);
 
 }

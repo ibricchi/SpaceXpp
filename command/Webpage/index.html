@@ -53,24 +53,41 @@
                     <option value=2>Destination Discovery</option>
                 </select>
             </div>
+          
             <h2> Manual Drive </h2>
             <div class="manControls">
-                <label for="distace">Distance:</label><br>
+                <label for="distace">Distance (cm):</label><br>
                 <input type="number" id="distance" name="Distance" value="0"><br>
-                <label for="angle">Angle:</label><br>
-                <input type="number" id="angle" name="Angle" value="0"><br>
-                <button type="button" id="drive"> Submit </button>
+                <button type="button" id="driveD" > Submit </button><br>
+                <label for="angle">Angle (degree):</label><br>
+                <select name="angle" id="angle">
+                    <option value=0>0</option>
+                    <option value=90>90</option>
+                    <option value=180>180</option>
+                    <option value=270>270</option>
+                    <option value=-90>-90</option>
+                    <option value=-180>-180</option>
+                    <option value=-270>-270</option>
+                </select> <br>
+                <button type="button" id="driveA" > Submit </button> 
             </div>
+
+            <h2> Map Reset </h2>
+            <button type="button" id="resetMap" > Reset </button><br>
+
         </div>
 
         <label for="show-controls" class="material-icons" id="show-control-label">info</label>
         <input type="checkbox" id="show-controls" hidden/>
-        <div class="infoBox">
-            <div class="info">
-                <h3> Controlls</h3>
-                <div class="controlls">
-                    <p> Arrow Keys: Control cursor</p>
-                    <p> Enter Key: Sends rover to location of cursor</p>
+        <div class="infoBoxBox">
+            <div class="infoBox">
+                <div class="info">
+                    <h3> Controlls</h3>
+                    <div class="controlls">
+                        <p> Arrow Keys: Control cursor</p>
+                        <p> Enter Key: Sends rover to location of cursor</p>
+                        <p> Each square is 10cm by 10cm</p>
+                    </div>
                 </div>
             </div>
         </div>

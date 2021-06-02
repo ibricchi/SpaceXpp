@@ -1,6 +1,8 @@
 package server
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type MQTT interface {
 	publish(topic string, data string, qos byte)
@@ -16,4 +18,7 @@ func (m *MQTTClient) publishDriveInstructionSequence(instructionSequence []drive
 		encodedInstruction := fmt.Sprintf("%s%s%d", instruction.instruction, driveInstructionDelimiter, instruction.value)
 		m.publish(topic, encodedInstruction, qos)
 	}
+
+	m.publish(topic, "X", qos)
+
 }
