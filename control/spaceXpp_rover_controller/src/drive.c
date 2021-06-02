@@ -2,7 +2,7 @@
 
 static const char *DRIVE_tag = "DRIVE";
 
-const DriveEncoding driveEncoding = {"F", "B", "R", "L", "S"};
+const DriveEncoding driveEncoding = {"F", "B", "R", "L", "S", "SF", "ST"};
 
 // Used for calculating backward distance after forced stop
 char* currentDriveInstruction = "";
@@ -34,8 +34,8 @@ void flush_drive_instruction_queue() {
 }
 
 void drive_backwards_to_last_valid_tile(int distanceDrivenOfLastInstruction) {
-    if (!(strcmp(currentDriveInstruction, driveEncoding.forward) == 0)) {
-        ESP_LOGE(DRIVE_tag, "Current instruction not forward, can't calculate distance to drive backwards: %s", currentDriveInstruction);
+    if (!(strcmp(currentDriveInstruction, driveEncoding.stopFromForward) == 0)) {
+        ESP_LOGE(DRIVE_tag, "Instruction before stop not forward, can't calculate distance to drive backwards: %s", currentDriveInstruction);
         return;
     }
 

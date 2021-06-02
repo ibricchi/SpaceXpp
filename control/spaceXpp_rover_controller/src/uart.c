@@ -69,6 +69,7 @@ void drive_uart_task(void *arg)
             // Check if end of instruction sequence signal (used by server for updating map)
             if (strcmp(queue_data, "X") == 0) {
                 publish_drive_instruction_to_server(queue_data, "0");
+                currentDriveInstruction = "";
                 continue;
             }
 
@@ -118,8 +119,8 @@ void drive_uart_task_simulated(void *arg) {
         // Clear rx_data
         memset(rx_data, 0, DRIVE_BUFFER_SIZE);
 
-        if (strcmp(currentDriveInstruction, driveEncoding.stop) == 0) {
-            int randomDistance = esp_random() % 60 + 1;
+        if (strcmp(currentDriveInstruction, driveEncoding.stopFromForward) == 0) {
+            int randomDistance = esp_random() % currentDriveInstructionValue + 1; // currentDriveInstructionValue still corresponds to previous (forward) instruction
             sprintf((char*)rx_data, "%d%s", randomDistance, "S");
         } else {
             switch (esp_random() % 3) {
@@ -164,6 +165,7 @@ void drive_uart_task_simulated(void *arg) {
             // Check if end of instruction sequence signal (used by server for updating map)
             if (strcmp(queue_data, "X") == 0) {
                 publish_drive_instruction_to_server(queue_data, "0");
+                currentDriveInstruction = "";
                 continue;
             }
             

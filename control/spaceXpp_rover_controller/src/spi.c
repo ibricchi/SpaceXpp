@@ -138,7 +138,7 @@ void handle_vision_stop_instruction(char* stopInformation) {
         return;
     }
 
-    currentDriveInstruction = driveEncoding.stop;
+    currentDriveInstruction = driveEncoding.stopFromForward;
 
     // Send stop instruction to drive
     send_drive_uart_data(driveEncoding.stop, "0");
