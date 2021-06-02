@@ -129,7 +129,7 @@ var instructionFeedPubHandler mqtt.MessageHandler = func(client mqtt.Client, msg
 		if stashedDriveInstruction.instruction == "forward" { // wait for second part of stop instruction to update map and stop
 			stopData = value
 		} else { // turning => update map without stopping
-			fmt.Println("obstruction detection while turning not implemented")
+			updateMapWithObstructionWhileTurning(value)
 		}
 	} else if s[0] == "SD" {
 		stop(v, stopData)

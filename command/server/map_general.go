@@ -125,10 +125,28 @@ func stop(distance int, obstructionType string) {
 	// Assuming obstruction will only ever be in box in front
 	// And for now only one type of instruction
 
-	indx := getOneInFront()
+	indx := getOneInFront(0)
 
 	Map.Tiles[indx] = obstacleToValue(obstructionType)
 
+}
+
+func updateMapWithObstructionWhileTurning(obstructionType string) {
+	if stashedDriveInstruction.instruction != "turnRight" || stashedDriveInstruction.instruction != "turnLeft" {
+		fmt.Println("server: map_general: updateMapWithObstructionWhileTurning fail, not currently turning")
+		return
+	}
+
+	var changeInRotation int
+	if stashedDriveInstruction.instruction == "turnLeft" {
+		changeInRotation = -stashedDriveInstruction.value
+	} else {
+		changeInRotation = stashedDriveInstruction.value
+	}
+
+	indx := getOneInFront(changeInRotation)
+
+	Map.Tiles[indx] = obstacleToValue(obstructionType)
 }
 
 func obstacleToValue(obstacle string) int {
@@ -150,14 +168,16 @@ func obstacleToValue(obstacle string) int {
 	return 5
 }
 
-func getOneInFront() int {
-	if Rover.Rotation == 0 {
+func getOneInFront(changeInRotation int) int {
+	rotation := (Rover.Rotation + changeInRotation + 360) % 360
+
+	if rotation == 0 {
 		return (Rover.X + 1) + (Rover.Y * Map.Cols)
-	} else if Rover.Rotation == 180 {
+	} else if rotation == 180 {
 		return (Rover.X - 1) + (Rover.Y * Map.Cols)
-	} else if Rover.Rotation == 90 {
+	} else if rotation == 90 {
 		return Rover.X + ((Rover.Y + 1) * Map.Cols)
-	} else if Rover.Rotation == 270 {
+	} else if rotation == 270 {
 		return Rover.X + ((Rover.Y - 1) * Map.Cols)
 	}
 	return 0
