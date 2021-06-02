@@ -3,6 +3,8 @@ package server
 import (
 	"errors"
 	"fmt"
+
+	"go.uber.org/zap/zapcore"
 )
 
 /*
@@ -34,6 +36,23 @@ const (
 	east
 	west
 )
+
+func (i *driveInstruction) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+	enc.AddString("instruction", i.instruction)
+	enc.AddInt("value", i.value)
+	return nil
+}
+
+type driveInstructions []driveInstruction
+
+func (is *driveInstructions) MarshalLogArray(enc zapcore.ArrayEncoder) error {
+	for _, instruction := range *is {
+		if err := enc.AppendObject(&instruction); err != nil {
+			return fmt.Errorf("server: drive: failed to encode driveInstructions: %w", err)
+		}
+	}
+	return nil
+}
 
 /*
 	Takes a path represented as a list of [row, col] pairs and returns a sequence of drive instructions.

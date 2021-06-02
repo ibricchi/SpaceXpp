@@ -104,11 +104,15 @@ func (m *MQTTClient) publish(topic string, data string, qos byte) {
 var instructionFeedPubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
 
-	var stopData string
-
 	s := strings.Split(string(msg.Payload()), ":")
 	value := s[1]
-	v, _ := strconv.Atoi(value)
+	v, err := strconv.Atoi(value)
+	if err != nil {
+		fmt.Printf("server: mqttGeneral: instructionFeedPubHandler: failed to convert string into int: %s", err.Error())
+		return
+	}
+
+	var stopData string
 	var instruction driveInstruction
 
 	if s[0] == "F" {

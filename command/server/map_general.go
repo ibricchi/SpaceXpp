@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -31,7 +32,7 @@ var Map = tileMap{
 var Rover = rover{
 	X:        5,
 	Y:        5,
-	Rotation: 0,
+	Rotation: 0, // angle (x-axis = 0°)
 }
 
 func (h *HttpServer) mapAndDrive(destinationCol int, destinationRow int, mode int) error {
@@ -40,47 +41,52 @@ func (h *HttpServer) mapAndDrive(destinationCol int, destinationRow int, mode in
 
 	// Getting optimum path
 	path, err := getShortedPathFromStartToDestination(Rover.Y, Rover.Y, destinationRow, destinationCol, Map)
-
 	if err != nil {
-		return fmt.Errorf("Error: Failed to create path from start to destination  %w", err)
+		return fmt.Errorf("server: map_general: mapAndDrive: failed to create path from start to destination: %w", err)
 	}
 
-	var direction direction = angle2Direction(Rover.Rotation)
-	var traverseMode traverseMode = value2Mode(mode)
-
-	driveInstruction, err := pathToDriveInstructions(path, tileWidth, direction, traverseMode)
-
+	direction, err := angle2Direction(Rover.Rotation)
 	if err != nil {
-		return fmt.Errorf("Error: Failed to create drive instructions  %w", err)
+		return fmt.Errorf("server: map_general: mapAndDrive: failed to convert angle into direction: %w", err)
 	}
 
-	h.mqtt.publishDriveInstructionSequence(driveInstruction)
+	traverseMode, err := value2Mode(mode)
+	if err != nil {
+		return fmt.Errorf("server: map_general: mapAndDrive: failed to convert value into traversal mode: %w", err)
+	}
+
+	driveInstructions, err := pathToDriveInstructions(path, tileWidth, direction, traverseMode)
+	if err != nil {
+		return fmt.Errorf("server: map_general: mapAndDrive: failed to create drive instructions: %w", err)
+	}
+
+	h.mqtt.publishDriveInstructionSequence(driveInstructions)
 
 	return nil
 }
 
-func angle2Direction(angle int) direction {
-	if angle == 0 {
-		return east
+func angle2Direction(angle int) (direction, error) {
+	if angle == 0 || angle == 360 {
+		return east, nil
 	} else if angle == 90 {
-		return south
+		return south, nil
 	} else if angle == 180 {
-		return west
+		return west, nil
 	} else if angle == 270 {
-		return north
+		return north, nil
 	}
-	return east
+	return 0, errors.New("server: map_general: angle2Direction: angle does not match any direction")
 }
 
-func value2Mode(mode int) traverseMode {
+func value2Mode(mode int) (traverseMode, error) {
 	if mode == 0 {
-		return simple
+		return simple, nil
 	} else if mode == 1 {
-		return fullDiscovery
+		return fullDiscovery, nil
 	} else if mode == 2 {
-		return destinationDiscovery
+		return destinationDiscovery, nil
 	}
-	return simple
+	return 0, errors.New("server: map_general: value2Mode: mode is not a valid traverseMode")
 }
 
 // Stashes latest instruction recived from rover and updates webpage with previous instruction
