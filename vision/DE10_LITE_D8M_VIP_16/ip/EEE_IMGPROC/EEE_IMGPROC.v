@@ -79,11 +79,17 @@ wire [7:0]   red_out, green_out, blue_out;
 wire         sop, eop, in_valid, out_ready;
 ////////////////////////////////////////////////////////////////////////
 
+// setup blob detector params
+parameter gx_min = 50, gy_min = 240, gx_max = 590, gy_max = 480;
+parameter grids_x = 1;
+parameter grids_y = 1;
+parameter grid_w = (gx_max-gx_min)/grids_x, grid_h = (gy_max-gy_min)/grids_y;
+parameter color_count = 6;
+
 // setup color detector vairables
-wire [2:0] cd_mode;
 wire [10:0] cd_x, cd_y;
 
-wire [4:0] bd_color_high;
+wire [color_count-1:0] bd_color_high;
 SXPP_COLOR_DETECT cd1 (
     clk,
     reset_n,
@@ -96,19 +102,11 @@ SXPP_COLOR_DETECT cd1 (
     bd_color_high[1], //yellow
     bd_color_high[2], //green
     bd_color_high[3], //blue
-    bd_color_high[4],  //pink
+    bd_color_high[4], //pink
+    bd_color_high[5], //unkown
     
     cd_x, cd_y
 );
-
-assign cd_mode = sw[3:1];
-
-// setup blob detector params
-parameter screen_w = IMAGE_W, screen_h = IMAGE_H;
-parameter grid_w = 320, grid_h = 240;
-parameter grids_x = screen_w / grid_w;
-parameter grids_y = screen_h / grid_h;
-parameter color_count = 5;
 
 // blob detector variables global
 wire bds_valid[color_count-1:0][grids_x-1:0][grids_y-1:0];
@@ -124,8 +122,8 @@ wire [10:0] bds_x_min[color_count-1:0][grids_x-1:0][grids_y-1:0],
 wire bd_reset;
 wire bd_valid;
 
-reg [10:0] bd_rad;
-reg [10:0] bd_which_c, bd_which_x, bd_which_y;
+reg [10:0] bd_rad, obs_rad;
+reg [10:0] bd_which_c, bd_which_x, bd_which_y, obs_which_x, obs_which_y;
 wire [10:0] x_min, y_min, x_max, y_max;
 
 assign bd_reset = sop;
@@ -138,10 +136,10 @@ generate
                 SXPP_BLOB_DETECT
                     #(
                         i, j,
-                        i * grid_w,
-                        (i + 1) * grid_w,
-                        j * grid_h,
-                        (j + 1) * grid_h
+                        gx_min + i * grid_w,
+                        gx_min + (i + 1) * grid_w,
+                        gy_min + j * grid_h,
+                        gy_min + (j + 1) * grid_h
                     )
                     bd(
                         .clk(clk),
@@ -171,11 +169,14 @@ always @(posedge clk) begin
         bd_which_c <= -1;
         bd_which_x <= -1;
         bd_which_y <= -1;
+        obs_which_x <= -1;
+        obs_which_y <= -1;
         bd_rad <= 0;
+        obs_rad <= 0;
     end
     else if (in_valid) begin
         integer d, k, l;
-        for(d = 0; d < color_count; d = d + 1) begin
+        for(d = 0; d < color_count-1; d = d + 1) begin
             for(k = 0; k < grids_x; k = k + 1) begin
                 for(l = 0; l < grids_y; l = l + 1) begin
                     if(bds_active[d][k][l] & bd_rad < bds_rad[d][k][l]) begin
@@ -187,10 +188,19 @@ always @(posedge clk) begin
                 end
             end
         end
+        for(k = 0; k < grids_x; k = k + 1) begin
+            for(l = 0; l < grids_y; l = l + 1) begin
+                if(bds_active[color_count-1][k][l] & bd_rad < bds_rad[color_count-1][k][l]) begin
+                    obs_which_x <= k;
+                    obs_which_y <= l;
+                    obs_rad <= bds_rad[color_count-1][k][l];
+                end
+            end
+        end
     end
 end
 
-assign bd_valid = (sw[9]?bds_valid[which_c][which_x][which_y]:bd_color_high[which_c])&(which_c[10]==0);
+assign bd_valid = (sw[9]?(bds_valid[which_c][which_x][which_y]&(which_c[10]==0)):bd_color_high[sw[4:1]]);
 assign x_min = bds_x_min[which_c][which_x][which_y];
 assign x_max = bds_x_max[which_c][which_x][which_y];
 assign y_min = bds_y_min[which_c][which_x][which_y];
@@ -201,24 +211,27 @@ reg grid_active;
 integer m, n;
 always @(*) begin
     grid_active <= 0;
-    for(m = 0; m < grids_x; m = m + 1) begin
-        if(x == m * grid_w) begin
-            grid_active <= 1;
+    if(gx_min <= x & x <= gx_max & gy_min <= y & y <= gy_max) begin
+        for(m = 0; m < grids_x+1; m = m + 1) begin
+            if(x == gx_min + m * grid_w) begin
+                grid_active <= 1;
+            end
         end
-    end
-    for(n = 0; n < grids_y; n = n + 1) begin
-        if(y == n * grid_h) begin
-            grid_active <= 1;
+        for(n = 0; n < grids_y+1; n = n + 1) begin
+            if(y == gy_min + n * grid_h | y == IMAGE_H - 1) begin
+                grid_active <= 1;
+            end
         end
     end
 end
 
-wire [23:0] highlight_color[4:0];
-assign highlight_color[0] = 23'hff0000;
-assign highlight_color[1] = 23'hffff00;
-assign highlight_color[2] = 23'h00ff00;
-assign highlight_color[3] = 23'h0000ff;
-assign highlight_color[4] = 23'hff00ff;
+wire [23:0] highlight_color[color_count-1:0];
+assign highlight_color[0] = 24'hff0000;
+assign highlight_color[1] = 24'hffff00;
+assign highlight_color[2] = 24'h00ff00;
+assign highlight_color[3] = 24'h0000ff;
+assign highlight_color[4] = 24'hff00ff;
+assign highlight_color[5] = 24'h000000;
 
 wire [23:0] blob_high;
 wire [23:0] grid_high;
@@ -226,16 +239,8 @@ assign grey = green[7:1] + red[7:2] + blue[7:2]; //Grey = green/2 + red/4 + blue
 assign blob_high = bd_valid ? highlight_color[bd_which_c] : {grey, grey, grey};
 assign grid_high = grid_active ? {8'hff, 8'hff, 8'h0} : blob_high;
 
-wire [10:0] bb_ident = (bd_which_x+bd_which_y)%8;
 wire [23:0] bb_color;
-assign bb_color = bb_ident == 0 ? 24'hff0000 :
-                  bb_ident == 1 ? 24'h00ff00 :
-                  bb_ident == 2 ? 24'h0000ff :
-                  bb_ident == 3 ? 24'hffff00 :
-                  bb_ident == 4 ? 24'hff00ff :
-                  bb_ident == 5 ? 24'h00ffff :
-                  bb_ident == 6 ? 24'hffffff :
-                  24'h000000;
+assign bb_color = 24'hffffff;
 
 // Show bounding box
 wire [23:0] new_image;
@@ -273,6 +278,7 @@ end
 reg [2:0] msg_state;
 reg [10:0] left, right, top, bottom;
 reg [10:0] which_c, which_x, which_y;
+reg [10:0] obs_x, obs_y;
 reg [7:0] frame_count;
 always@(posedge clk) begin
     if (eop & in_valid & packet_video) begin  //Ignore non-video packets
@@ -287,6 +293,8 @@ always@(posedge clk) begin
         which_c <= bd_which_c;
         which_x <= bd_which_x;
         which_y <= bd_which_y;
+        obs_x <= obs_which_x;
+        obs_y <= obs_which_y;
         
         //Start message writer FSM once every MSG_INTERVAL frames, if there is room in the FIFO
         frame_count <= frame_count - 1;
@@ -334,7 +342,7 @@ always@(*) begin    //Write words to FIFO as state machine advances
             msg_buf_wr = 1'b1;
         end
         3'b011: begin
-            msg_buf_in = {`RED_BOX_MSG_PTST}; //Bottom right coordinate
+            msg_buf_in = {obs_x[7:0], obs_y[7:0], 5'h5, obs_rad};    //Top left coordinate
             msg_buf_wr = 1'b1;
         end
         3'b100: begin
