@@ -115,9 +115,6 @@ func updateMap(driveInstruction driveInstruction) {
  */
 
 func stop(distance int, obstructionType string) {
-
-	driveTocoords(stashedDriveInstruction, tileWidth)
-
 	stashedDriveInstruction.instruction = "forward"
 	stashedDriveInstruction.value = distance
 	driveTocoords(stashedDriveInstruction, tileWidth)
