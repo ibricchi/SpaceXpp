@@ -104,10 +104,10 @@ SXPP_COLOR_DETECT cd1 (
 assign cd_mode = sw[3:1];
 
 // setup blob detector params
-parameter screen_w = IMAGE_W, screen_h = IMAGE_H;
-parameter grid_w = 320, grid_h = 240;
-parameter grids_x = screen_w / grid_w;
-parameter grids_y = screen_h / grid_h;
+parameter gx_min = 50, gy_min = 240, gx_max = 590, gy_max = 480;
+parameter grids_x = 2;
+parameter grids_y = 2;
+parameter grid_w = (gx_max-gx_min)/grids_x, grid_h = (gy_max-gy_min)/grids_y;
 parameter color_count = 5;
 
 // blob detector variables global
@@ -138,10 +138,10 @@ generate
                 SXPP_BLOB_DETECT
                     #(
                         i, j,
-                        i * grid_w,
-                        (i + 1) * grid_w,
-                        j * grid_h,
-                        (j + 1) * grid_h
+                        gx_min + i * grid_w,
+                        gx_min + (i + 1) * grid_w,
+                        gy_min + j * grid_h,
+                        gy_min + (j + 1) * grid_h
                     )
                     bd(
                         .clk(clk),
@@ -201,14 +201,16 @@ reg grid_active;
 integer m, n;
 always @(*) begin
     grid_active <= 0;
-    for(m = 0; m < grids_x; m = m + 1) begin
-        if(x == m * grid_w) begin
-            grid_active <= 1;
+    if(gx_min <= x & x <= gx_max & gy_min <= y & y <= gy_max) begin
+        for(m = 0; m < grids_x+1; m = m + 1) begin
+            if(x == gx_min + m * grid_w) begin
+                grid_active <= 1;
+            end
         end
-    end
-    for(n = 0; n < grids_y; n = n + 1) begin
-        if(y == n * grid_h) begin
-            grid_active <= 1;
+        for(n = 0; n < grids_y+1; n = n + 1) begin
+            if(y == gy_min + n * grid_h | y == IMAGE_H - 1) begin
+                grid_active <= 1;
+            end
         end
     end
 end

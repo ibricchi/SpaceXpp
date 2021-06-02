@@ -89,10 +89,9 @@ logic is_valid_pos;
 logic is_valid_init;
 always_comb begin
     distance = (cx-x_in)*(cx-x_in) + (cy-y_in)*(cy-y_in) - bw*bh;
-    is_valid_pos = (distance < min_dist | distance[31]) & !just_reset & (x_in > 30) & (y_in > 30) & (x_in < 610) & (y_in < 450);
+    is_valid_pos = (distance < min_dist | distance[31]) & !just_reset;
     is_valid_init = MINX_INIT <= x_in & x_in <= MAXX_INIT &
                     MINY_INIT <= y_in & y_in <= MAXY_INIT &
-                    (x_in > 30) & (y_in > 30) & (x_in < 610) & (y_in < 450) &
                     just_reset;
 end
 
