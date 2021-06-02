@@ -119,7 +119,7 @@ void drive_uart_task_simulated(void *arg) {
         // Clear rx_data
         memset(rx_data, 0, DRIVE_BUFFER_SIZE);
 
-        if (strcmp(currentDriveInstruction, driveEncoding.stop) == 0) {
+        if (strcmp(currentDriveInstruction, driveEncoding.stopFromForward) == 0) {
             int randomDistance = esp_random() % currentDriveInstructionValue + 1; // currentDriveInstructionValue still corresponds to previous (forward) instruction
             sprintf((char*)rx_data, "%d%s", randomDistance, "S");
         } else {
