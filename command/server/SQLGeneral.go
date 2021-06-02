@@ -43,7 +43,7 @@ func (s *SQLiteDB) migrate(ctx context.Context) error {
 	if _, err := s.db.ExecContext(ctx, `
 			CREATE TABLE IF NOT EXISTS maps (
 				mapid INTEGER NOT NULL PRIMARY KEY,
-				name STRING,
+				name STRING
 			)
 		`); err != nil {
 		return fmt.Errorf("sqlite failed to create summary table: %w", err)
