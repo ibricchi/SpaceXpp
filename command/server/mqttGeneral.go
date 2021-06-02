@@ -95,8 +95,7 @@ func NewTlsConfig() (*tls.Config, error) {
 }
 
 func (m *MQTTClient) publish(topic string, data string, qos byte) {
-	token := m.client.Publish(topic, qos, false, data)
-	token.Wait()
+	m.client.Publish(topic, qos, false, data)
 }
 
 // Subscribing to instruction feed
