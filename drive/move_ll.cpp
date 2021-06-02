@@ -2,11 +2,11 @@
 
 // Defines the pins for the motors and initially sets the motors to move forward
 void motorSetup() {
-  // Right (5) and Left (9) motor & setting their speed to 0 (stationary initially)
+  // Right (5) and Left (9) motor & setting their speed to maximum
   pinMode(MR, OUTPUT);
   pinMode(ML, OUTPUT);
-  digitalWrite(MR, LOW);
-  digitalWrite(ML, LOW);
+  digitalWrite(MR, HIGH);
+  digitalWrite(ML, HIGH);
 
   // Direction pins for the motors: Right(21) and Left(20)
   pinMode(DIRR, OUTPUT);

@@ -4,18 +4,16 @@
 UART::UART(){
   instruction = doNothing;
   newUARTDataAvailable = false;
-  
 }
 
 void UART::setup(){
   if(!Serial1.available()) Serial1.begin(115200);
 }
 
-// Getters
+// Getters and setters
 instructions UART::getInstruction(){ return instruction; }
 bool UART::getNewUARTDataAvailable(){ return newUARTDataAvailable; }
 float UART::getReceivedUARTCharts(){ return atof(receivedUARTChars); }
-
 void UART::setInstruction(instructions i){ instruction = i; }
 
 // Receving new instruction from UART
@@ -56,16 +54,21 @@ void UART::processNewUARTData() {
     const char instructionKey = receivedUARTChars[strlen(receivedUARTChars) - 1];
     receivedUARTChars[strlen(receivedUARTChars) - 1] = '\0';
     
-    
     switch (instructionKey) {
       case 'F':
         instruction = forwardForDistance;
+        break;
+      case 'B':
+        instruction = backwardForDistance;
         break;
       case 'R':
         instruction = turnR;
         break;
       case 'L':
         instruction = turnL;
+        break;
+      case 'S':
+        instruction = stopAbruptly;
         break;
       default:
         Serial.print("INVALID INSTRUCTION KEY\n");
