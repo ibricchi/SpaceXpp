@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+    <title>Map History</title>
+    <meta charset="utf-8">
+   
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://pagecdn.io/lib/normalize/8.0.1/normalize.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../CSS/style.css">
+
+    <script src="../JS/map/common.js"></script>
+    <script src="../JS/map/loadedMap.js"></script>
+    <script src="../JS/Communicator.js"></script>
+
+</head>
+<div class="container">
+    <h1>Map History</h1>
+
+    <div class="left">
+        <h2>Open</h2>
+        <div class="status">
+            <label for="open">Open:</label><br>
+            <input type="text" id="open" name="open"><br>
+            <button type="button" id="mapOpen" > Open </button><br>
+        </div>
+    </div>
+
+    <div class="main-wrapper">
+        <canvas id="demo" width="512" height="512"></canvas>
+    </div>
+
+    <div class="right">
+        <h3> Instructions </h3>
+        <div id="feedback">
+            This is some sample text
+        </div>
+    </div>
+
+    <label for="show-controls" class="material-icons" id="show-control-label">info</label>
+    <input type="checkbox" id="show-controls" hidden/>
+    <div class="infoBoxBox">
+        <div class="infoBox">
+            <div class="info">
+                <h3> Controlls</h3>
+                <div class="controlls">
+                    <p> Arrow Keys: Control cursor</p>
+                    <p> Enter Key: Sends rover to location of cursor</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script src="../JS/historyMain.js"></script>
+
+</html>

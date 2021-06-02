@@ -190,3 +190,33 @@ function mapReset(){
     fetch(serverIP + "/map/reset", options);
 
 }
+
+
+function requestMap(mapName){
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(mapName)
+    };
+
+    fetch(serverIP + "/map/history/request", options);
+
+}
+
+function loadMap(){
+    fetch(serverIP + '/map/history/load')
+    .then(request => request.json())
+    .then(data => {
+        if(data != null){
+            loadedMap.cols = data.cols;
+            loadedMap.rows = data.rows
+            loadedMap.layers[0] = data.layout;
+            indx = data.roverX + (data.roverY * map.cols );
+            loadedMap.layers[1][indx] = getVal(data.roverRotation);
+
+        }
+    })
+
+}

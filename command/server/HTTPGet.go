@@ -84,3 +84,15 @@ func (h *HttpServer) updateRover(w http.ResponseWriter, req *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+
+func (h *HttpServer) loadMap(w http.ResponseWriter, req *http.Request) {
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	data := dbMap
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
