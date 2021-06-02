@@ -135,8 +135,9 @@ func stop(distance int, obstructionType string) {
 }
 
 func obstacleToValue(obstacle string) int {
-
-	if obstacle == "B" {
+	if obstacle == "U" {
+		return 5
+	} else if obstacle == "B" {
 		return 6
 	} else if obstacle == "R" {
 		return 7
@@ -148,6 +149,7 @@ func obstacleToValue(obstacle string) int {
 		return 10
 	}
 
+	fmt.Println("server: map_general: obstacleToValue: unknown obstacle, returning default value 5")
 	return 5
 }
 
