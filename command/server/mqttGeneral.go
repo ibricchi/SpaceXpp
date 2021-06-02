@@ -134,5 +134,9 @@ var instructionFeedPubHandler mqtt.MessageHandler = func(client mqtt.Client, msg
 	} else if s[0] == "SD" {
 		stop(v, stopData)
 		stopData = ""
+	} else if s[0] == "B" {
+		// Ignore backwards instruction that are used for distance correction (drive only)
+	} else {
+		fmt.Println("server: mqttGeneral: unknown drive instruction")
 	}
 }
