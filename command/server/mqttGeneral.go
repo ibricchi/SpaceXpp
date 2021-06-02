@@ -95,7 +95,13 @@ func NewTlsConfig() (*tls.Config, error) {
 }
 
 func (m *MQTTClient) publish(topic string, data string, qos byte) {
-	m.client.Publish(topic, qos, false, data)
+	token := m.client.Publish(topic, qos, false, data)
+	go func() {
+		token.Wait()
+		if err := token.Error(); err != nil {
+			m.logger.Error("server: mqttGeneral: failed to publish mqtt message", zap.Error(err))
+		}
+	}()
 }
 
 // Subscribing to instruction feed
