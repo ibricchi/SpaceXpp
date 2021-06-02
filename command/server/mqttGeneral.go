@@ -100,17 +100,15 @@ func (m *MQTTClient) publish(topic string, data string, qos byte) {
 }
 
 // Subscribing to instruction feed
-
+var stopData string
 var instructionFeedPubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
 
-	var stopData string
-
 	s := strings.Split(string(msg.Payload()), ":")
 	value := s[1]
-	v, _ := strconv.Atoi(value)
-	var instruction driveInstruction
+	v, _ := strconv.Atoi(value) // No error checking as this is supposed to fail for stop instructions
 
+	var instruction driveInstruction
 	if s[0] == "F" {
 		instruction.instruction = "forward"
 		instruction.value = v
@@ -128,9 +126,13 @@ var instructionFeedPubHandler mqtt.MessageHandler = func(client mqtt.Client, msg
 		instruction.value = 0
 		updateMap(instruction)
 	} else if s[0] == "S" {
-		stopData = s[1]
+		if stashedDriveInstruction.instruction == "forward" { // wait for second part of stop instruction to update map and stop
+			stopData = value
+		} else { // turning => update map without stopping
+			fmt.Println("obstruction detection while turning not implemented")
+		}
 	} else if s[0] == "SD" {
 		stop(v, stopData)
+		stopData = ""
 	}
-
 }
