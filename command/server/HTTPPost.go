@@ -145,3 +145,9 @@ func (h *HttpServer) resetMap(w http.ResponseWriter, r *http.Request) {
 	Rover.Rotation = 0
 
 }
+
+func (h *HttpServer) requestMap(w http.ResponseWriter, r *http.Request) {
+
+	// database querey that loads map data into dbMap
+
+}
