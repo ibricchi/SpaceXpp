@@ -133,32 +133,16 @@ func (s *SQLiteDB) retriveData(ctx context.Context) (int, error) {
 
 	var name int
 	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
-		rows, err := tx.QueryContext(ctx, `
+		if err := tx.QueryRowContext(ctx, `
 			SELECT mapID
 			FROM maps
 			WHERE name = :mapName
-			LIMIT 1
 		`,
 			sql.Named("mapName", "test5"),
-		)
-		if err != nil {
-			return fmt.Errorf("server: sqlite_db_retrieve: failed to retrieve creds rows: %w", err)
-		}
-		defer rows.Close()
-
-		//for
-		rows.Next() //{
-		if err := rows.Scan(
-			&name,
-		); err != nil {
+		).Scan(&name); err != nil {
 			return fmt.Errorf("server: sqlite_db_retrieve: failed to scan creds row: %w", err)
 		}
 		fmt.Println("name:", name)
-		//}
-
-		if err := rows.Err(); err != nil {
-			return fmt.Errorf("server: sqlite_db_retrieve: failed to scan last creds row: %w", err)
-		}
 
 		return nil
 	}); err != nil {
