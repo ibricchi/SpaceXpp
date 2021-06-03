@@ -42,11 +42,22 @@ func (s *SQLiteDB) migrate(ctx context.Context) error {
 
 	if _, err := s.db.ExecContext(ctx, `
 			CREATE TABLE IF NOT EXISTS maps (
-				mapid INTEGER NOT NULL PRIMARY KEY,
-				name STRING
+				mapID INTEGER NOT NULL PRIMARY KEY,
+				name STRING	
 			)
 		`); err != nil {
-		return fmt.Errorf("sqlite failed to create summary table: %w", err)
+		return fmt.Errorf("sqlite failed to create maps table: %w", err)
+	}
+
+	if _, err := s.db.ExecContext(ctx, `
+		CREATE TABLE IF NOT EXISTS tiles (
+			tileID INTEGER NOT NULL PRIMARY KEY,
+			mapID INTEGER NOT NULL,
+			value INTEGER NOT NULL,
+			FOREIGN KEY(mapID) REFERENCES Departments(maps)
+		)
+			`); err != nil {
+		return fmt.Errorf("sqlite failed to create tiles table: %w", err)
 	}
 
 	return nil

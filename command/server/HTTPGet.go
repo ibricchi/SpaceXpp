@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
@@ -85,10 +84,5 @@ func (h *HttpServer) loadMap(ctx context.Context) http.HandlerFunc {
 		}
 
 		w.WriteHeader(http.StatusOK)
-
-		name, _ := h.db.retriveData(ctx)
-
-		fmt.Println("name: ", name)
-
 	}
 }

@@ -40,7 +40,7 @@ func (h *HttpServer) routes(ctx context.Context) error {
 		r.Post("/drive/angle", h.driveA)
 		r.Post("/map/targetCoords", h.targetCoords)
 		r.Post("/map/reset", h.resetMap)
-		r.Post("/map/history/request", h.requestMap)
+		r.Post("/map/history/request", h.requestMap(ctx))
 		r.Post("/map/history/save", h.save(ctx))
 
 	})
