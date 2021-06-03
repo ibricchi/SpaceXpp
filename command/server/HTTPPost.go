@@ -118,10 +118,30 @@ func (h *HttpServer) resetMap(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (h *HttpServer) requestMap(w http.ResponseWriter, r *http.Request) {
+func (h *HttpServer) requestMap(ctx context.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 
-	// database querey that loads map data into dbMap
+		// Aquiring map name
 
+		decoder := json.NewDecoder(r.Body)
+		defer r.Body.Close()
+
+		var name string
+		if err := decoder.Decode(&name); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		}
+
+		w.WriteHeader(http.StatusOK)
+
+		// map is quered using name to get id
+
+		mapID, err := h.db.getMapID(ctx, name)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		}
+		// map is built and stored in dbmap
+		h.db.retriveMap(ctx, mapID)
+	}
 }
 
 func (h *HttpServer) save(ctx context.Context) http.HandlerFunc {
@@ -134,12 +154,21 @@ func (h *HttpServer) save(ctx context.Context) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 		}
 
-		w.WriteHeader(http.StatusOK)
-
 		fmt.Println("name : ", name)
 
-		h.db.insertData(ctx, name)
+		h.db.saveMapName(ctx, name)
 
-		fmt.Println("data inserted")
+		mapID, err := h.db.getMapID(ctx, name)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		}
+
+		fmt.Println("mapID : ", mapID)
+
+		h.convertAndInsert(ctx, mapID)
+
+		w.WriteHeader(http.StatusOK)
+
+		fmt.Println("map inserted")
 	}
 }
