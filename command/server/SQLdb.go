@@ -136,7 +136,7 @@ func (s *SQLiteDB) retriveData(ctx context.Context) (int, error) {
 		rows, err := tx.QueryContext(ctx, `
 			SELECT mapID
 			FROM maps
-			WHERE name = mapName
+			WHERE name = :mapName
 		`,
 			sql.Named("mapName", "test5"),
 		)
