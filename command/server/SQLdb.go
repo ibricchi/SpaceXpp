@@ -49,6 +49,8 @@ func (s *SQLiteDB) insertMap(ctx context.Context, indx int, value int, mapID int
 	}); err != nil {
 		return fmt.Errorf("server: sqlite_db_insert: insertTestData transaction failed: %w", err)
 	}
+	fmt.Println("inserted:", indx, value, mapID)
+
 	return nil
 }
 
