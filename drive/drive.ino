@@ -73,6 +73,7 @@ void loop() {
       currentInstructionStarted = true;
       currentInstructionCompleted = false;
       currentInstructionTime = millis();
+      vref = 4.0;
       currentInstructionX = displacementX;
       currentInstructionY = displacementY;
     } else {
@@ -94,6 +95,8 @@ void loop() {
 
     uart.nextInstructionReady();
     // TODO - Add sending the distance moved to the ESP32 since the last instruction
+  
+    Serial1.print(String(abs(displacementY-currentInstructionY)));
   } else {
     stopMoving();
   }
