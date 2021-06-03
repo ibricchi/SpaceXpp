@@ -35,16 +35,15 @@ func (s *SQLiteDB) saveMapName(ctx context.Context, name string) error {
 func (s *SQLiteDB) insertMap(ctx context.Context, indx int, value int, mapID int) error {
 	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
 		if _, err := tx.ExecContext(ctx, `
-			INSERT INTO tiles (tileID, mapID, value)
-			VALUES (:tileID, :mapID, :value)
+			INSERT INTO tiles (value)
+			VALUES (:value)
 		`,
-			sql.Named("tileID", indx),
-			sql.Named("mapID", mapID),
 			sql.Named("value", value),
 		); err != nil {
-			fmt.Println("inserted:", indx, value, mapID)
+			fmt.Println("not inserted:", indx, value, mapID)
 			return fmt.Errorf("server: sqlite_db_insert: failed to insert tiles into db: %w", err)
 		}
+		fmt.Println("inserted:", indx, value, mapID)
 
 		return nil
 	}); err != nil {
