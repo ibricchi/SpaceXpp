@@ -12,7 +12,7 @@ The WiFi credentials can be found in `spaceXpp_rover_controller/include/wifi.h` 
 
 ### Setup Mosquitto broker on cloud
 
-```
+```bash
 sudo apt-get update
 sudo apt-get install mosquitto
 ```
@@ -20,7 +20,8 @@ sudo apt-get install mosquitto
 Service is started automatically after installation. Use `systemctl` for configuring the service.
 
 For example:
-```
+
+```bash
 systemctl status mosquitto
 ```
 
@@ -56,8 +57,6 @@ openssl x509 -in server.crt -text -noout
 sudo mv ca.crt /etc/mosquitto/ca_certificates/
 sudo mv server.key /etc/mosquitto/certs/
 sudo mv server.crt /etc/mosquitto/certs/
-
-sudo systemctl restart mosquitto
 ```
 
 Now, add the following lines to the `/etc/mosquitto/mosquitto.conf` file:
@@ -69,9 +68,48 @@ keyfile /etc/mosquitto/certs/server.key
 certfile /etc/mosquitto/certs/server.crt
 ```
 
+Restart Mosquitto:
+
+```bash
+sudo systemctl restart mosquitto
+```
+
 Test if everything is working using the MQTT client tools.
 
 Copy the `ca.crt` to the client.
+
+### Add password authentication
+
+Create a password file (here named `p1.txt`) and add a user to it (will promt for password):
+
+```bash
+mosquitto_passwd -c p1.txt <user>
+```
+
+Add additional users to the password file:
+
+```bash
+mosquitto_passwd -b p1.txt <user> <password>
+```
+
+Move the password file:
+
+```bash
+sudo mv p1.txt /etc/mosquitto/
+```
+
+Now, add the following lines to the `/etc/mosquitto/mosquitto.conf` file:
+
+```
+allow_anonymous false
+password_file /etc/mosquitto/p1.txt
+```
+
+Restart Mosquitto:
+
+```bash
+sudo systemctl restart mosquitto
+```
 
 ## MQTT Client Tools
 
@@ -79,19 +117,19 @@ These instructions assume that Mosquitto was setup over SSL/TLS using the instru
 
 ### Install MQTT client tools (mosquitto_sub and mosquitto_pub)
 
-```
+```bash
 sudo apt-get update
 sudo apt-get install mosquitto-clients
 ```
 
 ### Subscribe to topic using mosquitto_sub
 
-```
-mosquitto_sub -h 18.130.239.157 -p 8883 --cafile /etc/mosquitto/ca_certificates/ca.crt -t "/test/test1"
+```bash
+mosquitto_sub -h 18.130.239.157 -p 8883 --cafile /etc/mosquitto/ca_certificates/ca.crt -t "/test/test1" -u <username> -P <password>
 ```
 
 ### Publish to topic using mosquitto_pub
 
-```
-mosquitto_pub -h 18.130.239.157 -p 8883 --cafile /etc/mosquitto/ca_certificates/ca.crt -t "/test/test1" -m "Message to publish"
+```bash
+mosquitto_pub -h 18.130.239.157 -p 8883 --cafile /etc/mosquitto/ca_certificates/ca.crt -t "/test/test1" -m "Message to publish" -u <username> -P <password>
 ```
