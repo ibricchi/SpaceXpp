@@ -52,8 +52,8 @@ func (s *SQLiteDB) migrate(ctx context.Context) error {
 	if _, err := s.db.ExecContext(ctx, `
 		CREATE TABLE IF NOT EXISTS tiles (
 			tileID INTEGER NOT NULL PRIMARY KEY,
-			mapID INTEGER NOT NULL,
-			value INTEGER NOT NULL,
+			mapID INTEGER,
+			value INTEGER,
 			FOREIGN KEY(mapID) REFERENCES Departments(maps)
 		)
 			`); err != nil {
