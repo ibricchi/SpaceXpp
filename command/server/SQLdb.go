@@ -146,7 +146,8 @@ func (s *SQLiteDB) retriveData(ctx context.Context) (int, error) {
 		}
 		defer rows.Close()
 
-		//for rows.Next() {
+		//for
+		rows.Next() //{
 		if err := rows.Scan(
 			&name,
 		); err != nil {
