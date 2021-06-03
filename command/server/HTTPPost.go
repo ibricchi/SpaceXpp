@@ -162,7 +162,7 @@ func (h *HttpServer) save(ctx context.Context) http.HandlerFunc {
 
 		nam, _ := h.db.retriveData(ctx)
 
-		fmt.Println("name: ", nam)
+		fmt.Println("ID: ", nam)
 
 		mapID, err := h.db.getMapID(ctx, name)
 		if err != nil {
