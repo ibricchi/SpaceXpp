@@ -29,6 +29,7 @@ func InitMQTT(ctx context.Context, logger *zap.Logger, mqttBrokerURL string) (*M
 	opts.AddBroker(mqttBrokerURL)
 	opts.SetTLSConfig(tlsConfig)
 	opts.SetClientID("SpaceXpp_server")
+	opts.SetOrderMatters(true) // Drive instruction order must be preserved
 	opts.SetCleanSession(true)
 	opts.SetConnectRetry(true)
 
