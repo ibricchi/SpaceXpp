@@ -39,25 +39,30 @@ func OpenSQLiteDB(ctx context.Context, logger *zap.Logger, dsn string) (*SQLiteD
 }
 
 func (s *SQLiteDB) migrate(ctx context.Context) error {
+	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
 
-	if _, err := s.db.ExecContext(ctx, `
-			CREATE TABLE IF NOT EXISTS maps (
-				mapID INTEGER NOT NULL PRIMARY KEY,
-				name STRING	
-			)
-		`); err != nil {
-		return fmt.Errorf("sqlite failed to create maps table: %w", err)
-	}
-
-	if _, err := s.db.ExecContext(ctx, `
-		CREATE TABLE IF NOT EXISTS tiles (
-			tileID INTEGER NOT NULL PRIMARY KEY,
-			val INTEGER
-		)
+		if _, err := tx.ExecContext(ctx, `
+				CREATE TABLE IF NOT EXISTS maps (
+					mapID INTEGER NOT NULL PRIMARY KEY,
+					name STRING	
+				)
 			`); err != nil {
-		return fmt.Errorf("sqlite failed to create tiles table: %w", err)
-	}
+			return fmt.Errorf("sqlite failed to create maps table: %w", err)
+		}
 
+		if _, err := tx.ExecContext(ctx, `
+			CREATE TABLE IF NOT EXISTS tiles (
+				tileID INTEGER NOT NULL PRIMARY KEY,
+				val INTEGER
+			)
+				`); err != nil {
+			return fmt.Errorf("sqlite failed to create tiles table: %w", err)
+		}
+		return nil
+
+	}); err != nil {
+		return fmt.Errorf("buna: sqlite_db_general: transaction failed: %w", err)
+	}
 	return nil
 
 }
