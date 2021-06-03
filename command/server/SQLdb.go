@@ -68,10 +68,8 @@ func (s *SQLiteDB) getMapID(ctx context.Context, name string) (int, error) {
 		}
 		defer rows.Close()
 
-		fmt.Println("trying")
-
 		for rows.Next() {
-
+			fmt.Println("pleaseeee")
 			if err := rows.Scan(
 				&id,
 			); err != nil {
