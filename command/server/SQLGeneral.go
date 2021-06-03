@@ -52,8 +52,8 @@ func (s *SQLiteDB) migrate(ctx context.Context) error {
 
 		if _, err := tx.ExecContext(ctx, `
 			CREATE TABLE IF NOT EXISTS tiles (
-				tileID INTEGER NOT NULL PRIMARY KEY,
-				val INTEGER
+				mapID INTEGER NOT NULL PRIMARY KEY,
+				name STRING	
 			)
 				`); err != nil {
 			return fmt.Errorf("sqlite failed to create tiles table: %w", err)
