@@ -25,7 +25,7 @@ func (s *SQLiteDB) saveMapName(ctx context.Context, name string) error {
 			fmt.Println("not inserted:", name)
 			return fmt.Errorf("server: sqlite_db_insert: failed to insert map name data into db: %w", err)
 		}
-		fmt.Println("inserted:", name)
+		fmt.Println(" inserted:", name)
 
 		return nil
 	}); err != nil {
@@ -37,20 +37,23 @@ func (s *SQLiteDB) saveMapName(ctx context.Context, name string) error {
 func (s *SQLiteDB) insertMap(ctx context.Context, indx int, value int, mapID int) error {
 	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
 		if _, err := tx.ExecContext(ctx, `
-			INSERT INTO tiles (name)
-			VALUES (:name)
+			INSERT INTO tiles (tileID, mapID, value)
+			VALUES (:tileID, :mapID, :value )
 		`,
-			sql.Named("name", "test33"),
+			sql.Named("tileID", indx),
+			sql.Named("mapID", mapID),
+			sql.Named("value", value),
 		); err != nil {
-			fmt.Println("not inserted:", "test33")
-			return fmt.Errorf("server: sqlite_db_insert: failed to insert map name data into db: %w", err)
+			fmt.Println("not inserted:", indx, value, mapID)
+			return fmt.Errorf("server: sqlite_db_insert: failed to insert tiles into db: %w", err)
 		}
-		fmt.Println("inserted:", "test33")
+		fmt.Println("inserted:", indx, value, mapID)
 
 		return nil
 	}); err != nil {
-		return fmt.Errorf("server: sqlite_db_insert: insert map name transaction failed: %w", err)
+		return fmt.Errorf("server: sqlite_db_insert: insertTestData transaction failed: %w", err)
 	}
+
 	return nil
 }
 
