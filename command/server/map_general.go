@@ -147,6 +147,9 @@ func updateMapWithObstructionWhileTurning(obstructionType string) {
 		return
 	}
 
+	// Complete turn
+	driveTocoords(stashedDriveInstruction, tileWidth)
+
 	var changeInRotation int
 	if stashedDriveInstruction.instruction == "turnLeft" {
 		changeInRotation = -stashedDriveInstruction.value
