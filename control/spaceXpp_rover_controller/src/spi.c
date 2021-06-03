@@ -148,11 +148,11 @@ void handle_vision_stop_instruction(char* stopInformation) {
 
         // Send stop instruction to drive (only necessary when currently moving forward)
         send_drive_uart_data(driveEncoding.stop, "0");
-    } else if (strcmp(nextDriveInstruction, driveEncoding.forward) == 0) {
+    } else if (strcmp(nextDriveInstruction, "forward") == 0) { // "forward" used by server and "F" used by drive
         currentDriveInstruction = driveEncoding.stopFromTurn;
 
-        // inform server of stop (with a forward driven distance of 0)
-        publish_drive_instruction_to_server("SD", "0");
+        // inform server of stop (value of '-1' indicates that stop comes from turn and is required for correct updating of map)
+        publish_drive_instruction_to_server("SD", "-1");
     } else {
         return;
     }
