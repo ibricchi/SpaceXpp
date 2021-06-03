@@ -60,14 +60,15 @@ func (s *SQLiteDB) getMapID(ctx context.Context, name string) (int, error) {
 		rows, err := tx.QueryContext(ctx, `
 			SELECT mapID 
 			FROM maps 
-			WHERE name = mapName
-			`,
-			sql.Named("mapName", name),
+			WHERE name = `+name,
 		)
 		if err != nil {
 			return fmt.Errorf("server: sqlite_db_retrieve: failed to retrieve nameID rows: %w", err)
+
 		}
 		defer rows.Close()
+
+		fmt.Println("trying")
 
 		for rows.Next() {
 
