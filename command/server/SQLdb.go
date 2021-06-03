@@ -129,12 +129,12 @@ func (s *SQLiteDB) retriveMap(ctx context.Context, mapID int) error {
 	return nil
 }
 
-func (s *SQLiteDB) retriveData(ctx context.Context) (string, error) {
+func (s *SQLiteDB) retriveData(ctx context.Context) (int, error) {
 
-	var name string
+	var name int
 	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
 		rows, err := tx.QueryContext(ctx, `
-			SELECT name
+			SELECT id
 			FROM maps
 		`)
 		if err != nil {
@@ -158,7 +158,7 @@ func (s *SQLiteDB) retriveData(ctx context.Context) (string, error) {
 
 		return nil
 	}); err != nil {
-		return "empty", fmt.Errorf("server: sqlite_db_retrieve: getCreds transaction failed: %w", err)
+		return -1, fmt.Errorf("server: sqlite_db_retrieve: getCreds transaction failed: %w", err)
 	}
 
 	return name, nil
