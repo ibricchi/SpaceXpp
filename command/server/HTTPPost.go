@@ -110,9 +110,11 @@ func (h *HttpServer) targetCoords(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 
-	//stop(1, 0)
+	previousDestinationRow = targetCoords.X
+	previousDestinationCol = targetCoords.Y
+	previousDestinationMode = targetCoords.Mode
 
-	if err := h.mapAndDrive(targetCoords.X, targetCoords.Y, targetCoords.Mode); err != nil {
+	if err := mapAndDrive(h.mqtt, targetCoords.X, targetCoords.Y, targetCoords.Mode); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }
