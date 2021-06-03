@@ -3,6 +3,7 @@
 static const char *SPI_tag = "SPI";
 
 extern const DriveEncoding driveEncoding;
+extern QueueHandle_t driveInstructionQueue;
 extern char* currentDriveInstruction;
 
 void vision_spi_init() {
@@ -84,7 +85,7 @@ void vision_spi_task_simulated(void *arg) {
         // Clear rx_buff
         memset(rx_buff, 0, VISION_BUFFER_SIZE);
 
-        switch (esp_random() % 7) {
+        switch (esp_random() % 10) {
             case 0: // STOP: General obstruction in field before rover
                 strcpy(rx_buff, "US");
                 break;
@@ -97,8 +98,11 @@ void vision_spi_task_simulated(void *arg) {
             case 3:
             case 4:
             case 5:
-            case 6: // Nothing detected => No data from vision
-                vTaskDelay(1000 / portTICK_PERIOD_MS);
+            case 6: 
+            case 7:
+            case 8:
+            case 9: // Nothing detected => No data from vision
+                vTaskDelay(2000 / portTICK_PERIOD_MS);
                 continue;
             default:
                 ESP_LOGE(SPI_tag, "Vision simulation: Random number not in allowed range.");
@@ -133,15 +137,25 @@ void handle_vision_stop_instruction(char* stopInformation) {
     // Inform server of stop to allow for map update
     publish_drive_instruction_to_server(driveEncoding.stop, stopInformation);
 
-    // Only need to stop if moving forward
-    if (strcmp(currentDriveInstruction, driveEncoding.forward) != 0) {
+    // Check next instruction
+    char queueData[32];
+    xQueuePeek(driveInstructionQueue, queueData, (TickType_t)0);
+    char* nextDriveInstruction = strtok(queueData, DRIVE_INSTRUCTION_DELIMITER);
+
+    // Only need to stop if moving forward or if turning and next instruction is forward
+    if (strcmp(currentDriveInstruction, driveEncoding.forward) == 0) {
+        currentDriveInstruction = driveEncoding.stopFromForward;
+
+        // Send stop instruction to drive (only necessary when currently moving forward)
+        send_drive_uart_data(driveEncoding.stop, "0");
+    } else if (strcmp(nextDriveInstruction, "forward") == 0) { // "forward" used by server and "F" used by drive
+        currentDriveInstruction = driveEncoding.stopFromTurn;
+
+        // inform server of stop (value of '-1' indicates that stop comes from turn and is required for correct updating of map)
+        publish_drive_instruction_to_server("SD", "-1");
+    } else {
         return;
     }
-
-    currentDriveInstruction = driveEncoding.stop;
-
-    // Send stop instruction to drive
-    send_drive_uart_data(driveEncoding.stop, "0");
 
     // Don't send any of remaining instructions in queue to drive
     flush_drive_instruction_queue();

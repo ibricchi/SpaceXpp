@@ -3,6 +3,8 @@ package server
 import (
 	"errors"
 	"fmt"
+
+	"go.uber.org/zap/zapcore"
 )
 
 /*
@@ -35,6 +37,23 @@ const (
 	west
 )
 
+func (i *driveInstruction) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+	enc.AddString("instruction", i.instruction)
+	enc.AddInt("value", i.value)
+	return nil
+}
+
+type driveInstructions []driveInstruction
+
+func (is *driveInstructions) MarshalLogArray(enc zapcore.ArrayEncoder) error {
+	for _, instruction := range *is {
+		if err := enc.AppendObject(&instruction); err != nil {
+			return fmt.Errorf("server: drive: failed to encode driveInstructions: %w", err)
+		}
+	}
+	return nil
+}
+
 /*
 	Takes a path represented as a list of [row, col] pairs and returns a sequence of drive instructions.
 	The path contains both the start tile (node) and the destination tile. No drive instructions are needed to get to the start node.
@@ -62,14 +81,11 @@ func pathToDriveInstructions(path [][]int, tileWidth int, initialDirection direc
 	if currentDirection != initialDirection {
 		angle := getTurnAngleClockwise(initialDirection, currentDirection)
 
-		turnInstruction, turnAngle, err := getTurnInstructionFromAngle(angle)
+		turnInstructions, err := getTurnInstructionsFromAngle(angle)
 		if err != nil {
 			return nil, fmt.Errorf("server: drive: failed to get turn instruction from angle: %w", err)
 		}
-		instructions = append(instructions, driveInstruction{
-			instruction: turnInstruction,
-			value:       turnAngle,
-		})
+		instructions = append(instructions, turnInstructions...)
 	}
 
 	// Check for special case of only one forward instruction
@@ -78,6 +94,11 @@ func pathToDriveInstructions(path [][]int, tileWidth int, initialDirection direc
 			instruction: "forward",
 			value:       currentDistance,
 		})
+
+		if traverseMode == fullDiscovery || traverseMode == destinationDiscovery {
+			// Add instructions for full roation
+			instructions = append(instructions, getInstructionForFullRotation(currentDirection)...)
+		}
 	}
 
 	// Skip start tile (already there)
@@ -122,14 +143,11 @@ func pathToDriveInstructions(path [][]int, tileWidth int, initialDirection direc
 			newDirection := getNewDirection(path[i-1], path[i])
 			angle := getTurnAngleClockwise(currentDirection, newDirection)
 
-			turnInstruction, turnAngle, err := getTurnInstructionFromAngle(angle)
+			turnInstructions, err := getTurnInstructionsFromAngle(angle)
 			if err != nil {
 				return nil, fmt.Errorf("server: drive: failed to get turn instruction from angle: %w", err)
 			}
-			instructions = append(instructions, driveInstruction{
-				instruction: turnInstruction,
-				value:       turnAngle,
-			})
+			instructions = append(instructions, turnInstructions...)
 
 			currentDirection = newDirection
 		}
@@ -210,19 +228,22 @@ func getTurnAngleClockwise(currentDirection direction, newDirection direction) i
 
 /*
 	Turns must be a multiple of 90°.
-	turnRight instruction is used to handle turns of 180°.
+	turnRight instruction is used to handle turns of 180° (split into two 90° instructions).
 */
-func getTurnInstructionFromAngle(angle int) (string, int, error) {
+func getTurnInstructionsFromAngle(angle int) ([]driveInstruction, error) {
+	instructions := []driveInstruction{}
 	switch angle {
 	case 90:
-		return "turnRight", 90, nil
+		instructions = append(instructions, driveInstruction{instruction: "turnRight", value: 90})
 	case 180:
-		return "turnRight", 180, nil
+		instructions = append(instructions, driveInstruction{instruction: "turnRight", value: 90}, driveInstruction{instruction: "turnRight", value: 90})
 	case 270:
-		return "turnLeft", 90, nil
+		instructions = append(instructions, driveInstruction{instruction: "turnLeft", value: 90})
 	default:
-		return "", 0, fmt.Errorf("server: drive: invalid turn angle of %v degrees", angle)
+		return []driveInstruction{}, fmt.Errorf("server: drive: invalid turn angle of %v degrees", angle)
 	}
+
+	return instructions, nil
 }
 
 // Converting drive instruction into the coordinates that the rover will end up in

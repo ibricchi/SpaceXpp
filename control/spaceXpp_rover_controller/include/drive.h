@@ -19,6 +19,8 @@ typedef struct DriveEncoding{
     const char* turnRight;
     const char* turnLeft;
     const char* stop;
+    const char* stopFromForward;
+    const char* stopFromTurn;
 } DriveEncoding;
 
 void drive_init();

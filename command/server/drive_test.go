@@ -52,6 +52,68 @@ func TestPathToDriveInstructions(t *testing.T) {
 		{
 			path: [][]int{
 				{0, 1},
+				{0, 2},
+			},
+			tileWidth:        10,
+			initialDirection: east,
+			traverseMode:     destinationDiscovery,
+			expectedInstructions: []driveInstruction{
+				{
+					instruction: "forward",
+					value:       10,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+			},
+		},
+		{
+			path: [][]int{
+				{0, 1},
+				{0, 2},
+			},
+			tileWidth:        10,
+			initialDirection: east,
+			traverseMode:     fullDiscovery,
+			expectedInstructions: []driveInstruction{
+				{
+					instruction: "forward",
+					value:       10,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
+				},
+			},
+		},
+		{
+			path: [][]int{
+				{0, 1},
 				{0, 0},
 				{1, 0},
 				{2, 0},
@@ -68,7 +130,11 @@ func TestPathToDriveInstructions(t *testing.T) {
 			expectedInstructions: []driveInstruction{
 				{
 					instruction: "turnRight",
-					value:       180,
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
 				},
 				{
 					instruction: "forward",
@@ -185,7 +251,11 @@ func TestPathToDriveInstructions(t *testing.T) {
 			expectedInstructions: []driveInstruction{
 				{
 					instruction: "turnRight",
-					value:       180,
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
 				},
 				{
 					instruction: "forward",
@@ -404,7 +474,11 @@ func TestPathToDriveInstructions(t *testing.T) {
 			expectedInstructions: []driveInstruction{
 				{
 					instruction: "turnRight",
-					value:       180,
+					value:       90,
+				},
+				{
+					instruction: "turnRight",
+					value:       90,
 				},
 				{
 					instruction: "forward",
