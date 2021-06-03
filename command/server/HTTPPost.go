@@ -135,14 +135,21 @@ func (h *HttpServer) requestMap(ctx context.Context) http.HandlerFunc {
 
 		w.WriteHeader(http.StatusOK)
 
+		fmt.Println("map name:", name)
+
 		// map is quered using name to get id
 
 		mapID, err := h.db.getMapID(ctx, name)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 		}
+
+		fmt.Println("map ID:", mapID)
+
 		// map is built and stored in dbmap
 		h.db.retriveMap(ctx, mapID)
+
+		fmt.Println("map built")
 	}
 }
 
