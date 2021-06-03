@@ -190,3 +190,50 @@ function mapReset(){
     fetch(serverIP + "/map/reset", options);
 
 }
+
+
+function saveMap(){
+
+   var name = document.getElementById("save").value
+
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(name)
+    };
+
+    fetch(serverIP + "/map/history/save", options);
+
+    console.log("name sent", name)
+}
+
+function requestMap(mapName){
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(mapName)
+    };
+
+    fetch(serverIP + "/map/history/request", options);
+
+}
+
+function loadMap(){
+    fetch(serverIP + '/map/history/load')
+    .then(request => request.json())
+    .then(data => {
+        if(data != null){
+            loadedMap.cols = data.cols;
+            loadedMap.rows = data.rows
+            loadedMap.layers[0] = data.layout;
+            indx = data.roverX + (data.roverY * loadedMap.cols );
+            loadedMap.layers[1][indx] = getVal(data.roverRotation);
+
+        }
+    })
+
+}

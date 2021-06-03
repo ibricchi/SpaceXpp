@@ -41,9 +41,9 @@ func OpenSQLiteDB(ctx context.Context, logger *zap.Logger, dsn string) (*SQLiteD
 func (s *SQLiteDB) migrate(ctx context.Context) error {
 
 	if _, err := s.db.ExecContext(ctx, `
-			CREATE TABLE IF NOT EXISTS summary (
-				id INTEGER NOT NULL PRIMARY KEY,
-				battery INTEGER NOT NULL
+			CREATE TABLE IF NOT EXISTS maps (
+				mapid INTEGER NOT NULL PRIMARY KEY,
+				name STRING
 			)
 		`); err != nil {
 		return fmt.Errorf("sqlite failed to create summary table: %w", err)

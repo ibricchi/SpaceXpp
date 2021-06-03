@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -12,27 +13,6 @@ type coordinates struct {
 	Mode int `json:"mode"`
 }
 
-func (h *HttpServer) speed(w http.ResponseWriter, r *http.Request) {
-	decoder := json.NewDecoder(r.Body)
-	defer r.Body.Close()
-
-	var t int
-	if err := decoder.Decode(&t); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
-
-	// Check for correct format
-
-	if err := h.db.insertData(true, t); err != nil {
-		http.Error(w, "Error: Failed to insert data in DB", http.StatusInternalServerError)
-	}
-
-	w.WriteHeader(http.StatusOK)
-
-	fmt.Println("Recived speed: ", t)
-
-}
-
 func (h *HttpServer) driveD(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	defer r.Body.Close()
@@ -40,10 +20,6 @@ func (h *HttpServer) driveD(w http.ResponseWriter, r *http.Request) {
 	var t int
 	if err := decoder.Decode(&t); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
-
-	if err := h.db.insertData(true, t); err != nil {
-		http.Error(w, "Error: Failed to insert data in DB", http.StatusInternalServerError)
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -71,10 +47,6 @@ func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check for correct format
-
-	if err := h.db.insertData(true, t); err != nil {
-		http.Error(w, "Error: Failed to insert data in DB", http.StatusInternalServerError)
-	}
 
 	w.WriteHeader(http.StatusOK)
 
@@ -146,4 +118,30 @@ func (h *HttpServer) resetMap(w http.ResponseWriter, r *http.Request) {
 	Rover.Y = 5
 	Rover.Rotation = 0
 
+}
+
+func (h *HttpServer) requestMap(w http.ResponseWriter, r *http.Request) {
+
+	// database querey that loads map data into dbMap
+
+}
+
+func (h *HttpServer) save(ctx context.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		decoder := json.NewDecoder(r.Body)
+		defer r.Body.Close()
+
+		var name string
+		if err := decoder.Decode(&name); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		}
+
+		w.WriteHeader(http.StatusOK)
+
+		fmt.Println("name : ", name)
+
+		h.db.insertData(ctx, name)
+
+		fmt.Println("data inserted")
+	}
 }

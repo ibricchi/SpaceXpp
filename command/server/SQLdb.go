@@ -1,35 +1,68 @@
 package server
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 )
 
 type DB interface {
-	insertData(status bool, battery int) error
-	retriveData() (error, bool, int)
+	insertData(ctx context.Context, name string) error
+	retriveData(ctx context.Context) (string, error)
 	Close() error
 }
 
-func (s *SQLiteDB) insertData(status bool, battery int) error {
-	statement, _ := s.db.Prepare("CREATE TABLE IF NOT EXISTS summary (id INTEGER PRIMARY KEY, battery INTEGER)")
-	statement.Exec()
-	statement, _ = s.db.Prepare("INSERT INTO summary (battery) VALUES (?)")
-	statement.Exec(battery)
-	defer statement.Close()
+func (s *SQLiteDB) insertData(ctx context.Context, name string) error {
+	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
+		if _, err := tx.ExecContext(ctx, `
+			INSERT INTO maps (name)
+			VALUES (:name)
+		`,
+			sql.Named("name", name),
+		); err != nil {
+			return fmt.Errorf("server: sqlite_db_insert: failed to insert test data into db: %w", err)
+		}
 
+		return nil
+	}); err != nil {
+		return fmt.Errorf("server: sqlite_db_insert: insertTestData transaction failed: %w", err)
+	}
 	return nil
 }
 
-func (s *SQLiteDB) retriveData() (error, bool, int) {
-	rows, _ := s.db.Query("SELECT MAX(id), battery FROM summary")
-	var id int
-	var batVal int
-	rows.Next()
-	rows.Scan(&id, &batVal)
-	defer rows.Close()
+func (s *SQLiteDB) retriveData(ctx context.Context) (string, error) {
 
-	return nil, true, batVal
+	var name string
+	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
+		rows, err := tx.QueryContext(ctx, `
+			SELECT name
+			FROM maps
+		`)
+		if err != nil {
+			return fmt.Errorf("server: sqlite_db_retrieve: failed to retrieve creds rows: %w", err)
+		}
+		defer rows.Close()
 
+		for rows.Next() {
+			var name string
+			if err := rows.Scan(
+				&name,
+			); err != nil {
+				return fmt.Errorf("server: sqlite_db_retrieve: failed to scan creds row: %w", err)
+			}
+			fmt.Println("name:", name)
+		}
+
+		if err := rows.Err(); err != nil {
+			return fmt.Errorf("server: sqlite_db_retrieve: failed to scan last creds row: %w", err)
+		}
+
+		return nil
+	}); err != nil {
+		return "empty", fmt.Errorf("server: sqlite_db_retrieve: getCreds transaction failed: %w", err)
+	}
+
+	return name, nil
 }
 
 func (s *SQLiteDB) Close() error {
