@@ -119,17 +119,23 @@ func updateMap(driveInstruction driveInstruction) {
 * 		- update map with location of obstruction & type of instruction (optionally based on updateMap argument)
  */
 
-func stop(mqtt MQTT, distance int, obstructionType string, updateMap bool) {
-	stashedDriveInstruction.instruction = "forward"
-	stashedDriveInstruction.value = distance
-	driveTocoords(stashedDriveInstruction, tileWidth)
+func stop(mqtt MQTT, distance int, obstructionType string, stopAfterTurn bool) {
+	if stopAfterTurn {
+		// Complete turn
+		driveTocoords(stashedDriveInstruction, tileWidth)
+	} else {
+		// Drive forward distance moved before stopping
+		stashedDriveInstruction.instruction = "forward"
+		stashedDriveInstruction.value = distance
+		driveTocoords(stashedDriveInstruction, tileWidth)
+	}
 
+	// Store nil instruction in stash
 	stashedDriveInstruction.instruction = "forward"
 	stashedDriveInstruction.value = 0
 
-	// Assuming obstruction will only ever be in box in front
-	// And for now only one type of instruction
-	if updateMap { // map might already be updated (when stop comes after turn)
+	if !stopAfterTurn { // map already updated when stopping after turn
+		// Assuming obstruction will only ever be in box in front (when stop after forward instruction)
 		indx := getOneInFront(0)
 
 		Map.Tiles[indx] = obstacleToValue(obstructionType)
@@ -147,9 +153,6 @@ func updateMapWithObstructionWhileTurning(obstructionType string) {
 		fmt.Println("server: map_general: updateMapWithObstructionWhileTurning fail, not currently turning")
 		return
 	}
-
-	// Complete turn
-	driveTocoords(stashedDriveInstruction, tileWidth)
 
 	var changeInRotation int
 	if stashedDriveInstruction.instruction == "turnLeft" {

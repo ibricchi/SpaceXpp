@@ -166,9 +166,9 @@ func instructionFeedPubHandler(logger *zap.Logger) mqtt.MessageHandler {
 			}
 
 			if v == -1 { // stopping after turn (map already updated with obstruction)
-				stop(mqttClient, 0, stopData, false)
+				stop(mqttClient, 0, stopData, true)
 			} else { // stopping after forward (map not yet updated with obstruction)
-				stop(mqttClient, v, stopData, true)
+				stop(mqttClient, v, stopData, false)
 			}
 
 			stopData = ""
