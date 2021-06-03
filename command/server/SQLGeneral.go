@@ -54,7 +54,6 @@ func (s *SQLiteDB) migrate(ctx context.Context) error {
 			tileID INTEGER NOT NULL PRIMARY KEY,
 			mapID INTEGER,
 			value INTEGER,
-			FOREIGN KEY(mapID) REFERENCES Departments(maps)
 		)
 			`); err != nil {
 		return fmt.Errorf("sqlite failed to create tiles table: %w", err)
