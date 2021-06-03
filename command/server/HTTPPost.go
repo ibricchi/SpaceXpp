@@ -158,6 +158,10 @@ func (h *HttpServer) save(ctx context.Context) http.HandlerFunc {
 
 		h.db.saveMapName(ctx, name)
 
+		nam, _ := h.db.retriveData(ctx)
+
+		fmt.Println("name: ", nam)
+
 		mapID, err := h.db.getMapID(ctx, name)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)

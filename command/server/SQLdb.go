@@ -10,6 +10,7 @@ type DB interface {
 	saveMapName(ctx context.Context, name string) error
 	insertMap(ctx context.Context, indx int, value int, mapID int) error
 	retriveMap(ctx context.Context, mapID int) error
+	retriveData(ctx context.Context) (string, error)
 	getMapID(ctx context.Context, name string) (int, error)
 	Close() error
 }
@@ -126,6 +127,41 @@ func (s *SQLiteDB) retriveMap(ctx context.Context, mapID int) error {
 	}
 
 	return nil
+}
+
+func (s *SQLiteDB) retriveData(ctx context.Context) (string, error) {
+
+	var name string
+	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
+		rows, err := tx.QueryContext(ctx, `
+			SELECT name
+			FROM maps
+		`)
+		if err != nil {
+			return fmt.Errorf("server: sqlite_db_retrieve: failed to retrieve creds rows: %w", err)
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var name string
+			if err := rows.Scan(
+				&name,
+			); err != nil {
+				return fmt.Errorf("server: sqlite_db_retrieve: failed to scan creds row: %w", err)
+			}
+			fmt.Println("name:", name)
+		}
+
+		if err := rows.Err(); err != nil {
+			return fmt.Errorf("server: sqlite_db_retrieve: failed to scan last creds row: %w", err)
+		}
+
+		return nil
+	}); err != nil {
+		return "empty", fmt.Errorf("server: sqlite_db_retrieve: getCreds transaction failed: %w", err)
+	}
+
+	return name, nil
 }
 
 func (s *SQLiteDB) Close() error {
