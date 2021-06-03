@@ -61,7 +61,7 @@ func (s *SQLiteDB) retriveMap(ctx context.Context, mapID int) error {
 
 	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
 		rows, err := tx.QueryContext(ctx, `
-			SELECT tileID, value 
+			SELECT indx, value 
 			FROM tiles 
 			WHERE mapID = :mID
 			`,
