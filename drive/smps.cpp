@@ -27,7 +27,6 @@ float u0i, u1i, delta_ui, e0i, e1i, e2i;
 // This subroutine processes all of the analogue samples, creating the required values for the main loop
 void sampling() {
   vout = (float)(analogRead(A0)) * (4.096 / 1023.0);
-  Serial.println(vout);
   iL = (float)(ina219.getCurrent_mA()) / 1000.0;
 }
 
@@ -40,7 +39,7 @@ float saturation(float sat_input, float uplim, float lowlim) {
 
 // PWM waveform for SMPS duty cycle
 void pwm_modulate(float pwm_input) {
-  analogWrite(6, (int)(255 - pwm_input * 255));
+  analogWrite(PIN_PWM_OUT, (int)(255 - pwm_input * 255));
 }
 
 // Voltage PID controller
@@ -90,9 +89,9 @@ void SMPSSetup() {
   analogReference(EXTERNAL);
 
   // TimerB0 initialization for PWM output
-  pinMode(6, OUTPUT);
+  pinMode(PIN_PWM_OUT, OUTPUT);
   TCB0.CTRLA = TCB_CLKSEL_CLKDIV1_gc | TCB_ENABLE_bm;
-  analogWrite(6, 120);
+  analogWrite(PIN_PWM_OUT, 120);
 
   // Current sensor
   Wire.begin();
