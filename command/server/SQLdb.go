@@ -146,15 +146,14 @@ func (s *SQLiteDB) retriveData(ctx context.Context) (int, error) {
 		}
 		defer rows.Close()
 
-		for rows.Next() {
-			var name string
-			if err := rows.Scan(
-				&name,
-			); err != nil {
-				return fmt.Errorf("server: sqlite_db_retrieve: failed to scan creds row: %w", err)
-			}
-			fmt.Println("name:", name)
+		//for rows.Next() {
+		if err := rows.Scan(
+			&name,
+		); err != nil {
+			return fmt.Errorf("server: sqlite_db_retrieve: failed to scan creds row: %w", err)
 		}
+		fmt.Println("name:", name)
+		//}
 
 		if err := rows.Err(); err != nil {
 			return fmt.Errorf("server: sqlite_db_retrieve: failed to scan last creds row: %w", err)
