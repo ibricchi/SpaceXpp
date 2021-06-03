@@ -134,7 +134,7 @@ func (s *SQLiteDB) retriveData(ctx context.Context) (int, error) {
 	var name int
 	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
 		rows, err := tx.QueryContext(ctx, `
-			SELECT id
+			SELECT mapID
 			FROM maps
 		`)
 		if err != nil {
