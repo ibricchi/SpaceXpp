@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var tileWidth = 30
+var tileWidth = 85
 
 // Initilising starting map: unknown (1) with boarders (3)
 
