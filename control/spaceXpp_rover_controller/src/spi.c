@@ -102,7 +102,7 @@ void vision_spi_task_simulated(void *arg) {
             case 7:
             case 8:
             case 9: // Nothing detected => No data from vision
-                vTaskDelay(1500 / portTICK_PERIOD_MS);
+                vTaskDelay(2000 / portTICK_PERIOD_MS);
                 continue;
             default:
                 ESP_LOGE(SPI_tag, "Vision simulation: Random number not in allowed range.");

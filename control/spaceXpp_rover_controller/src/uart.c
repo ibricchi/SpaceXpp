@@ -123,12 +123,14 @@ void drive_uart_task_simulated(void *arg) {
             int randomDistance = esp_random() % currentDriveInstructionValue + 1; // currentDriveInstructionValue still corresponds to previous (forward) instruction
             sprintf((char*)rx_data, "%d%s", randomDistance, "S");
         } else {
-            switch (esp_random() % 3) {
+            switch (esp_random() % 5) {
                 case 0: // Ready for next instruction
                     strcpy((char*)rx_data, "R");
                     break;
                 case 1: // Not yet ready for next instruction => No data from drive
                 case 2:
+                case 3:
+                case 4:
                     break;
                 default:
                     ESP_LOGE(UART_tag, "Drive simulation: Random number not in allowed range.");
