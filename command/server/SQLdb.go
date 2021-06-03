@@ -136,8 +136,10 @@ func (s *SQLiteDB) retriveData(ctx context.Context) (int, error) {
 		rows, err := tx.QueryContext(ctx, `
 			SELECT mapID
 			FROM maps
-			WHERE name = "test5"
-		`)
+			WHERE name = mapName
+		`,
+			sql.Named("mapName", "test5"),
+		)
 		if err != nil {
 			return fmt.Errorf("server: sqlite_db_retrieve: failed to retrieve creds rows: %w", err)
 		}
