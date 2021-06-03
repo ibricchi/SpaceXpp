@@ -150,6 +150,10 @@ func (h *HttpServer) requestMap(ctx context.Context) http.HandlerFunc {
 		h.db.retriveMap(ctx, mapID)
 
 		fmt.Println("map built")
+
+		for i := 0; i < 144; i++ {
+			fmt.Println(dbMap.Tiles[i])
+		}
 	}
 }
 
