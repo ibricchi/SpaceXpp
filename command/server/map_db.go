@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 )
 
 var dbMap = mapDB{
@@ -29,5 +30,6 @@ func (h *HttpServer) convertAndInsert(ctx context.Context, mapID int) {
 
 	for i := 0; i < 144; i++ {
 		h.db.insertMap(ctx, i, Map.Tiles[i], mapID)
+		fmt.Println(i, Map.Tiles[i])
 	}
 }
