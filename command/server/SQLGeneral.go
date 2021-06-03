@@ -46,7 +46,7 @@ func (s *SQLiteDB) migrate(ctx context.Context) error {
 				name STRING	
 			)
 		`); err != nil {
-		return fmt.Errorf("sqlite failed to create summary table: %w", err)
+		return fmt.Errorf("sqlite failed to create maps table: %w", err)
 	}
 
 	if _, err := s.db.ExecContext(ctx, `
@@ -58,7 +58,7 @@ func (s *SQLiteDB) migrate(ctx context.Context) error {
 			FOREIGN KEY(mapID) REFERENCES Departments(maps)
 		)
 			`); err != nil {
-		return fmt.Errorf("sqlite failed to create summary table: %w", err)
+		return fmt.Errorf("sqlite failed to create tiles table: %w", err)
 	}
 
 	return nil
