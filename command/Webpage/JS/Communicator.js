@@ -230,8 +230,7 @@ function loadMap(){
             loadedMap.cols = data.cols;
             loadedMap.rows = data.rows
             loadedMap.layers[0] = data.layout;
-            indx = data.roverX + (data.roverY * loadedMap.cols );
-            loadedMap.layers[1][indx] = getVal(data.roverRotation);
+            loadedMap.layers[1][data.roverIndx] = getVal(data.roverRotation);
 
         }
     })

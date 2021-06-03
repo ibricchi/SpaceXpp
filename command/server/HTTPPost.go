@@ -149,8 +149,8 @@ func (h *HttpServer) requestMap(ctx context.Context) http.HandlerFunc {
 		// map is built and stored in dbmap
 		h.db.retriveMap(ctx, mapID)
 
-		fmt.Println("map built")
-
+		// Rover built and stored in dbmap
+		h.db.retriveRover(ctx, mapID)
 	}
 }
 
@@ -164,8 +164,6 @@ func (h *HttpServer) save(ctx context.Context) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 		}
 
-		fmt.Println("name : ", name)
-
 		h.db.saveMapName(ctx, name)
 
 		mapID, err := h.db.getMapID(ctx, name)
@@ -173,12 +171,13 @@ func (h *HttpServer) save(ctx context.Context) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 		}
 
-		fmt.Println("mapID : ", mapID)
-
 		h.convertAndInsert(ctx, mapID)
+
+		roverIndex := Rover.X + (Rover.Y * Map.Cols)
+		fmt.Println("Rover index =", roverIndex)
+		h.db.saveRover(ctx, mapID, roverIndex)
 
 		w.WriteHeader(http.StatusOK)
 
-		fmt.Println("map inserted")
 	}
 }

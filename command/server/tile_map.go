@@ -10,8 +10,7 @@ type mapDB struct {
 	Rows          int   `json:"rows"`   // number of rows
 	Cols          int   `json:"cols"`   // number of columns
 	Tiles         []int `json:"layout"` // matrix stored as slice
-	RoverX        int   `json:"roverX"`
-	RoverY        int   `json:"roverY"`
+	RoverIndx     int   `json:"roverIndx"`
 	RoverRotation int   `json:"roverRotation"`
 }
 

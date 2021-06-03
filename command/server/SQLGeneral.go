@@ -61,6 +61,17 @@ func (s *SQLiteDB) migrate(ctx context.Context) error {
 				`); err != nil {
 			return fmt.Errorf("sqlite failed to create tiles table: %w", err)
 		}
+
+		if _, err := tx.ExecContext(ctx, `
+			CREATE TABLE IF NOT EXISTS rover (
+				mapID INTEGER NOT NULL,
+				indx INTEGER NOT NULL,
+				rotation INTEGER,
+				FOREIGN KEY(mapID) REFERENCES Departments(maps)	
+			)
+				`); err != nil {
+			return fmt.Errorf("sqlite failed to create tiles table: %w", err)
+		}
 		return nil
 
 	}); err != nil {
