@@ -137,6 +137,7 @@ func (s *SQLiteDB) retriveData(ctx context.Context) (int, error) {
 			SELECT mapID
 			FROM maps
 			WHERE name = :mapName
+			LIMIT 1
 		`,
 			sql.Named("mapName", "test5"),
 		)
