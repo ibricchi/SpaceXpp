@@ -22,12 +22,12 @@ func (s *SQLiteDB) saveMapName(ctx context.Context, name string) error {
 		`,
 			sql.Named("name", name),
 		); err != nil {
-			return fmt.Errorf("server: sqlite_db_insert: failed to insert test data into db: %w", err)
+			return fmt.Errorf("server: sqlite_db_insert: failed to insert map name data into db: %w", err)
 		}
 
 		return nil
 	}); err != nil {
-		return fmt.Errorf("server: sqlite_db_insert: insertTestData transaction failed: %w", err)
+		return fmt.Errorf("server: sqlite_db_insert: insert map name transaction failed: %w", err)
 	}
 	return nil
 }
@@ -68,14 +68,15 @@ func (s *SQLiteDB) getMapID(ctx context.Context, name string) (int, error) {
 		}
 		defer rows.Close()
 
-		rows.Next()
+		for rows.Next() {
 
-		if err := rows.Scan(
-			&id,
-		); err != nil {
-			return fmt.Errorf("server: sqlite_db_retrieve: failed to scan mapID row: %w", err)
+			if err := rows.Scan(
+				&id,
+			); err != nil {
+				return fmt.Errorf("server: sqlite_db_retrieve: failed to scan mapID row: %w", err)
+			}
+			fmt.Println("map id:", id)
 		}
-		fmt.Println("map id:", id)
 
 		if err := rows.Err(); err != nil {
 			return fmt.Errorf("server: sqlite_db_retrieve: failed to scan last mapID row: %w", err)
