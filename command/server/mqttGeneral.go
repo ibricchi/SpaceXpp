@@ -165,7 +165,12 @@ func instructionFeedPubHandler(logger *zap.Logger) mqtt.MessageHandler {
 				logger: logger,
 			}
 
-			stop(mqttClient, v, stopData)
+			if v == -1 { // stopping after turn (map already updated with obstruction)
+				stop(mqttClient, 0, stopData, false)
+			} else { // stopping after forward (map not yet updated with obstruction)
+				stop(mqttClient, v, stopData, true)
+			}
+
 			stopData = ""
 		} else if s[0] == "B" {
 			// Ignore backwards instruction that are used for distance correction (drive only)

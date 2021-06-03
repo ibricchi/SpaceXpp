@@ -116,10 +116,10 @@ func updateMap(driveInstruction driveInstruction) {
 *		- update map with stashed instruction
 *		- move distance moved before rover halted
 *		- store nil instruction in stash
-* 		- update map with location of obstruction & type of instruction
+* 		- update map with location of obstruction & type of instruction (optionally based on updateMap argument)
  */
 
-func stop(mqtt MQTT, distance int, obstructionType string) {
+func stop(mqtt MQTT, distance int, obstructionType string, updateMap bool) {
 	stashedDriveInstruction.instruction = "forward"
 	stashedDriveInstruction.value = distance
 	driveTocoords(stashedDriveInstruction, tileWidth)
@@ -129,10 +129,11 @@ func stop(mqtt MQTT, distance int, obstructionType string) {
 
 	// Assuming obstruction will only ever be in box in front
 	// And for now only one type of instruction
+	if updateMap { // map might already be updated (when stop comes after turn)
+		indx := getOneInFront(0)
 
-	indx := getOneInFront(0)
-
-	Map.Tiles[indx] = obstacleToValue(obstructionType)
+		Map.Tiles[indx] = obstacleToValue(obstructionType)
+	}
 
 	fmt.Println("Stopped due to obstruction. Computing new shortest path.")
 	if err := mapAndDrive(mqtt, previousDestinationRow, previousDestinationCol, previousDestinationMode); err != nil {
