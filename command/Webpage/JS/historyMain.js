@@ -6,6 +6,7 @@ function getNameAndLoad(){
   var name = document.getElementById("open").value
   requestMap(name);
   console.log("loading map")
-  loadMap();
+
+  setTimeout(loadMap, 3000);
 
 }

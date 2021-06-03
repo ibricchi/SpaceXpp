@@ -37,10 +37,10 @@ func (s *SQLiteDB) saveMapName(ctx context.Context, name string) error {
 func (s *SQLiteDB) insertMap(ctx context.Context, indx int, value int, mapID int) error {
 	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
 		if _, err := tx.ExecContext(ctx, `
-			INSERT INTO tiles (tileID, mapID, value)
-			VALUES (:tileID, :mapID, :value )
+			INSERT INTO tiles (indx, mapID, value)
+			VALUES (:indx, :mapID, :value )
 		`,
-			sql.Named("tileID", indx),
+			sql.Named("indx", indx),
 			sql.Named("mapID", mapID),
 			sql.Named("value", value),
 		); err != nil {
