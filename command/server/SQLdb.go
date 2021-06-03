@@ -54,6 +54,7 @@ func (s *SQLiteDB) insertMap(ctx context.Context, indx int, value int, mapID int
 
 func (s *SQLiteDB) getMapID(ctx context.Context, name string) (int, error) {
 
+	fmt.Println("getting map ID")
 	var id int
 	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
 		rows, err := tx.QueryContext(ctx, `
