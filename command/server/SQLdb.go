@@ -10,7 +10,7 @@ type DB interface {
 	saveMapName(ctx context.Context, name string) error
 	insertMap(ctx context.Context, indx int, value int, mapID int) error
 	retriveMap(ctx context.Context, mapID int) error
-	retriveData(ctx context.Context) (string, error)
+	retriveData(ctx context.Context) (int, error)
 	getMapID(ctx context.Context, name string) (int, error)
 	Close() error
 }
