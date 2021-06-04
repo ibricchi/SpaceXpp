@@ -207,6 +207,9 @@ func (s *SQLiteDB) storeInstruction(ctx context.Context, instruction string, val
 
 func (s *SQLiteDB) retriveInstruction(ctx context.Context, mapID int) error {
 
+	var instr string
+	var val int
+
 	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
 		rows, err := tx.QueryContext(ctx, `
 			SELECT instruction, value 
@@ -221,14 +224,19 @@ func (s *SQLiteDB) retriveInstruction(ctx context.Context, mapID int) error {
 			return fmt.Errorf("server: sqlite_db_retrieve: failed to retrieve data from tiles rows: %w", err)
 		}
 		defer rows.Close()
-		i := 0
 		for rows.Next() {
 			if err := rows.Scan(
-				&dbMap.Instructions[i].Instruction,
-				&dbMap.Instructions[i].Value,
+				&instr,
+				&val,
 			); err != nil {
 				return fmt.Errorf("server: sqlite_db_retrieve: failed to scan tiles row: %w", err)
 			}
+
+			dbMap.Instructions = append(dbMap.Instructions, driveInstruction{
+				Instruction: instr,
+				Value:       val,
+			})
+
 		}
 		if err := rows.Err(); err != nil {
 			return fmt.Errorf("server: sqlite_db_retrieve: failed to scan last mapID row: %w", err)
