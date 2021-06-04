@@ -1,5 +1,5 @@
 
-serverIP = "https://18.117.12.54:3000"
+serverIP = "https://18.117.12.54:22"
 
 
 function getData( location, address ){
@@ -231,7 +231,15 @@ function loadMap(){
             loadedMap.rows = data.rows
             loadedMap.layers[0] = data.layout;
             loadedMap.layers[1][data.roverIndx] = getVal(data.roverRotation);
-            //console.log(data.driveInstructions[0].instruction)
+            console.log(data.driveinstructions[0].instruction)
+
+            var i = 0
+            while(data.driveinstructions[i].instruction != null)
+            {
+                var line = data.driveinstructions[i].instruction + ":" + data.driveinstructions[i].value
+                printToInstructionFeed(line)
+            }
+           
         }
     })
 
