@@ -80,9 +80,9 @@ wire         sop, eop, in_valid, out_ready;
 ////////////////////////////////////////////////////////////////////////
 
 // setup blob detector params
-parameter gx_min = 50, gy_min = 240, gx_max = 590, gy_max = 480;
-parameter grids_x = 1;
-parameter grids_y = 1;
+parameter gx_min = 100, gy_min = 40, gx_max = 540, gy_max = 440;
+parameter grids_x = 3;
+parameter grids_y = 3;
 parameter grid_w = (gx_max-gx_min)/grids_x, grid_h = (gy_max-gy_min)/grids_y;
 parameter color_count = 6;
 
@@ -110,9 +110,9 @@ SXPP_COLOR_DETECT cd1 (
 
 // blob detector variables global
 wire bds_valid[color_count-1:0][grids_x-1:0][grids_y-1:0];
-wire bds_active[color_count-1:0][grids_x-1:0][grids_y-1:0];
 
 wire [10:0] bds_rad[color_count-1:0][grids_x-1:0][grids_y-1:0];
+wire [10:0] bds_pix[color_count-1:0][grids_x-1:0][grids_y-1:0];
 wire [10:0] bds_x_min[color_count-1:0][grids_x-1:0][grids_y-1:0],
             bds_x_max[color_count-1:0][grids_x-1:0][grids_y-1:0],
             bds_y_min[color_count-1:0][grids_x-1:0][grids_y-1:0],
@@ -122,7 +122,8 @@ wire [10:0] bds_x_min[color_count-1:0][grids_x-1:0][grids_y-1:0],
 wire bd_reset;
 wire bd_valid;
 
-reg [10:0] bd_rad, obs_rad;
+wire [10:0] bd_rad, obs_rad;
+reg [10:0] bd_pix, obs_pix;
 reg [10:0] bd_which_c, bd_which_x, bd_which_y, obs_which_x, obs_which_y;
 wire [10:0] x_min, y_min, x_max, y_max;
 
@@ -153,11 +154,12 @@ generate
                         .valid(bds_valid[c][i][j]),
 
                         .rad(bds_rad[c][i][j]),
+                        .pixel_count(bds_pix[c][i][j]),
+                        
                         .minx(bds_x_min[c][i][j]),
                         .maxx(bds_x_max[c][i][j]),
                         .miny(bds_y_min[c][i][j]),
-                        .maxy(bds_y_max[c][i][j]),
-                        .active(bds_active[c][i][j])
+                        .maxy(bds_y_max[c][i][j])
                 );
             end
         end
@@ -171,29 +173,29 @@ always @(posedge clk) begin
         bd_which_y <= -1;
         obs_which_x <= -1;
         obs_which_y <= -1;
-        bd_rad <= 0;
-        obs_rad <= 0;
+        bd_pix <= 0;
+        obs_pix <= 0;
     end
     else if (in_valid) begin
         integer d, k, l;
         for(d = 0; d < color_count-1; d = d + 1) begin
             for(k = 0; k < grids_x; k = k + 1) begin
                 for(l = 0; l < grids_y; l = l + 1) begin
-                    if(bds_active[d][k][l] & bd_rad < bds_rad[d][k][l]) begin
+                    if(bds_pix[d][k][l] > 50 & bd_pix < bds_pix[d][k][l]) begin
                         bd_which_c <= d;
                         bd_which_x <= k;
                         bd_which_y <= l;
-                        bd_rad <= bds_rad[d][k][l];
+                        bd_pix <= bds_pix[d][k][l];
                     end
                 end
             end
         end
         for(k = 0; k < grids_x; k = k + 1) begin
             for(l = 0; l < grids_y; l = l + 1) begin
-                if(bds_active[color_count-1][k][l] & bd_rad < bds_rad[color_count-1][k][l]) begin
+                if(bds_pix[color_count-1][k][l] > 50 & bd_pix < bds_pix[color_count-1][k][l]) begin
                     obs_which_x <= k;
                     obs_which_y <= l;
-                    obs_rad <= bds_rad[color_count-1][k][l];
+                    obs_pix <= bds_pix[color_count-1][k][l];
                 end
             end
         end
@@ -201,6 +203,8 @@ always @(posedge clk) begin
 end
 
 assign bd_valid = (sw[9]?(bds_valid[which_c][which_x][which_y]&(which_c[10]==0)):bd_color_high[sw[4:1]]);
+assign bd_rad = bds_rad[which_c][which_x][which_y];
+assign obs_rad = bds_rad[color_count-1][obs_which_x][obs_which_y];
 assign x_min = bds_x_min[which_c][which_x][which_y];
 assign x_max = bds_x_max[which_c][which_x][which_y];
 assign y_min = bds_y_min[which_c][which_x][which_y];

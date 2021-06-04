@@ -253,8 +253,8 @@ int main()
 	#endif
 
       // Send and receive data from esp32
-	  alt_u8 tx_data[24];
-	  alt_u32 tx_length = 24;
+	  alt_u8 tx_data[3];
+	  alt_u32 tx_length = 3;
 	  alt_u8 rx_data[tx_length];
 	  alt_u32 rx_length = tx_length;
       //Read messages from the image processor and print them on the terminal
@@ -271,11 +271,10 @@ int main()
                    char gridy = word << 8 >> 24;
                    char color = color_names[word << 16 >> 27];
                    int rad = word << 21 >> 21;
-
                    if(color == last_seen & color != last_sent){
 //                	   printf("Color match %c \n", color);
-                	   bool valid_pos = gridx == 1 | gridx == 2;
-                	   bool valid_rad = rad > 60;
+                	   bool valid_pos = gridx != -1 & gridy != 1;
+                	   bool valid_rad = rad > 30;
                 	   bool valid_data = valid_pos & valid_rad;
                 	   if(valid_data){
                 		   last_seen_count++;
@@ -295,37 +294,17 @@ int main()
 //                	   printf("Color already matched saw:%c expected: %c\n", color, last_seen);
                    }
 
-                   if(gridx!=-1&gridy!=-1){//color != last_sent & last_seen_count > 3){
-                	   tx_data[0] = name >> 16;
-                	   tx_data[1] = name >> 8;
-                	   tx_data[2] = name;
-                	   tx_data[3] = ':';
-                	   tx_data[4] = ' ';
-                	   tx_data[5] = 'x';
-                	   tx_data[6] = ':';
-                	   tx_data[7] = 48 + gridx;
-                	   tx_data[8] = ' ';
-                	   tx_data[9] = 'y';
-                	   tx_data[10] = ':';
-                	   tx_data[11] = 48 + gridy;
-                	   tx_data[12] = ' ';
-                	   tx_data[13] = 'c';
-                	   tx_data[14] = ':';
-                	   tx_data[15] = color;
-                	   tx_data[16] = ' ';
-                	   tx_data[17] = 'r';
-                	   tx_data[18] = ':';
-                	   tx_data[19] = 48 + rad/1000%10;
-                	   tx_data[20] = 48 + rad/100%10;
-                	   tx_data[21] = 48 + rad/10%10;
-                	   tx_data[22] = 48 + rad%10;
-                	   tx_data[23] = 'S';
-                	   tx_data[24] = 0;
-//                	   tx_data[0] = color;
-//                	   tx_data[1] = 0;
-                	   printf("\n%s", tx_data);
+                   if(color != last_sent & last_seen_count > 1){
+                	   tx_data[0] = color;
+                	   tx_data[1] = 'S';
+                	   tx_data[2] = 0;
+                	   printf("\n%s, rad: %u", tx_data, rad);
 				       alt_avalon_spi_command(SPI_0_BASE, 0, tx_length, tx_data, rx_length, rx_data, 0);
 				       last_sent = color;
+                   }
+
+                   if(gridx != -1 & gridy != 1){
+                	   printf("\ncolor: %c, rad: %u",color, rad);
                    }
            }
            else if(count_messages == 2){
@@ -334,11 +313,15 @@ int main()
                char color = color_names[word << 16 >> 27];
                int rad = word << 21 >> 21;
         	   if(gridx != -1 & gridy != -1){
-        		   printf("\nColor: %c", color);
+            	   tx_data[0] = 'U';
+            	   tx_data[1] = 'S';
+            	   tx_data[2] = 0;
+            	   printf("\n%s, rad:%u", tx_data, rad);
+//			       alt_avalon_spi_command(SPI_0_BASE, 0, tx_length, tx_data, rx_length, rx_data, 0);
         	   }
            }
            else{
-//			   printf("\n%c%c%c", word>>16,word>>8,word);
+//			   printf("\n%u", word);
            }
            count_messages++;
        }

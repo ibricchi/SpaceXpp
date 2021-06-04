@@ -14,9 +14,8 @@ module SXPP_BLOB_DETECT (
     valid,
     
     rad,
-    minx, maxx, miny, maxy,
-    
-    active
+    pixel_count,
+    minx, maxx, miny, maxy
 );
 
 // parameters
@@ -41,22 +40,13 @@ input logic is_valid_color;
 output logic valid;
 
 output logic[31:0] rad;
-output logic[10:0] minx, maxx, miny, maxy;
+output logic [31:0] pixel_count;
 
-output logic active;
+output logic[10:0] minx, maxx, miny, maxy;
 
 // blob state
 logic just_reset;
 logic [31:0] min_area;
-logic [31:0] pixel_count;
-always_comb begin
-    if(pixel_count < 20) begin
-        active = 0;
-    end
-    else begin
-        active = pixel_count > (br << 5);
-    end
-end
 
 // process blob information
 // box center
@@ -90,13 +80,13 @@ logic is_valid_init;
 always_comb begin
     distance = (cx-x_in)*(cx-x_in) + (cy-y_in)*(cy-y_in) - bw*bh;
     is_valid_pos =  (distance < min_dist | distance[31]) &
-                    (5 < x_in) & (MINX_INIT - 5 < x_in) &
-                    (5 < y_in) & (MINY_INIT - 5 < y_in) &
+                    (10 < x_in) & (MINX_INIT - 10 < x_in) &
+                    (10 < y_in) & (MINY_INIT - 10 < y_in) &
                     !just_reset;
     is_valid_init = MINX_INIT <= x_in & x_in <= MAXX_INIT &
                     MINY_INIT <= y_in & y_in <= MAXY_INIT &
-                    (5 < x_in) & (MINX_INIT - 5 < x_in) &
-                    (5 < y_in) & (MINY_INIT - 5 < y_in) &
+                    (10 < x_in) & (MINX_INIT - 10 < x_in) &
+                    (10 < y_in) & (MINY_INIT - 10 < y_in) &
                     just_reset;
 end
 

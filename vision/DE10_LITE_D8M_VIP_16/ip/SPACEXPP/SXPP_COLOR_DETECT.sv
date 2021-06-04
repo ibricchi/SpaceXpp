@@ -49,7 +49,7 @@ end
 
 // compute is_color
 always_comb begin
-    is_red = (distance_r < 50000) & (pr > (pb + pg));
+    is_red = (distance_r < 30000) & (pr > (pb + pg));
     is_yellow = (distance_y < 20000) & (pg > pr-50);
     is_green = (distance_g < 35000) & (pg > pb) & (pg > pr) & (pb-10 > pr);
     is_blue = (distance_b < 44000) & (pb > pg) & (pg > pr);
