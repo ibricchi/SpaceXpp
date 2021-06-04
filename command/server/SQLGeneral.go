@@ -75,7 +75,7 @@ func (s *SQLiteDB) migrate(ctx context.Context) error {
 
 		if _, err := tx.ExecContext(ctx, `
 			CREATE TABLE IF NOT EXISTS instructions (
-				instructionID NOT NULL PRIMARY KEY,
+				instructionID NOT NULL PRIMARY KEY AUTOINCREMENT,
 				mapID INTEGER NOT NULL,
 				instruction STRING NOT NULL,
 				value INTEGER,
