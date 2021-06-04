@@ -101,23 +101,23 @@ func value2Mode(mode int) (traverseMode, error) {
 var stashedDriveInstruction driveInstruction
 
 func updateMap(driveInstruction driveInstruction) {
-	var h *HttpServer
-	var ctx context.Context
-	/*
-		mapID, err := h.db.getLatestMapID(ctx)
-		if err != nil {
-			fmt.Println("no mapID : ", mapID)
-			fmt.Println("Error: couldnt get latest map ID")
-		}
-	*/
-	mapID, _ := h.db.getMapID(ctx, "test44")
-	fmt.Println("mapID : ", mapID)
-	//h.db.storeInstruction(ctx, driveInstruction.Instruction, driveInstruction.Value, (mapID + 1))
 
 	driveTocoords(stashedDriveInstruction, tileWidth)
 
 	stashedDriveInstruction = driveInstruction
 
+}
+
+func (h *HttpServer) insertInstruction(ctx context.Context) {
+
+	mapID, err := h.db.getLatestMapID(ctx)
+	if err != nil {
+		fmt.Println("no mapID : ", mapID)
+		fmt.Println("Error: couldnt get latest map ID")
+	}
+
+	fmt.Println("mapID : ", mapID)
+	//h.db.storeInstruction(ctx, driveInstruction.Instruction, driveInstruction.Value, (mapID + 1))
 }
 
 // "stop"

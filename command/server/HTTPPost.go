@@ -36,41 +36,45 @@ func (h *HttpServer) driveD(w http.ResponseWriter, r *http.Request) {
 	updateMap(instruction[0])
 
 }
+func (h *HttpServer) driveA(ctx context.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		decoder := json.NewDecoder(r.Body)
+		defer r.Body.Close()
 
-func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
-	decoder := json.NewDecoder(r.Body)
-	defer r.Body.Close()
+		var t int
+		if err := decoder.Decode(&t); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		}
 
-	var t int
-	if err := decoder.Decode(&t); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		// Check for correct format
+
+		w.WriteHeader(http.StatusOK)
+
+		fmt.Println("Recived drive angle: ", t)
+		// Send data to hardware
+
+		c := "turnRight"
+		if t < 0 {
+			c = "turnLeft"
+		}
+
+		instruction := []driveInstruction{}
+
+		instruction = append(instruction, driveInstruction{
+			Instruction: c,
+			Value:       Abs(t),
+		})
+
+		h.mqtt.publishDriveInstructionSequence(instruction)
+
+		fmt.Println("updating map")
+
+		updateMap(instruction[0])
+
+		fmt.Println("attempting to store in db")
+
+		h.insertInstruction(ctx)
 	}
-
-	// Check for correct format
-
-	w.WriteHeader(http.StatusOK)
-
-	fmt.Println("Recived drive angle: ", t)
-	// Send data to hardware
-
-	c := "turnRight"
-	if t < 0 {
-		c = "turnLeft"
-	}
-
-	instruction := []driveInstruction{}
-
-	instruction = append(instruction, driveInstruction{
-		Instruction: c,
-		Value:       Abs(t),
-	})
-
-	h.mqtt.publishDriveInstructionSequence(instruction)
-
-	fmt.Println("updating map")
-
-	updateMap(instruction[0])
-
 }
 
 func (h *HttpServer) targetCoords(w http.ResponseWriter, r *http.Request) {
