@@ -185,14 +185,15 @@ func (s *SQLiteDB) getLatestMapID(ctx context.Context) (int, error) {
 func (s *SQLiteDB) storeInstruction(ctx context.Context, instruction string, value int, mapID int) error {
 	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
 		if _, err := tx.ExecContext(ctx, `
-			INSERT INTO instructions (mapID, instruction, value)
-			VALUES (:mapID, :instruction, :value )
+			INSERT INTO instructions (instructionID, mapID, instruction, value)
+			VALUES (:instructionID, :mapID, :instruction, :value )
 		`,
+			sql.Named("instructionID", 1),
 			sql.Named("mapID", mapID),
 			sql.Named("instruction", instruction),
 			sql.Named("value", value),
 		); err != nil {
-			fmt.Println("not inserted:", mapID, instruction, value)
+			fmt.Println("not inserted:", 1, mapID, instruction, value)
 			return fmt.Errorf("server: sqlite_db_insert: failed to insert tiles into db: %w", err)
 		}
 		fmt.Println("inserted:", mapID, instruction, value)
