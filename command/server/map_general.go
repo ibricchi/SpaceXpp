@@ -106,8 +106,10 @@ func updateMap(driveInstruction driveInstruction) {
 
 	mapID, err := h.db.getLatestMapID(ctx)
 	if err != nil {
+		fmt.Println("no mapID : ", mapID)
 		fmt.Println("Error: couldnt get latest map ID")
 	}
+	fmt.Println("mapID : ", mapID)
 	h.db.storeInstruction(ctx, driveInstruction.Instruction, driveInstruction.Value, (mapID + 1))
 
 	driveTocoords(stashedDriveInstruction, tileWidth)

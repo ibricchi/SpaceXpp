@@ -195,6 +195,8 @@ func (s *SQLiteDB) storeInstruction(ctx context.Context, instruction string, val
 			fmt.Println("not inserted:", mapID, instruction, value)
 			return fmt.Errorf("server: sqlite_db_insert: failed to insert tiles into db: %w", err)
 		}
+		fmt.Println("inserted:", mapID, instruction, value)
+
 		return nil
 	}); err != nil {
 		return fmt.Errorf("server: sqlite_db_insert: insertTestData transaction failed: %w", err)

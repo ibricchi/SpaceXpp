@@ -231,7 +231,7 @@ function loadMap(){
             loadedMap.rows = data.rows
             loadedMap.layers[0] = data.layout;
             loadedMap.layers[1][data.roverIndx] = getVal(data.roverRotation);
-            console.log(data.driveInstructions[0].instruction)
+            //console.log(data.driveInstructions[0].instruction)
         }
     })
 

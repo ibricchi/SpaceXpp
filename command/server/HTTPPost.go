@@ -67,6 +67,8 @@ func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
 
 	h.mqtt.publishDriveInstructionSequence(instruction)
 
+	fmt.Println("updating map")
+
 	updateMap(instruction[0])
 
 }
