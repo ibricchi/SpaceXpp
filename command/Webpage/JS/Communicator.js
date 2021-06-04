@@ -2,6 +2,7 @@
 serverIP = "https://18.117.12.54:22"
 
 
+
 function getData( location, address ){
     webLocation = document.getElementById(location);
 

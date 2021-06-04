@@ -15,7 +15,7 @@ func main() {
 
 	fmt.Println("Loading Server")
 
-	var httpPort = flag.String("httpPort", "3000", "Port for serving http server")
+	var httpPort = flag.String("httpPort", "22", "Port for serving http server")
 	var httpServerTLSCertFileName = flag.String("httpServerTLSCertFileName", "cert/server.crt", "File path of TLS HTTP server certificate")
 	var httpServerTLSKeyFileName = flag.String("httpServerTLSKeyFileName", "cert/server.key", "File path of TLS HTTP server key")
 	var serverDBFilePath = flag.String("db", "serverDB.db", "SQLite DB file path")
