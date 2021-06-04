@@ -73,7 +73,7 @@ func (h *HttpServer) driveA(ctx context.Context) http.HandlerFunc {
 
 		fmt.Println("attempting to store in db")
 
-		h.insertInstruction(ctx)
+		h.insertInstruction(ctx, instruction[0])
 	}
 }
 

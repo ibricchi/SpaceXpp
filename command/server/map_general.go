@@ -108,7 +108,7 @@ func updateMap(driveInstruction driveInstruction) {
 
 }
 
-func (h *HttpServer) insertInstruction(ctx context.Context) {
+func (h *HttpServer) insertInstruction(ctx context.Context, driveInstruction driveInstruction) {
 
 	mapID, err := h.db.getLatestMapID(ctx)
 	if err != nil {
@@ -117,7 +117,7 @@ func (h *HttpServer) insertInstruction(ctx context.Context) {
 	}
 
 	fmt.Println("mapID : ", mapID)
-	//h.db.storeInstruction(ctx, driveInstruction.Instruction, driveInstruction.Value, (mapID + 1))
+	h.db.storeInstruction(ctx, driveInstruction.Instruction, driveInstruction.Value, (mapID + 1))
 }
 
 // "stop"
