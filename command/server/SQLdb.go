@@ -10,8 +10,13 @@ type DB interface {
 	saveMapName(ctx context.Context, name string) error
 	insertMap(ctx context.Context, indx int, value int, mapID int) error
 	retriveMap(ctx context.Context, mapID int) error
-	retriveData(ctx context.Context) (string, error)
+	retriveRover(ctx context.Context, mapID int) error
 	getMapID(ctx context.Context, name string) (int, error)
+	getLatestMapID(ctx context.Context) (int, error)
+	saveRover(ctx context.Context, mapID int, roverIndex int) error
+	storeInstruction(ctx context.Context, instruction string, value int, mapID int) error
+	retriveInstruction(ctx context.Context, mapID int) error
+
 	Close() error
 }
 
@@ -23,9 +28,29 @@ func (s *SQLiteDB) saveMapName(ctx context.Context, name string) error {
 		`,
 			sql.Named("name", name),
 		); err != nil {
+			fmt.Println("not inserted:", name)
 			return fmt.Errorf("server: sqlite_db_insert: failed to insert map name data into db: %w", err)
 		}
+		return nil
+	}); err != nil {
+		return fmt.Errorf("server: sqlite_db_insert: insert map name transaction failed: %w", err)
+	}
+	return nil
+}
 
+func (s *SQLiteDB) saveRover(ctx context.Context, mapID int, roverIndex int) error {
+	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
+		if _, err := tx.ExecContext(ctx, `
+			INSERT INTO rover (mapID, indx, rotation)
+			VALUES (:mapID, :indx, :rotation)
+		`,
+			sql.Named("mapID", mapID),
+			sql.Named("indx", roverIndex),
+			sql.Named("rotation", Rover.Rotation),
+		); err != nil {
+			fmt.Println("rover not inserted")
+			return fmt.Errorf("server: sqlite_db_insert: failed to insert map name data into db: %w", err)
+		}
 		return nil
 	}); err != nil {
 		return fmt.Errorf("server: sqlite_db_insert: insert map name transaction failed: %w", err)
@@ -36,68 +61,31 @@ func (s *SQLiteDB) saveMapName(ctx context.Context, name string) error {
 func (s *SQLiteDB) insertMap(ctx context.Context, indx int, value int, mapID int) error {
 	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
 		if _, err := tx.ExecContext(ctx, `
-			INSERT INTO tiles (tileID, mapID, value)
-			VALUES (:tileID, :mapID, :value)
+			INSERT INTO tiles (indx, mapID, value)
+			VALUES (:indx, :mapID, :value )
 		`,
-			sql.Named("tileID", indx),
+			sql.Named("indx", indx),
 			sql.Named("mapID", mapID),
 			sql.Named("value", value),
 		); err != nil {
+			fmt.Println("not inserted:", indx, value, mapID)
 			return fmt.Errorf("server: sqlite_db_insert: failed to insert tiles into db: %w", err)
 		}
-
 		return nil
 	}); err != nil {
 		return fmt.Errorf("server: sqlite_db_insert: insertTestData transaction failed: %w", err)
 	}
+
 	return nil
-}
-
-func (s *SQLiteDB) getMapID(ctx context.Context, name string) (int, error) {
-
-	fmt.Println("getting map ID")
-	var id int
-	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
-		rows, err := tx.QueryContext(ctx, `
-			SELECT mapID 
-			FROM maps 
-			WHERE name = `+name,
-		)
-		if err != nil {
-			return fmt.Errorf("server: sqlite_db_retrieve: failed to retrieve nameID rows: %w", err)
-
-		}
-		defer rows.Close()
-
-		for rows.Next() {
-			fmt.Println("pleaseeee")
-			if err := rows.Scan(
-				&id,
-			); err != nil {
-				return fmt.Errorf("server: sqlite_db_retrieve: failed to scan mapID row: %w", err)
-			}
-			fmt.Println("map id:", id)
-		}
-
-		if err := rows.Err(); err != nil {
-			return fmt.Errorf("server: sqlite_db_retrieve: failed to scan last mapID row: %w", err)
-		}
-
-		return nil
-	}); err != nil {
-		return -1, fmt.Errorf("server: sqlite_db_retrieve: mapID transaction failed: %w", err)
-	}
-
-	return id, nil
 }
 
 func (s *SQLiteDB) retriveMap(ctx context.Context, mapID int) error {
 
 	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
 		rows, err := tx.QueryContext(ctx, `
-			SELECT tileID, value 
+			SELECT indx, value 
 			FROM tiles 
-			WHERE mapID = mID
+			WHERE mapID = :mID
 			`,
 			sql.Named("mID", mapID),
 		)
@@ -114,7 +102,6 @@ func (s *SQLiteDB) retriveMap(ctx context.Context, mapID int) error {
 			); err != nil {
 				return fmt.Errorf("server: sqlite_db_retrieve: failed to scan tiles row: %w", err)
 			}
-			fmt.Println("map:", tileID, value)
 			dbMap.Tiles[tileID] = value
 		}
 		if err := rows.Err(); err != nil {
@@ -129,39 +116,140 @@ func (s *SQLiteDB) retriveMap(ctx context.Context, mapID int) error {
 	return nil
 }
 
-func (s *SQLiteDB) retriveData(ctx context.Context) (string, error) {
+func (s *SQLiteDB) retriveRover(ctx context.Context, mapID int) error {
 
-	var name string
+	var indx, rotation int
 	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
-		rows, err := tx.QueryContext(ctx, `
-			SELECT name
+		if err := tx.QueryRowContext(ctx, `
+			SELECT indx, rotation
+			FROM rover
+			WHERE mapID = :mID
+		`,
+			sql.Named("mID", mapID),
+		).Scan(&indx, &rotation); err != nil {
+			return fmt.Errorf("server: sqlite_db_retrieve: failed to find id row: %w", err)
+		}
+
+		fmt.Println("rover index: ", indx, "rotation: ", rotation)
+		dbMap.RoverRotation = rotation
+		dbMap.RoverIndx = indx
+		return nil
+	}); err != nil {
+		return fmt.Errorf("server: sqlite_db_retrieve: get map id transaction failed: %w", err)
+	}
+
+	return nil
+}
+
+func (s *SQLiteDB) getMapID(ctx context.Context, name string) (int, error) {
+
+	var id int
+	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
+		if err := tx.QueryRowContext(ctx, `
+			SELECT mapID
 			FROM maps
-		`)
-		if err != nil {
-			return fmt.Errorf("server: sqlite_db_retrieve: failed to retrieve creds rows: %w", err)
+			WHERE name = :mapName
+		`,
+			sql.Named("mapName", name),
+		).Scan(&id); err != nil {
+			return fmt.Errorf("server: sqlite_db_retrieve: failed to find id row: %w", err)
 		}
-		defer rows.Close()
+		return nil
+	}); err != nil {
+		return -1, fmt.Errorf("server: sqlite_db_retrieve: get map id transaction failed: %w", err)
+	}
 
-		for rows.Next() {
-			var name string
-			if err := rows.Scan(
-				&name,
-			); err != nil {
-				return fmt.Errorf("server: sqlite_db_retrieve: failed to scan creds row: %w", err)
-			}
-			fmt.Println("name:", name)
-		}
+	return id, nil
+}
 
-		if err := rows.Err(); err != nil {
-			return fmt.Errorf("server: sqlite_db_retrieve: failed to scan last creds row: %w", err)
+func (s *SQLiteDB) getLatestMapID(ctx context.Context) (int, error) {
+
+	var id int
+	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
+		if err := tx.QueryRowContext(ctx, `
+			SELECT max(mapID)
+			FROM maps
+		`,
+		).Scan(&id); err != nil {
+			id = 0
+			fmt.Println("couldnt get latest map id, setting mapID to 0 (so next is 1)")
+			return fmt.Errorf("server: sqlite_db_retrieve: failed to find id row: %w", err)
 		}
 
 		return nil
 	}); err != nil {
-		return "empty", fmt.Errorf("server: sqlite_db_retrieve: getCreds transaction failed: %w", err)
+		return -1, fmt.Errorf("server: sqlite_db_retrieve: get map id transaction failed: %w", err)
 	}
 
-	return name, nil
+	return id, nil
+}
+
+func (s *SQLiteDB) storeInstruction(ctx context.Context, instruction string, value int, mapID int) error {
+	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
+		if _, err := tx.ExecContext(ctx, `
+			INSERT INTO instructions (mapID, instruction, value)
+			VALUES (:mapID, :instruction, :value )
+		`,
+			sql.Named("mapID", mapID),
+			sql.Named("instruction", instruction),
+			sql.Named("value", value),
+		); err != nil {
+			fmt.Println("not inserted:", mapID, instruction, value)
+			return fmt.Errorf("server: sqlite_db_insert: failed to insert tiles into db: %w", err)
+		}
+		fmt.Println("inserted:", mapID, instruction, value)
+
+		return nil
+	}); err != nil {
+		return fmt.Errorf("server: sqlite_db_insert: insertTestData transaction failed: %w", err)
+	}
+
+	return nil
+}
+
+func (s *SQLiteDB) retriveInstruction(ctx context.Context, mapID int) error {
+
+	var instr string
+	var val int
+
+	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
+		rows, err := tx.QueryContext(ctx, `
+			SELECT instruction, value 
+			FROM instructions
+			WHERE mapID = :mID
+			ORDER BY instructionID 
+			`,
+			sql.Named("mID", mapID),
+		)
+		if err != nil {
+			fmt.Println("did not work extracting instructions")
+			return fmt.Errorf("server: sqlite_db_retrieve: failed to retrieve data from tiles rows: %w", err)
+		}
+		defer rows.Close()
+		for rows.Next() {
+			if err := rows.Scan(
+				&instr,
+				&val,
+			); err != nil {
+				return fmt.Errorf("server: sqlite_db_retrieve: failed to scan tiles row: %w", err)
+			}
+
+			dbMap.Instructions = append(dbMap.Instructions, driveInstruction{
+				Instruction: instr,
+				Value:       val,
+			})
+
+		}
+		if err := rows.Err(); err != nil {
+			return fmt.Errorf("server: sqlite_db_retrieve: failed to scan last mapID row: %w", err)
+		}
+
+		return nil
+	}); err != nil {
+		return fmt.Errorf("server: sqlite_db_retrieve: mapID transaction failed: %w", err)
+	}
+
+	return nil
 }
 
 func (s *SQLiteDB) Close() error {
