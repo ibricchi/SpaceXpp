@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type staticTestData struct {
@@ -81,6 +83,43 @@ func (h *HttpServer) loadMap(ctx context.Context) http.HandlerFunc {
 		data := dbMap
 		if err := json.NewEncoder(w).Encode(data); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
+func (h *HttpServer) getIsAuthorised(creds map[string]string) http.HandlerFunc {
+	type isAuthorised struct {
+		Valid bool `json:"valid"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+		data := isAuthorised{
+			Valid: true,
+		}
+
+		username, password, ok := r.BasicAuth()
+		if !ok {
+			data.Valid = false
+		}
+
+		passwordHash, userExists := creds[username]
+		if !userExists {
+			data.Valid = false
+		}
+
+		passwordHashBytes := []byte(passwordHash)
+		passwordBytes := []byte(password)
+		if err := bcrypt.CompareHashAndPassword(passwordHashBytes, passwordBytes); err != nil {
+			data.Valid = false
+		}
+
+		if err := json.NewEncoder(w).Encode(data); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 
 		w.WriteHeader(http.StatusOK)
