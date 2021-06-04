@@ -117,7 +117,7 @@ func (h *HttpServer) insertInstruction(ctx context.Context, driveInstruction dri
 	}
 
 	fmt.Println("mapID : ", mapID)
-	h.db.storeInstruction(ctx, driveInstruction.Instruction, driveInstruction.Value, (mapID + 1))
+	h.db.storeInstruction(ctx, driveInstruction.Instruction, driveInstruction.Value, mapID)
 }
 
 // "stop"
