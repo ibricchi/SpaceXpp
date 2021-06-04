@@ -130,7 +130,10 @@ func (h *HttpServer) resetMap(ctx context.Context) http.HandlerFunc {
 			fmt.Println("Error: couldnt get latest map ID")
 		}
 
-		h.db.resetInstructions(ctx, mapID)
+		var empty []driveInstruction
+		dbMap.Instructions = empty
+
+		h.db.resetInstructions(ctx, (mapID + 1))
 
 	}
 }
