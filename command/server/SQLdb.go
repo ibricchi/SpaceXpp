@@ -15,6 +15,7 @@ type DB interface {
 	getLatestMapID(ctx context.Context) (int, error)
 	saveRover(ctx context.Context, mapID int, roverIndex int) error
 	storeInstruction(ctx context.Context, instruction string, value int, mapID int) error
+	resetInstructions(ctx context.Context, mapID int) error
 	retriveInstruction(ctx context.Context, mapID int) error
 
 	Close() error
@@ -250,6 +251,29 @@ func (s *SQLiteDB) retriveInstruction(ctx context.Context, mapID int) error {
 	}
 
 	return nil
+}
+
+func (s *SQLiteDB) resetInstructions(ctx context.Context, mapID int) error {
+
+	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
+		if _, err := tx.ExecContext(ctx, `
+			DELETE FROM instructions
+			WHERE mapID = :mapID
+		`,
+			sql.Named("mapID", mapID),
+		); err != nil {
+			fmt.Println("instructions not deleted")
+			return fmt.Errorf("server: sqlite_db_insert: failed to delete instructions from db: %w", err)
+		}
+		fmt.Println("instructions deleted")
+
+		return nil
+	}); err != nil {
+		return fmt.Errorf("server: sqlite_db_insert: insertTestData transaction failed: %w", err)
+	}
+
+	return nil
+
 }
 
 func (s *SQLiteDB) Close() error {

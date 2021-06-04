@@ -239,6 +239,7 @@ function loadMap(){
             {
                 var line = data.driveinstructions[i].instruction + ":" + data.driveinstructions[i].value
                 printToInstructionFeed(line)
+                i++
             }
            
         }

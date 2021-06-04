@@ -104,28 +104,36 @@ func Abs(x int) int {
 		return x
 	}
 }
+func (h *HttpServer) resetMap(ctx context.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		Map.Tiles = []int{
+			3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+			3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+			3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+			3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+			3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+			3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+			3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+			3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+			3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+			3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+			3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+			3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3}
 
-func (h *HttpServer) resetMap(w http.ResponseWriter, r *http.Request) {
-	Map.Tiles = []int{
-		3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
-		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
-		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
-		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
-		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
-		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
-		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
-		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
-		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
-		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
-		3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3}
+		Rover.X = 5
+		Rover.Y = 5
+		Rover.Rotation = 0
 
-	Rover.X = 5
-	Rover.Y = 5
-	Rover.Rotation = 0
+		mapID, err := h.db.getLatestMapID(ctx)
+		if err != nil {
+			fmt.Println("no mapID : ", mapID)
+			fmt.Println("Error: couldnt get latest map ID")
+		}
 
+		h.db.resetInstructions(ctx, mapID)
+
+	}
 }
-
 func (h *HttpServer) requestMap(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
