@@ -146,10 +146,12 @@ func instructionFeedPubHandler(logger *zap.Logger) mqtt.MessageHandler {
 		} else if s[0] == "R" {
 			instruction.instruction = "turnRight"
 			instruction.value = v
+			updateMapWithObstructionWhileTurning("")
 			updateMap(instruction)
 		} else if s[0] == "L" {
 			instruction.instruction = "turnLeft"
 			instruction.value = v
+			updateMapWithObstructionWhileTurning("")
 			updateMap(instruction)
 		} else if s[0] == "X" {
 			instruction.instruction = "nil"
