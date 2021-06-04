@@ -39,29 +39,43 @@ func OpenSQLiteDB(ctx context.Context, logger *zap.Logger, dsn string) (*SQLiteD
 }
 
 func (s *SQLiteDB) migrate(ctx context.Context) error {
-
-	if _, err := s.db.ExecContext(ctx, `
+	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
+		if _, err := s.db.ExecContext(ctx, `
 			CREATE TABLE IF NOT EXISTS maps (
 				mapID INTEGER NOT NULL PRIMARY KEY,
 				name STRING	
 			)
 		`); err != nil {
-		return fmt.Errorf("sqlite failed to create maps table: %w", err)
-	}
+			return fmt.Errorf("sqlite failed to create maps table: %w", err)
+		}
 
-	if _, err := s.db.ExecContext(ctx, `
-		CREATE TABLE IF NOT EXISTS tiles (
-			tileID INTEGER NOT NULL PRIMARY KEY,
-			mapID INTEGER NOT NULL,
-			value INTEGER NOT NULL,
-			FOREIGN KEY(mapID) REFERENCES Departments(maps)
-		)
-			`); err != nil {
-		return fmt.Errorf("sqlite failed to create tiles table: %w", err)
+		if _, err := s.db.ExecContext(ctx, `
+			CREATE TABLE IF NOT EXISTS tiles (
+				tileID INTEGER NOT NULL PRIMARY KEY,
+				mapID INTEGER NOT NULL,
+				value INTEGER NOT NULL,
+				FOREIGN KEY(mapID) REFERENCES Departments(maps)
+			)
+		`); err != nil {
+			return fmt.Errorf("sqlite failed to create tiles table: %w", err)
+		}
+
+		if _, err := tx.ExecContext(ctx, `
+			CREATE TABLE IF NOT EXISTS credentials (
+				id INTEGER NOT NULL PRIMARY KEY,
+				username TEXT NOT NULL,
+				password TEXT NOT NULL
+			)
+		`); err != nil {
+			return fmt.Errorf("sqlite failed to create creds table: %w", err)
+		}
+
+		return nil
+	}); err != nil {
+		return fmt.Errorf("server: SQLGeneral: migrate transaction failed: %w", err)
 	}
 
 	return nil
-
 }
 
 func (s *SQLiteDB) TransactContext(ctx context.Context, f func(ctx context.Context, tx *sql.Tx) error) (err error) {

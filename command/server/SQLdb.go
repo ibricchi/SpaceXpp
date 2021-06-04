@@ -12,6 +12,8 @@ type DB interface {
 	retriveMap(ctx context.Context, mapID int) error
 	retriveData(ctx context.Context) (string, error)
 	getMapID(ctx context.Context, name string) (int, error)
+	insertCredentials(ctx context.Context, credential credential) error
+	getCredentials(ctx context.Context) (map[string]string, error)
 	Close() error
 }
 
@@ -164,9 +166,64 @@ func (s *SQLiteDB) retriveData(ctx context.Context) (string, error) {
 	return name, nil
 }
 
+func (s *SQLiteDB) insertCredentials(ctx context.Context, credential credential) error {
+	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
+		if _, err := tx.ExecContext(ctx, `
+			INSERT INTO credentials (username, password)
+			VALUES (:username, :password)
+		`,
+			sql.Named("username", credential.username),
+			sql.Named("password", credential.password),
+		); err != nil {
+			return fmt.Errorf("server: SQLdb: failed to insert credential into db: %w", err)
+		}
+
+		return nil
+	}); err != nil {
+		return fmt.Errorf("server: SQLdb: insertCredentials transaction failed: %w", err)
+	}
+	return nil
+}
+
+func (s *SQLiteDB) getCredentials(ctx context.Context) (map[string]string, error) {
+	credentials := map[string]string{}
+	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
+		rows, err := tx.QueryContext(ctx, `
+			SELECT username, password
+			FROM credentials
+		`)
+		if err != nil {
+			return fmt.Errorf("server: SQLdb: failed to retrieve credential rows: %w", err)
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var username, password string
+			if err := rows.Scan(
+				&username,
+				&password,
+			); err != nil {
+				return fmt.Errorf("server: SQLdb: failed to scan credential row: %w", err)
+			}
+
+			credentials[username] = password
+		}
+
+		if err := rows.Err(); err != nil {
+			return fmt.Errorf("server: SQLdb: failed to scan last credential row: %w", err)
+		}
+
+		return nil
+	}); err != nil {
+		return nil, fmt.Errorf("server: SQLdb: getCredentials transaction failed: %w", err)
+	}
+
+	return credentials, nil
+}
+
 func (s *SQLiteDB) Close() error {
 	if err := s.db.Close(); err != nil {
-		return fmt.Errorf("server: sqlite_db_general: failed to close sqlite db: %w", err)
+		return fmt.Errorf("server: SQLdb: failed to close sqlite db: %w", err)
 	}
 	return nil
 }
