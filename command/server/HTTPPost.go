@@ -65,7 +65,7 @@ func (h *HttpServer) driveA(ctx context.Context) http.HandlerFunc {
 			Value:       Abs(t),
 		})
 
-		h.mqtt.publishDriveInstructionSequence(instruction)
+		//	h.mqtt.publishDriveInstructionSequence(instruction)
 
 		fmt.Println("updating map")
 
