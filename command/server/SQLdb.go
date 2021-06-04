@@ -171,9 +171,11 @@ func (s *SQLiteDB) getLatestMapID(ctx context.Context) (int, error) {
 			FROM maps
 		`,
 		).Scan(&id); err != nil {
-			fmt.Println("couldnt get latest map id")
+			id = 0
+			fmt.Println("couldnt get latest map id, setting mapID to 0 (so next is 1)")
 			return fmt.Errorf("server: sqlite_db_retrieve: failed to find id row: %w", err)
 		}
+
 		return nil
 	}); err != nil {
 		return -1, fmt.Errorf("server: sqlite_db_retrieve: get map id transaction failed: %w", err)

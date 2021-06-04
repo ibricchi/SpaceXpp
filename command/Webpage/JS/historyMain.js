@@ -13,6 +13,8 @@ function getNameAndLoad(){
 }
 
 
+
 function printToInstructionFeed(line){
   instructions.innerHTML = instructions.innerHTML + "<br>" + line 
 }
+
