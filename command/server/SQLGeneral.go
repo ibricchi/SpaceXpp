@@ -56,7 +56,7 @@ func (s *SQLiteDB) migrate(ctx context.Context) error {
 				indx INTEGER NOT NULL,
 				mapID INTEGER NOT NULL,
 				value INTEGER,
-				FOREIGN KEY(mapID) REFERENCES Departments(maps)	
+				FOREIGN KEY(mapID) REFERENCES maps(mapID)	
 			)
 				`); err != nil {
 			return fmt.Errorf("sqlite failed to create tiles table: %w", err)
@@ -67,7 +67,19 @@ func (s *SQLiteDB) migrate(ctx context.Context) error {
 				mapID INTEGER NOT NULL,
 				indx INTEGER NOT NULL,
 				rotation INTEGER,
-				FOREIGN KEY(mapID) REFERENCES Departments(maps)	
+				FOREIGN KEY(mapID) REFERENCES maps(mapID)		
+			)
+				`); err != nil {
+			return fmt.Errorf("sqlite failed to create tiles table: %w", err)
+		}
+
+		if _, err := tx.ExecContext(ctx, `
+			CREATE TABLE IF NOT EXISTS instructions (
+				instructionID NOT NULL PRIMARY KEY,
+				mapID INTEGER NOT NULL,
+				instruction STRING NOT NULL,
+				value INTEGER,
+				FOREIGN KEY(mapID) REFERENCES maps(mapID)	
 			)
 				`); err != nil {
 			return fmt.Errorf("sqlite failed to create tiles table: %w", err)

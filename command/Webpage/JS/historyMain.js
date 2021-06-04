@@ -1,5 +1,7 @@
 document.getElementById("mapOpen").addEventListener('click', getNameAndLoad, false);
 
+instructions = document.getElementById("feedback")
+
 
 
 function getNameAndLoad(){

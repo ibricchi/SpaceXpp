@@ -50,7 +50,7 @@ func check(w http.ResponseWriter, req *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *HttpServer) updateMap(w http.ResponseWriter, req *http.Request) {
+func (h *HttpServer) updateWebMap(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 

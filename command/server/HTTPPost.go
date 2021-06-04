@@ -27,8 +27,8 @@ func (h *HttpServer) driveD(w http.ResponseWriter, r *http.Request) {
 	instruction := []driveInstruction{}
 
 	instruction = append(instruction, driveInstruction{
-		instruction: "forward",
-		value:       t,
+		Instruction: "forward",
+		Value:       t,
 	})
 
 	h.mqtt.publishDriveInstructionSequence(instruction)
@@ -61,8 +61,8 @@ func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
 	instruction := []driveInstruction{}
 
 	instruction = append(instruction, driveInstruction{
-		instruction: c,
-		value:       Abs(t),
+		Instruction: c,
+		Value:       Abs(t),
 	})
 
 	h.mqtt.publishDriveInstructionSequence(instruction)
@@ -151,6 +151,11 @@ func (h *HttpServer) requestMap(ctx context.Context) http.HandlerFunc {
 
 		// Rover built and stored in dbmap
 		h.db.retriveRover(ctx, mapID)
+
+		// Instructions Built and stored in dbmap
+
+		h.db.retriveInstruction(ctx, mapID)
+
 	}
 }
 
