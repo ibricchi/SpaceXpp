@@ -19,7 +19,7 @@ type MQTTClient struct {
 	logger *zap.Logger
 }
 
-func InitMQTT(ctx context.Context, logger *zap.Logger, mqttBrokerURL string) (*MQTTClient, error) {
+func InitMQTT(ctx context.Context, logger *zap.Logger, mqttBrokerURL string, mqttUsername string, mqttPassword string) (*MQTTClient, error) {
 	tlsConfig, err := NewTlsConfig()
 	if err != nil {
 		return &MQTTClient{}, fmt.Errorf("server: mqtt: failed to get TLS config: %w", err)
@@ -28,7 +28,10 @@ func InitMQTT(ctx context.Context, logger *zap.Logger, mqttBrokerURL string) (*M
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(mqttBrokerURL)
 	opts.SetTLSConfig(tlsConfig)
+	opts.SetUsername(mqttUsername)
+	opts.SetPassword(mqttPassword)
 	opts.SetClientID("SpaceXpp_server")
+	opts.SetOrderMatters(true) // Drive instruction order must be preserved
 	opts.SetCleanSession(true)
 	opts.SetConnectRetry(true)
 
@@ -141,12 +144,14 @@ func instructionFeedPubHandler(logger *zap.Logger) mqtt.MessageHandler {
 			instruction.Value = v
 			updateMap(instruction)
 		} else if s[0] == "R" {
-			instruction.Instruction = "turnRight"
+      instruction.Instruction = "turnRight"
 			instruction.Value = v
+			updateMapWithObstructionWhileTurning("")
 			updateMap(instruction)
 		} else if s[0] == "L" {
 			instruction.Instruction = "turnLeft"
 			instruction.Value = v
+			updateMapWithObstructionWhileTurning("")
 			updateMap(instruction)
 		} else if s[0] == "X" {
 			instruction.Instruction = "nil"

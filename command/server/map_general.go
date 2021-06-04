@@ -190,7 +190,9 @@ func updateMapWithObstructionWhileTurning(obstructionType string) {
 }
 
 func obstacleToValue(obstacle string) int {
-	if obstacle == "U" {
+	if obstacle == "" { // No obstruction
+		return 2
+	} else if obstacle == "U" {
 		return 5
 	} else if obstacle == "B" {
 		return 6

@@ -7,6 +7,8 @@
 #define MQTT_H
 
 #define MQTT_BROKER_URI "mqtts://18.130.239.157:8883" // Mosquitto MQTT broker hosted on AWS Free Tier
+#define MQTT_USERNAME "spaceXpp_esp32"
+#define MQTT_PASSWORD "mqtt"
 
 extern const uint8_t mqtt_cert[] asm("_binary_ca_cert_pem_start");
 
