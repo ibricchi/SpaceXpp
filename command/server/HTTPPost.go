@@ -67,13 +67,13 @@ func (h *HttpServer) driveA(ctx context.Context) http.HandlerFunc {
 
 		//	h.mqtt.publishDriveInstructionSequence(instruction)
 
-		fmt.Println("updating map")
+		fmt.Println("updating map & inserting instructions ")
 
 		updateMap(instruction[0])
 
-		fmt.Println("attempting to store in db")
+		//fmt.Println("attempting to store in db")
 
-		h.insertInstruction(ctx, instruction[0])
+		//h.insertInstruction(ctx, instruction[0])
 	}
 }
 

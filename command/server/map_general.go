@@ -102,6 +102,13 @@ var stashedDriveInstruction driveInstruction
 
 func updateMap(driveInstruction driveInstruction) {
 
+	h := &HttpServer{}
+	var ctx context.Context
+
+	fmt.Println("inserting instructions via update map")
+
+	h.insertInstruction(ctx, driveInstruction)
+
 	driveTocoords(stashedDriveInstruction, tileWidth)
 
 	stashedDriveInstruction = driveInstruction
