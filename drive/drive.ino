@@ -59,10 +59,14 @@ void loop() {
   currentInstruction = uart.getInstruction();
   receivedUARTChars = uart.getReceivedUARTCharts();
 
+  Serial.println(String(receivedUARTChars) + " " + String(currentInstruction));
+
   // Read the current position of the rover
   opticalFlow.read();
   displacementX = opticalFlow.getDisplacementX();
   displacementY = opticalFlow.getDisplacementY();
+  //Serial.println("Displacement X = " + String(displacementX));
+  //Serial.println("Displacement Y = " + String(displacementY));
 
   // Set velocity to the desired value - commented out until velocity is accurately calculated using time
   // setVelocity(1.0);
@@ -88,15 +92,18 @@ void loop() {
       }
     }
   } else if (currentInstruction == stopAbruptly) {
+    currentInstructionStarted = false;
+    currentInstruction = doNothing;
+    //uart.nextInstructionReady();
+    uart.setInstruction(doNothing);
     stopMoving();
         
     // Needed to allow the ESP to be flashed again
     delay(100);
-
-    uart.nextInstructionReady();
-    // TODO - Add sending the distance moved to the ESP32 since the last instruction
   
-    Serial1.print(String(abs(displacementY-currentInstructionY)));
+    Serial1.print(String(abs(displacementY-currentInstructionY)) + "S");
+    delay(2000);
+    uart.nextInstructionReady();
   } else {
     stopMoving();
   }
@@ -117,6 +124,7 @@ boolean callCurrentInstruction() {
     case forwardForDistance:
       return moveForwardForDistance(receivedUARTChars, currentInstructionY, displacementY);
     case backwardForDistance:
+      Serial.println("Moving backwards");
       return moveBackwardForDistance(receivedUARTChars, currentInstructionY, displacementY);
     case turnR:
       return turnRight(displacementX, displacementY, currentInstructionX, currentInstructionY);
@@ -144,7 +152,8 @@ boolean callCurrentInstruction() {
 
 // Causes the rover to stop moving
 void stopMoving() {
-  //digitalWrite(5, LOW);
-  //digitalWrite(9, LOW);
-  vref = 0.0;
+  digitalWrite(5, LOW);
+  digitalWrite(9, LOW);
+  uart.setInstruction(doNothing);
+  receivedUARTChars = 0.0;
 }

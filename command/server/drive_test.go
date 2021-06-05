@@ -71,7 +71,7 @@ func TestPathToDriveInstructions(t *testing.T) {
 					Value:       90,
 				},
 				{
-					Instruction: "turnRight",
+					Instruction: "turnLeft",
 					Value:       90,
 				},
 				{
@@ -102,7 +102,7 @@ func TestPathToDriveInstructions(t *testing.T) {
 					Value:       90,
 				},
 				{
-					Instruction: "turnRight",
+					Instruction: "turnLeft",
 					Value:       90,
 				},
 				{
@@ -270,7 +270,7 @@ func TestPathToDriveInstructions(t *testing.T) {
 					Value:       90,
 				},
 				{
-					Instruction: "turnRight",
+					Instruction: "turnLeft",
 					Value:       90,
 				},
 				{
@@ -294,7 +294,7 @@ func TestPathToDriveInstructions(t *testing.T) {
 					Value:       90,
 				},
 				{
-					Instruction: "turnRight",
+					Instruction: "turnLeft",
 					Value:       90,
 				},
 				{
@@ -314,7 +314,7 @@ func TestPathToDriveInstructions(t *testing.T) {
 					Value:       90,
 				},
 				{
-					Instruction: "turnRight",
+					Instruction: "turnLeft",
 					Value:       90,
 				},
 				{
@@ -334,7 +334,7 @@ func TestPathToDriveInstructions(t *testing.T) {
 					Value:       90,
 				},
 				{
-					Instruction: "turnRight",
+					Instruction: "turnLeft",
 					Value:       90,
 				},
 				{
@@ -358,7 +358,7 @@ func TestPathToDriveInstructions(t *testing.T) {
 					Value:       90,
 				},
 				{
-					Instruction: "turnRight",
+					Instruction: "turnLeft",
 					Value:       90,
 				},
 				{
@@ -382,7 +382,7 @@ func TestPathToDriveInstructions(t *testing.T) {
 					Value:       90,
 				},
 				{
-					Instruction: "turnRight",
+					Instruction: "turnLeft",
 					Value:       90,
 				},
 				{
@@ -402,7 +402,7 @@ func TestPathToDriveInstructions(t *testing.T) {
 					Value:       90,
 				},
 				{
-					Instruction: "turnRight",
+					Instruction: "turnLeft",
 					Value:       90,
 				},
 				{
@@ -426,7 +426,7 @@ func TestPathToDriveInstructions(t *testing.T) {
 					Value:       90,
 				},
 				{
-					Instruction: "turnRight",
+					Instruction: "turnLeft",
 					Value:       90,
 				},
 				{
@@ -446,7 +446,7 @@ func TestPathToDriveInstructions(t *testing.T) {
 					Value:       90,
 				},
 				{
-					Instruction: "turnRight",
+					Instruction: "turnLeft",
 					Value:       90,
 				},
 				{
@@ -525,7 +525,8 @@ func TestPathToDriveInstructions(t *testing.T) {
 					Value:       90,
 				},
 				{
-					Instruction: "turnRight",
+
+					Instruction: "turnLeft",
 					Value:       90,
 				},
 				{
