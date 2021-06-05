@@ -27,8 +27,8 @@ func (h *HttpServer) driveD(w http.ResponseWriter, r *http.Request) {
 	instruction := []driveInstruction{}
 
 	instruction = append(instruction, driveInstruction{
-		instruction: "forward",
-		value:       t,
+		Instruction: "forward",
+		Value:       t,
 	})
 
 	h.mqtt.publishDriveInstructionSequence(instruction)
@@ -36,39 +36,45 @@ func (h *HttpServer) driveD(w http.ResponseWriter, r *http.Request) {
 	updateMap(instruction[0])
 
 }
+func (h *HttpServer) driveA(ctx context.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		decoder := json.NewDecoder(r.Body)
+		defer r.Body.Close()
 
-func (h *HttpServer) driveA(w http.ResponseWriter, r *http.Request) {
-	decoder := json.NewDecoder(r.Body)
-	defer r.Body.Close()
+		var t int
+		if err := decoder.Decode(&t); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		}
 
-	var t int
-	if err := decoder.Decode(&t); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		// Check for correct format
+
+		w.WriteHeader(http.StatusOK)
+
+		fmt.Println("Recived drive angle: ", t)
+		// Send data to hardware
+
+		c := "turnRight"
+		if t < 0 {
+			c = "turnLeft"
+		}
+
+		instruction := []driveInstruction{}
+
+		instruction = append(instruction, driveInstruction{
+			Instruction: c,
+			Value:       Abs(t),
+		})
+
+		//	h.mqtt.publishDriveInstructionSequence(instruction)
+
+		fmt.Println("updating map")
+
+		updateMap(instruction[0])
+
+		fmt.Println("attempting to store in db")
+
+		h.insertInstruction(ctx, instruction[0])
 	}
-
-	// Check for correct format
-
-	w.WriteHeader(http.StatusOK)
-
-	fmt.Println("Recived drive angle: ", t)
-	// Send data to hardware
-
-	c := "turnRight"
-	if t < 0 {
-		c = "turnLeft"
-	}
-
-	instruction := []driveInstruction{}
-
-	instruction = append(instruction, driveInstruction{
-		instruction: c,
-		value:       Abs(t),
-	})
-
-	h.mqtt.publishDriveInstructionSequence(instruction)
-
-	updateMap(instruction[0])
-
 }
 
 func (h *HttpServer) targetCoords(w http.ResponseWriter, r *http.Request) {
@@ -98,28 +104,39 @@ func Abs(x int) int {
 		return x
 	}
 }
+func (h *HttpServer) resetMap(ctx context.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		Map.Tiles = []int{
+			3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+			3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+			3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+			3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+			3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+			3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+			3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+			3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+			3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+			3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+			3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+			3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3}
 
-func (h *HttpServer) resetMap(w http.ResponseWriter, r *http.Request) {
-	Map.Tiles = []int{
-		3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
-		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
-		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
-		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
-		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
-		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
-		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
-		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
-		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
-		3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
-		3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3}
+		Rover.X = 5
+		Rover.Y = 5
+		Rover.Rotation = 0
 
-	Rover.X = 5
-	Rover.Y = 5
-	Rover.Rotation = 0
+		mapID, err := h.db.getLatestMapID(ctx)
+		if err != nil {
+			fmt.Println("no mapID : ", mapID)
+			fmt.Println("Error: couldnt get latest map ID")
+		}
 
+		var empty []driveInstruction
+		dbMap.Instructions = empty
+
+		h.db.resetInstructions(ctx, (mapID + 1))
+
+	}
 }
-
 func (h *HttpServer) requestMap(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -135,14 +152,27 @@ func (h *HttpServer) requestMap(ctx context.Context) http.HandlerFunc {
 
 		w.WriteHeader(http.StatusOK)
 
+		fmt.Println("map name:", name)
+
 		// map is quered using name to get id
 
 		mapID, err := h.db.getMapID(ctx, name)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 		}
+
+		fmt.Println("map ID:", mapID)
+
 		// map is built and stored in dbmap
 		h.db.retriveMap(ctx, mapID)
+
+		// Rover built and stored in dbmap
+		h.db.retriveRover(ctx, mapID)
+
+		// Instructions Built and stored in dbmap
+
+		h.db.retriveInstruction(ctx, mapID)
+
 	}
 }
 
@@ -156,25 +186,20 @@ func (h *HttpServer) save(ctx context.Context) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 		}
 
-		fmt.Println("name : ", name)
-
 		h.db.saveMapName(ctx, name)
-
-		nam, _ := h.db.retriveData(ctx)
-
-		fmt.Println("name: ", nam)
 
 		mapID, err := h.db.getMapID(ctx, name)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 		}
 
-		fmt.Println("mapID : ", mapID)
-
 		h.convertAndInsert(ctx, mapID)
+
+		roverIndex := Rover.X + (Rover.Y * Map.Cols)
+		fmt.Println("Rover index =", roverIndex)
+		h.db.saveRover(ctx, mapID, roverIndex)
 
 		w.WriteHeader(http.StatusOK)
 
-		fmt.Println("map inserted")
 	}
 }

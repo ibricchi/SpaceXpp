@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -100,10 +101,23 @@ func value2Mode(mode int) (traverseMode, error) {
 var stashedDriveInstruction driveInstruction
 
 func updateMap(driveInstruction driveInstruction) {
+
 	driveTocoords(stashedDriveInstruction, tileWidth)
 
 	stashedDriveInstruction = driveInstruction
 
+}
+
+func (h *HttpServer) insertInstruction(ctx context.Context, driveInstruction driveInstruction) {
+
+	mapID, err := h.db.getLatestMapID(ctx)
+	if err != nil {
+		fmt.Println("no mapID : ", mapID)
+		fmt.Println("Error: couldnt get latest map ID")
+	}
+
+	fmt.Println("mapID : ", mapID)
+	h.db.storeInstruction(ctx, driveInstruction.Instruction, driveInstruction.Value, (mapID + 1))
 }
 
 // "stop"
@@ -125,14 +139,23 @@ func stop(mqtt MQTT, distance int, obstructionType string, stopAfterTurn bool) {
 		driveTocoords(stashedDriveInstruction, tileWidth)
 	} else {
 		// Drive forward distance moved before stopping
-		stashedDriveInstruction.instruction = "forward"
-		stashedDriveInstruction.value = distance
+		stashedDriveInstruction.Instruction = "forward"
+		stashedDriveInstruction.Value = distance
+
+		var h *HttpServer
+		var ctx context.Context
+		mapID, err := h.db.getLatestMapID(ctx)
+		if err != nil {
+			fmt.Println("Error: couldnt get latest map ID")
+		}
+		h.db.storeInstruction(ctx, stashedDriveInstruction.Instruction, stashedDriveInstruction.Value, (mapID + 1))
+
 		driveTocoords(stashedDriveInstruction, tileWidth)
 	}
 
 	// Store nil instruction in stash
-	stashedDriveInstruction.instruction = "forward"
-	stashedDriveInstruction.value = 0
+	stashedDriveInstruction.Instruction = "forward"
+	stashedDriveInstruction.Value = 0
 
 	if !stopAfterTurn { // map already updated when stopping after turn
 		// Assuming obstruction will only ever be in box in front (when stop after forward instruction)
@@ -149,16 +172,16 @@ func stop(mqtt MQTT, distance int, obstructionType string, stopAfterTurn bool) {
 }
 
 func updateMapWithObstructionWhileTurning(obstructionType string) {
-	if stashedDriveInstruction.instruction != "turnRight" && stashedDriveInstruction.instruction != "turnLeft" {
+	if stashedDriveInstruction.Instruction != "turnRight" && stashedDriveInstruction.Instruction != "turnLeft" {
 		fmt.Println("server: map_general: updateMapWithObstructionWhileTurning fail, not currently turning")
 		return
 	}
 
 	var changeInRotation int
-	if stashedDriveInstruction.instruction == "turnLeft" {
-		changeInRotation = -stashedDriveInstruction.value
+	if stashedDriveInstruction.Instruction == "turnLeft" {
+		changeInRotation = -stashedDriveInstruction.Value
 	} else {
-		changeInRotation = stashedDriveInstruction.value
+		changeInRotation = stashedDriveInstruction.Value
 	}
 
 	indx := getOneInFront(changeInRotation)
@@ -167,7 +190,9 @@ func updateMapWithObstructionWhileTurning(obstructionType string) {
 }
 
 func obstacleToValue(obstacle string) int {
-	if obstacle == "U" {
+	if obstacle == "" { // No obstruction
+		return 2
+	} else if obstacle == "U" {
 		return 5
 	} else if obstacle == "B" {
 		return 6

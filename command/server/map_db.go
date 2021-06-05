@@ -20,8 +20,7 @@ var dbMap = mapDB{
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-	RoverX:        5,
-	RoverY:        5,
+	RoverIndx:     65,
 	RoverRotation: 0,
 }
 

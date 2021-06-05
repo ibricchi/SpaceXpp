@@ -32,14 +32,14 @@ func (h *HttpServer) routes(ctx context.Context) error {
 		r.Get("/connect", h.connect)
 		r.Get("/battery", h.battery)
 		r.Get("/check", check)
-		r.Get("/map/getMap", h.updateMap)
+		r.Get("/map/getMap", h.updateWebMap)
 		r.Get("/map/getRover", h.updateRover)
 		r.Get("/map/history/load", h.loadMap(ctx))
 
 		r.Post("/drive/distance", h.driveD)
-		r.Post("/drive/angle", h.driveA)
+		r.Post("/drive/angle", h.driveA(ctx))
 		r.Post("/map/targetCoords", h.targetCoords)
-		r.Post("/map/reset", h.resetMap)
+		r.Post("/map/reset", h.resetMap(ctx))
 		r.Post("/map/history/request", h.requestMap(ctx))
 		r.Post("/map/history/save", h.save(ctx))
 

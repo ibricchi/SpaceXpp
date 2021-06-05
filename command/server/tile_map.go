@@ -7,12 +7,12 @@ type tileMap struct {
 }
 
 type mapDB struct {
-	Rows          int   `json:"rows"`   // number of rows
-	Cols          int   `json:"cols"`   // number of columns
-	Tiles         []int `json:"layout"` // matrix stored as slice
-	RoverX        int   `json:"roverX"`
-	RoverY        int   `json:"roverY"`
-	RoverRotation int   `json:"roverRotation"`
+	Rows          int                `json:"rows"`   // number of rows
+	Cols          int                `json:"cols"`   // number of columns
+	Tiles         []int              `json:"layout"` // matrix stored as slice
+	RoverIndx     int                `json:"roverIndx"`
+	RoverRotation int                `json:"roverRotation"`
+	Instructions  []driveInstruction `json:"driveinstructions"`
 }
 
 func (m *tileMap) getTile(row int, col int) int {

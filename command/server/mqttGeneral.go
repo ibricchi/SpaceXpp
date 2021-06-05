@@ -118,7 +118,7 @@ func (m *MQTTClient) publishDriveInstructionSequence(instructionSequence driveIn
 	var qos byte = 2 // Guarantee delivery
 
 	for _, instruction := range instructionSequence {
-		encodedInstruction := fmt.Sprintf("%s%s%d", instruction.instruction, driveInstructionDelimiter, instruction.value)
+		encodedInstruction := fmt.Sprintf("%s%s%d", instruction.Instruction, driveInstructionDelimiter, instruction.Value)
 		m.publish(topic, encodedInstruction, qos)
 	}
 
@@ -140,23 +140,25 @@ func instructionFeedPubHandler(logger *zap.Logger) mqtt.MessageHandler {
 
 		var instruction driveInstruction
 		if s[0] == "F" {
-			instruction.instruction = "forward"
-			instruction.value = v
+			instruction.Instruction = "forward"
+			instruction.Value = v
 			updateMap(instruction)
 		} else if s[0] == "R" {
-			instruction.instruction = "turnRight"
-			instruction.value = v
+      instruction.Instruction = "turnRight"
+			instruction.Value = v
+			updateMapWithObstructionWhileTurning("")
 			updateMap(instruction)
 		} else if s[0] == "L" {
-			instruction.instruction = "turnLeft"
-			instruction.value = v
+			instruction.Instruction = "turnLeft"
+			instruction.Value = v
+			updateMapWithObstructionWhileTurning("")
 			updateMap(instruction)
 		} else if s[0] == "X" {
-			instruction.instruction = "nil"
-			instruction.value = 0
+			instruction.Instruction = "nil"
+			instruction.Value = 0
 			updateMap(instruction)
 		} else if s[0] == "S" {
-			if stashedDriveInstruction.instruction == "forward" { // wait for second part of stop instruction to update map and stop
+			if stashedDriveInstruction.Instruction == "forward" { // wait for second part of stop instruction to update map and stop
 				stopData = value
 			} else { // turning => update map without stopping
 				updateMapWithObstructionWhileTurning(value)

@@ -43,7 +43,7 @@ bool moveBackwardForDistance(float d, float currentInstructionY, float totalY) {
 
 // Rotates clockwise 90 degrees
 bool turnRight(float totalX, float totalY, float currentInstructionX, float currentInstructionY) {
-  const float distanceFromRoverCentreToSensor = 11.5;   // distnce from the center of the rover to the optical flow sensor is 11.5 [cm]
+  const float distanceFromRoverCentreToSensor = 16.2;   // distnce from the center of the rover to the optical flow sensor is 11.5 [cm]
   float currentHypotenuse = (totalX - currentInstructionX) * (totalX - currentInstructionX) + (totalY - currentInstructionY) * (totalY - currentInstructionY);
   float desiredHypotenuse = 2 * distanceFromRoverCentreToSensor * distanceFromRoverCentreToSensor;
   if (currentHypotenuse < desiredHypotenuse) {
@@ -51,11 +51,14 @@ bool turnRight(float totalX, float totalY, float currentInstructionX, float curr
     return false;
   }
   return true;
+
+  //Kacper's implementation
+  
 }
 
 // Rotates anticlockwise 90 degrees
 bool turnLeft(float totalX, float totalY, float currentInstructionX, float currentInstructionY) {
-  const float distanceFromRoverCentreToSensor = 11.5;   // distnce from the center of the rover to the optical flow sensor is 11.5 [cm]
+  const float distanceFromRoverCentreToSensor = 16.2;   // distnce from the center of the rover to the optical flow sensor is 11.5 [cm]
   float currentHypotenuse = (totalX - currentInstructionX) * (totalX - currentInstructionX) + (totalY - currentInstructionY) * (totalY - currentInstructionY);
   float desiredHypotenuse = 2 * distanceFromRoverCentreToSensor * distanceFromRoverCentreToSensor;
   if (currentHypotenuse < desiredHypotenuse) {
