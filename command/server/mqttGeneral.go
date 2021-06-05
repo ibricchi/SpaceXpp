@@ -38,12 +38,6 @@ func InitMQTT(ctx context.Context, logger *zap.Logger, db *SQLiteDB, mqttBrokerU
 	opts.OnConnect = mqttConnectHandler(logger, ctx, db)
 	opts.OnConnectionLost = mqttConnectLostHandler
 
-	fmt.Println("testing instruction")
-	var instruction driveInstruction
-	instruction.Instruction = "forward"
-	instruction.Value = 60
-	updateMap(instruction, ctx, db)
-
 	return &MQTTClient{
 		client: mqtt.NewClient(opts),
 		logger: logger,
