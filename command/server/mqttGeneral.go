@@ -65,7 +65,7 @@ var testStatusMessagePubHandler mqtt.MessageHandler = func(client mqtt.Client, m
 	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
 }
 
-func mqttConnectHandler(logger *zap.Logger, ctx context.Context, *SQLiteDB) mqtt.OnConnectHandler {
+func mqttConnectHandler(logger *zap.Logger, ctx context.Context, db *SQLiteDB) mqtt.OnConnectHandler {
 	return func(client mqtt.Client) {
 		fmt.Println("Connected to MQTT broker successfully")
 
