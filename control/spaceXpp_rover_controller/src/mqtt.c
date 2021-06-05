@@ -98,11 +98,19 @@ void handle_mqtt_event_data(esp_mqtt_event_handle_t event) {
 }
 
 void publish_drive_instruction_to_server(const char* instruction, const char* data) {
-    char stopMsg[32];
-    sprintf(stopMsg, "%s%s%s", instruction, DRIVE_INSTRUCTION_DELIMITER, data);
+    char message[32];
+    sprintf(message, "%s%s%s", instruction, DRIVE_INSTRUCTION_DELIMITER, data);
 
-    int msg_id = esp_mqtt_client_publish(mqttClient, "/feedback/instruction", stopMsg, 0, 2, 0);
-    ESP_LOGI(MQTT_tag, "publish drive instruction to server successful, msg_id=%d, data=%s", msg_id, stopMsg);
+    int msg_id = esp_mqtt_client_publish(mqttClient, "/feedback/instruction", message, 0, 2, 0);
+    ESP_LOGI(MQTT_tag, "publish drive instruction to server successful, msg_id=%d, data=%s", msg_id, message);
+}
+
+void publish_energy_status_to_server(const char* encoding, const char* data) {
+    char message[32];
+    sprintf(message, "%s%s%s", encoding, ENERGY_INSTRUCTION_DELIMITER, data);
+
+    int msg_id = esp_mqtt_client_publish(mqttClient, "/energy/status", message, 0, 0, 0);
+    ESP_LOGI(MQTT_tag, "publish energy status to server successful, msg_id=%d, data=%s", msg_id, message);
 }
 
 // Used to send status to server e.g battery percentage remaining

@@ -7,6 +7,8 @@ extern QueueHandle_t driveInstructionQueue;
 extern char* currentDriveInstruction;
 extern int currentDriveInstructionValue;
 
+extern const EnergyEncoding energyEncoding;
+
 void drive_uart_init()
 {
     const uart_config_t drive_uart_config = {
@@ -25,14 +27,23 @@ void drive_uart_init()
     ESP_LOGI(UART_tag, "Drive UART setup completed");
 }
 
-void vision_uart_init()
-{
-    // TODO: implement based on DE10-Lite UART interface
-}
-
 void energy_uart_init()
 {
-    // TODO: implement based on DE10-Lite UART interface
+    const uart_config_t energy_uart_config = {
+        .baud_rate = 115200, // Arduino could go higher than this (see datasheet)
+        .data_bits = UART_DATA_8_BITS,
+        .parity = UART_PARITY_DISABLE,
+        .stop_bits = UART_STOP_BITS_1,
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE, // not supported by standard Arduino
+    };
+    ESP_ERROR_CHECK(uart_param_config(ENERGY_UART_NUM, &energy_uart_config));
+
+    ESP_ERROR_CHECK(uart_set_pin(ENERGY_UART_NUM, ENERGY_TXD_PIN, ENERGY_RXD_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+
+    // No tx buffer as not planning to transmitt data from esp32 to energy Arduino
+    ESP_ERROR_CHECK(uart_driver_install(ENERGY_UART_NUM, ENERGY_BUFFER_SIZE, 0, 0, NULL, 0));
+
+    ESP_LOGI(UART_tag, "Energy UART setup completed");
 }
 
 void drive_uart_task(void *arg)
@@ -46,7 +57,7 @@ void drive_uart_task(void *arg)
         int rxBytes = uart_read_bytes(DRIVE_UART_NUM, rx_data, DRIVE_BUFFER_SIZE, 1000 / portTICK_RATE_MS);
         if (rxBytes > 0) {
             rx_data[rxBytes] = 0; // End of received string
-            printf("UART data from drive: %s\n", (char*)rx_data);
+            ESP_LOGI(UART_tag, "UART data from drive: %s", (char*)rx_data);
 
             const char instruction = rx_data[strlen((char*)rx_data)-1];
             rx_data[strlen((char*)rx_data)-1] = '\0';
@@ -207,18 +218,38 @@ void drive_uart_task_simulated(void *arg) {
     free(queue_data);
 }
 
-void vision_uart_task(void *arg)
-{
-    while (1) {
-        // TODO: implement
-    }
-}
-
 void energy_uart_task(void *arg)
 {
+    uint8_t* rx_data = (uint8_t*) malloc(ENERGY_BUFFER_SIZE);
+
     while (1) {
-        // TODO: implement
+        int rxBytes = uart_read_bytes(ENERGY_UART_NUM, rx_data, ENERGY_BUFFER_SIZE, 1000 / portTICK_RATE_MS);
+        if (rxBytes > 0) {
+            rx_data[rxBytes] = 0; // End of received string
+            ESP_LOGI(UART_tag, "UART data from energy: %s", (char*)rx_data);
+
+            const char instruction = rx_data[strlen((char*)rx_data)-1];
+            rx_data[strlen((char*)rx_data)-1] = '\0';
+            switch (instruction) {
+                case 'C': // State of charge battery status
+                    publish_energy_status_to_server(energyEncoding.stateOfCharge, (char*)rx_data);
+                    break;
+                case 'H': // State of health battery status
+                    publish_energy_status_to_server(energyEncoding.stateOfHealth, (char*)rx_data);
+                    break;
+                case 'E': // Error in battery cells
+                    publish_energy_status_to_server(energyEncoding.cellError, "0");
+                    break;
+                default:
+                    ESP_LOGE(UART_tag, "Instruction from energy not valid: %d", instruction);
+                    break;
+            }
+        }
+
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
+
+    free(rx_data);
 }
 
 void send_drive_uart_data(const char* encoding, const char* data) {
