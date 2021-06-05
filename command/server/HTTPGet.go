@@ -73,6 +73,7 @@ func (h *HttpServer) updateRover(w http.ResponseWriter, req *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+
 func (h *HttpServer) loadMap(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -86,6 +87,23 @@ func (h *HttpServer) loadMap(ctx context.Context) http.HandlerFunc {
 		// clearning instruction log
 		var empty []driveInstruction
 		dbMap.Instructions = empty
+
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
+func (h *HttpServer) getFeed(ctx context.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+		data := feed
+		if err := json.NewEncoder(w).Encode(data); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
+		// clearing feed
+		var empty string
+		feed = empty
 
 		w.WriteHeader(http.StatusOK)
 	}

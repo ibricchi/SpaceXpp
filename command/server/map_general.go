@@ -43,6 +43,9 @@ var previousDestinationRow int
 var previousDestinationCol int
 var previousDestinationMode int
 
+// Used to record feedback
+var feed string
+
 func mapAndDrive(mqtt MQTT, destinationCol int, destinationRow int, mode int) error {
 	mqtt.getLogger().Info("starting map and drive", zap.Int("startRow", Rover.Y), zap.Int("startCol", Rover.X), zap.Int("destinationRow", destinationRow), zap.Int("destinationCol", destinationCol))
 
@@ -68,6 +71,8 @@ func mapAndDrive(mqtt MQTT, destinationCol int, destinationRow int, mode int) er
 	}
 
 	mqtt.publishDriveInstructionSequence(driveInstructions)
+
+	feed = "Targets recived by server <br> Targets converted to optimum path <br> Optimum path converted to drive instructions <br> Drive instructions sent to rover"
 
 	return nil
 }

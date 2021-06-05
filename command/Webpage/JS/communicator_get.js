@@ -152,3 +152,14 @@ function loadMap(){
     })
 
 }
+
+function getFeed(){
+    fetch(serverIP + '/feed')
+    .then(request => request.json())
+    .then(data => {
+        if(data != null){
+            printToFeedback(data, 1)
+        }
+    })
+
+}
