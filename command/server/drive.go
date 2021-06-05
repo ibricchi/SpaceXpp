@@ -181,7 +181,6 @@ func getInstructionForFullRotation(initialDirection direction) []driveInstructio
 			Value:       90,
 		},
 		{
-
 			Instruction: "turnLeft",
 			Value:       90,
 		},
