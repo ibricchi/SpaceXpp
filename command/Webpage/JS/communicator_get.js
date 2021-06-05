@@ -11,6 +11,7 @@ serverIP = "https://18.117.12.54:3000"
 *       - location: the address of the text section of the HTML website that will be updated with the data from the server
 *       - address: the https address used in combination with the serverIP to send get request and recive corrosponding JSON data 
 */
+
 function getData( location, address ){
     webLocation = document.getElementById(location);
 

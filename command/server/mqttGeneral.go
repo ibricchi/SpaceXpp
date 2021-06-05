@@ -19,7 +19,7 @@ type MQTTClient struct {
 	logger *zap.Logger
 }
 
-func InitMQTT(ctx context.Context, logger *zap.Logger, mqttBrokerURL string, mqttUsername string, mqttPassword string) (*MQTTClient, error) {
+func InitMQTT(ctx context.Context, logger *zap.Logger, db *SQLiteDB, mqttBrokerURL string, mqttUsername string, mqttPassword string) (*MQTTClient, error) {
 	tlsConfig, err := NewTlsConfig()
 	if err != nil {
 		return &MQTTClient{}, fmt.Errorf("server: mqtt: failed to get TLS config: %w", err)
@@ -35,7 +35,7 @@ func InitMQTT(ctx context.Context, logger *zap.Logger, mqttBrokerURL string, mqt
 	opts.SetCleanSession(true)
 	opts.SetConnectRetry(true)
 
-	opts.OnConnect = mqttConnectHandler(logger)
+	opts.OnConnect = mqttConnectHandler(logger, ctx, db)
 	opts.OnConnectionLost = mqttConnectLostHandler
 
 	return &MQTTClient{
@@ -65,7 +65,7 @@ var testStatusMessagePubHandler mqtt.MessageHandler = func(client mqtt.Client, m
 	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
 }
 
-func mqttConnectHandler(logger *zap.Logger) mqtt.OnConnectHandler {
+func mqttConnectHandler(logger *zap.Logger, ctx context.Context, *SQLiteDB) mqtt.OnConnectHandler {
 	return func(client mqtt.Client) {
 		fmt.Println("Connected to MQTT broker successfully")
 
@@ -76,7 +76,7 @@ func mqttConnectHandler(logger *zap.Logger) mqtt.OnConnectHandler {
 		fmt.Println("Subscribed to topic: /test/status")
 
 		// Subscribe to topics
-		if token := client.Subscribe("/feedback/instruction", 2, instructionFeedPubHandler(logger)); token.Wait() && token.Error() != nil {
+		if token := client.Subscribe("/feedback/instruction", 2, instructionFeedPubHandler(logger, ctx, db)); token.Wait() && token.Error() != nil {
 			log.Fatalf("server: mqtt: failed to subscribe to /feedback/instruction: %v", token.Error())
 		}
 		fmt.Println("Subscribed to topic: /feedback/instruction")
@@ -130,7 +130,7 @@ func (m *MQTTClient) publishDriveInstructionSequence(instructionSequence driveIn
 // Subscribing to instruction feed
 var stopData string
 
-func instructionFeedPubHandler(logger *zap.Logger) mqtt.MessageHandler {
+func instructionFeedPubHandler(logger *zap.Logger, ctx context.Context, db *SQLiteDB) mqtt.MessageHandler {
 	return func(client mqtt.Client, msg mqtt.Message) {
 		fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
 
@@ -142,21 +142,21 @@ func instructionFeedPubHandler(logger *zap.Logger) mqtt.MessageHandler {
 		if s[0] == "F" {
 			instruction.Instruction = "forward"
 			instruction.Value = v
-			updateMap(instruction)
+			updateMap(instruction, ctx, db)
 		} else if s[0] == "R" {
 			instruction.Instruction = "turnRight"
 			instruction.Value = v
 			updateMapWithObstructionWhileTurning("")
-			updateMap(instruction)
+			updateMap(instruction, ctx, db)
 		} else if s[0] == "L" {
 			instruction.Instruction = "turnLeft"
 			instruction.Value = v
 			updateMapWithObstructionWhileTurning("")
-			updateMap(instruction)
+			updateMap(instruction, ctx, db)
 		} else if s[0] == "X" {
 			instruction.Instruction = "nil"
 			instruction.Value = 0
-			updateMap(instruction)
+			updateMap(instruction, ctx, db)
 		} else if s[0] == "S" {
 			if stashedDriveInstruction.Instruction == "forward" { // wait for second part of stop instruction to update map and stop
 				stopData = value
@@ -171,9 +171,9 @@ func instructionFeedPubHandler(logger *zap.Logger) mqtt.MessageHandler {
 			}
 
 			if v == -1 { // stopping after turn (map already updated with obstruction)
-				stop(mqttClient, 0, stopData, true)
+				stop(mqttClient, ctx, db, 0, stopData, true)
 			} else { // stopping after forward (map not yet updated with obstruction)
-				stop(mqttClient, v, stopData, false)
+				stop(mqttClient, ctx, db, v, stopData, false)
 			}
 
 			stopData = ""

@@ -31,9 +31,9 @@ func (h *HttpServer) driveD(w http.ResponseWriter, r *http.Request) {
 		Value:       t,
 	})
 
-	h.mqtt.publishDriveInstructionSequence(instruction)
+	//h.mqtt.publishDriveInstructionSequence(instruction)
 
-	updateMap(instruction[0])
+	//updateMap(instruction[0])
 
 }
 func (h *HttpServer) driveA(ctx context.Context) http.HandlerFunc {
@@ -69,7 +69,7 @@ func (h *HttpServer) driveA(ctx context.Context) http.HandlerFunc {
 
 		fmt.Println("updating map & inserting instructions ")
 
-		updateMap(instruction[0])
+		//updateMap(instruction[0], ctx, h.db)
 
 		//fmt.Println("attempting to store in db")
 

@@ -100,31 +100,16 @@ func value2Mode(mode int) (traverseMode, error) {
 
 var stashedDriveInstruction driveInstruction
 
-func updateMap(driveInstruction driveInstruction) {
-
-	h := &HttpServer{}
-	var ctx context.Context
+func updateMap(driveInstruction driveInstruction, ctx context.Context, db *SQLiteDB) {
 
 	fmt.Println("inserting instructions via update map")
 
-	h.insertInstruction(ctx, driveInstruction)
+	db.storeInstruction(ctx, driveInstruction.Instruction, driveInstruction.Value)
 
 	driveTocoords(stashedDriveInstruction, tileWidth)
 
 	stashedDriveInstruction = driveInstruction
 
-}
-
-func (h *HttpServer) insertInstruction(ctx context.Context, driveInstruction driveInstruction) {
-
-	mapID, err := h.db.getLatestMapID(ctx)
-	if err != nil {
-		fmt.Println("no mapID : ", mapID)
-		fmt.Println("Error: couldnt get latest map ID")
-	}
-
-	fmt.Println("mapID : ", mapID)
-	h.db.storeInstruction(ctx, driveInstruction.Instruction, driveInstruction.Value, (mapID + 1))
 }
 
 // "stop"
@@ -140,7 +125,7 @@ func (h *HttpServer) insertInstruction(ctx context.Context, driveInstruction dri
 * 		- update map with location of obstruction & type of instruction (optionally based on updateMap argument)
  */
 
-func stop(mqtt MQTT, distance int, obstructionType string, stopAfterTurn bool) {
+func stop(mqtt MQTT, ctx context.Context, db *SQLiteDB, distance int, obstructionType string, stopAfterTurn bool) {
 	if stopAfterTurn {
 		// Complete turn
 		driveTocoords(stashedDriveInstruction, tileWidth)
@@ -149,13 +134,7 @@ func stop(mqtt MQTT, distance int, obstructionType string, stopAfterTurn bool) {
 		stashedDriveInstruction.Instruction = "forward"
 		stashedDriveInstruction.Value = distance
 
-		var h *HttpServer
-		var ctx context.Context
-		mapID, err := h.db.getLatestMapID(ctx)
-		if err != nil {
-			fmt.Println("Error: couldnt get latest map ID")
-		}
-		h.db.storeInstruction(ctx, stashedDriveInstruction.Instruction, stashedDriveInstruction.Value, (mapID + 1))
+		db.storeInstruction(ctx, stashedDriveInstruction.Instruction, stashedDriveInstruction.Value)
 
 		driveTocoords(stashedDriveInstruction, tileWidth)
 	}
