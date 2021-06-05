@@ -8,7 +8,7 @@ extern QueueHandle_t driveInstructionQueue;
 
 void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
-    ESP_LOGD(MQTT_tag, "Event dispatched from event loop base=%s, event_id=%d", base, event_id);
+    // ESP_LOGI(MQTT_tag, "Event dispatched from event loop base=%s, event_id=%d", base, event_id);
 
     esp_mqtt_event_handle_t event = event_data;
 
@@ -26,22 +26,22 @@ void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event
         break;
 
     case MQTT_EVENT_SUBSCRIBED:
-        ESP_LOGI(MQTT_tag, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
+        // ESP_LOGI(MQTT_tag, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
 
         break;
 
     case MQTT_EVENT_UNSUBSCRIBED:
-        ESP_LOGI(MQTT_tag, "MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
+        // ESP_LOGI(MQTT_tag, "MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
         
         break;
 
     case MQTT_EVENT_PUBLISHED:
-        ESP_LOGI(MQTT_tag, "MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
+        // ESP_LOGI(MQTT_tag, "MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
         
         break;
 
     case MQTT_EVENT_DATA:
-        ESP_LOGI(MQTT_tag, "MQTT_EVENT_DATA");
+        // ESP_LOGI(MQTT_tag, "MQTT_EVENT_DATA");
 
         handle_mqtt_event_data(event);
 
