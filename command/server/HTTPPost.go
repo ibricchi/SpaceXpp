@@ -69,7 +69,7 @@ func (h *HttpServer) driveA(ctx context.Context) http.HandlerFunc {
 
 		fmt.Println("updating map & inserting instructions ")
 
-		//updateMap(instruction[0], ctx, h.db)
+		//updateMap(instruction[0], ctx)
 
 		//fmt.Println("attempting to store in db")
 
