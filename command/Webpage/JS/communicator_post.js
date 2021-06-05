@@ -46,6 +46,8 @@ function sendTargetCoords(x, y){
 
 function mapReset(){
     
+    var line = "Resetting map & Clearing feed"
+    printToFeedback(line, 0)
     const options = {
         method: 'POST',
         headers: {

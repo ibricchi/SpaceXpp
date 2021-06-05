@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"go.uber.org/zap"
 )
@@ -72,7 +73,7 @@ func mapAndDrive(mqtt MQTT, destinationCol int, destinationRow int, mode int) er
 
 	mqtt.publishDriveInstructionSequence(driveInstructions)
 
-	feed = "Targets recived by server <br> <br> Targets converted to optimum path <br> <br> Optimum path converted to drive instructions <br> <br> Drive instructions sent to rover"
+	feed = feed + "<br> <br> Targets recived by server <br> <br> Targets converted to optimum path <br> <br> Optimum path converted to drive instructions <br> <br> Drive instructions sent to rover"
 
 	return nil
 }
@@ -107,6 +108,8 @@ var stashedDriveInstruction driveInstruction
 
 func updateMap(driveInstruction driveInstruction, ctx context.Context, db *SQLiteDB) {
 
+	feed = "Instruction : " + driveInstruction.Instruction + ":" + strconv.Itoa(driveInstruction.Value) + " : Sucsessful"
+
 	fmt.Println("inserting instructions via update map")
 
 	db.storeInstruction(ctx, driveInstruction.Instruction, driveInstruction.Value)
@@ -131,13 +134,20 @@ func updateMap(driveInstruction driveInstruction, ctx context.Context, db *SQLit
  */
 
 func stop(mqtt MQTT, ctx context.Context, db *SQLiteDB, distance int, obstructionType string, stopAfterTurn bool) {
+	feed = "Obstruction identified"
+
 	if stopAfterTurn {
+		feed = feed + "<br> <br> Obstruction not on path, continuing to move <br> <br> Instruction : " + stashedDriveInstruction.Instruction + ":" + strconv.Itoa(stashedDriveInstruction.Value) + " : Sucsessful"
+
 		// Complete turn
 		driveTocoords(stashedDriveInstruction, tileWidth)
 	} else {
+
 		// Drive forward distance moved before stopping
 		stashedDriveInstruction.Instruction = "forward"
 		stashedDriveInstruction.Value = distance
+
+		feed = feed + "<br> <br> Obstruction on path, adjusting instruction <br> <br> Adjusted instruction : " + stashedDriveInstruction.Instruction + ":" + strconv.Itoa(stashedDriveInstruction.Value) + " : Sucsessful"
 
 		db.storeInstruction(ctx, stashedDriveInstruction.Instruction, stashedDriveInstruction.Value)
 
@@ -153,8 +163,11 @@ func stop(mqtt MQTT, ctx context.Context, db *SQLiteDB, distance int, obstructio
 		indx := getOneInFront(0)
 
 		Map.Tiles[indx] = obstacleToValue(obstructionType)
+
+		feed = feed + "<br> <br> Obstruction identified: " + obstacleToName(obstructionType)
 	}
 
+	feed = feed + "<br> <br> Stopped due to obstruction <br> <br> Computing new shortest path"
 	fmt.Println("Stopped due to obstruction. Computing new shortest path.")
 	if err := mapAndDrive(mqtt, previousDestinationRow, previousDestinationCol, previousDestinationMode); err != nil {
 		// Enough to log error => Error is handled manually by clicking again on map
@@ -199,6 +212,27 @@ func obstacleToValue(obstacle string) int {
 
 	fmt.Println("server: map_general: obstacleToValue: unknown obstacle, returning default value 5")
 	return 5
+}
+
+func obstacleToName(obstacle string) string {
+	if obstacle == "" { // No obstruction
+		return "No obstruction"
+	} else if obstacle == "U" {
+		return "Unknown obstruction"
+	} else if obstacle == "B" {
+		return "Blue ball"
+	} else if obstacle == "R" {
+		return "Red ball"
+	} else if obstacle == "Y" {
+		return "Yellow ball"
+	} else if obstacle == "T" {
+		return "Teal ball "
+	} else if obstacle == "V" {
+		return "Violet ball"
+	}
+
+	fmt.Println("server: map_general: obstacleToValue: unknown obstacle, returning default value 5")
+	return "Unknown obstruction"
 }
 
 func getOneInFront(changeInRotation int) int {
