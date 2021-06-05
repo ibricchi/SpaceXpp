@@ -1,8 +1,16 @@
 
 serverIP = "https://18.117.12.54:3000"
 
+// Get Requests \\
 
 
+/* getData:
+*   - General get request for reciving and updating a section of the webpage 
+*   - Used for testing 
+*   - Arguments:
+*       - location: the address of the text section of the HTML website that will be updated with the data from the server
+*       - address: the https address used in combination with the serverIP to send get request and recive corrosponding JSON data 
+*/
 function getData( location, address ){
     webLocation = document.getElementById(location);
 
@@ -118,110 +126,7 @@ function check(){
 }
 
 
-function sendData(location, address){
-    webLocation = document.getElementById(location);
-    val = parseInt(webLocation.value)
-    
-    const options = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(val)
-    };
 
-    fetch(serverIP + address, options);
-
-}
-
-
-function speedSend(){
-    var output = document.getElementById("speedVal");
-    var val = parseInt(output.innerHTML)
-
-    const options = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(val)
-    };
-
-    fetch(serverIP + "/speed", options);
-
-
-}
-
-
-
-function sendTargetCoords(x, y){
-
-    mode = parseInt(document.getElementById("mode").value);
-    
-    
-   var coords = {
-        x: x, 
-        y: y,
-        mode: mode,
-    };
-    
-    const options = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(coords)
-    };
-
-    fetch(serverIP + "/map/targetCoords", options);
-
-}
-
-
-function mapReset(){
-    
-    const options = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(0)
-    };
-
-    fetch(serverIP + "/map/reset", options);
-
-}
-
-
-function saveMap(){
-
-   var name = document.getElementById("save").value
-
-    const options = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(name)
-    };
-
-    fetch(serverIP + "/map/history/save", options);
-
-    console.log("name sent", name)
-}
-
-function requestMap(mapName){
-    const options = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(mapName)
-    };
-
-    fetch(serverIP + "/map/history/request", options);
-
-}
 
 function loadMap(){
     fetch(serverIP + '/map/history/load')
