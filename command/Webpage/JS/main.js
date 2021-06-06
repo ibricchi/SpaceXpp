@@ -39,12 +39,14 @@ sendData('angle', '/drive/angle');
 
 
 function printToFeedback(line, option){
+if (line != "") {
 
-    if (option == 0) {
-        feed.innerHTML = line
-    } else if (option == 1){
-    feed.innerHTML =  feed + "<br>" + feed.innerHTML + "<br>"
+
+        if (option == 0) {
+            feed.innerHTML = line
+        } else if (option == 1){
+        feed.innerHTML =  line + "<br>" + feed.innerHTML + "<br>"
+        }
     }
-
 }
   

@@ -38,7 +38,9 @@ function sendTargetCoords(x, y){
 
     fetch(serverIP + "/map/targetCoords", options);
 
+    
     var line = "Target coordinates: " + x + "," + y + ": sent to server "
+    console.log(line)
        printToFeedback(line, 1)
 
 }

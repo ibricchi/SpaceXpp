@@ -73,7 +73,7 @@ func mapAndDrive(mqtt MQTT, destinationCol int, destinationRow int, mode int) er
 
 	mqtt.publishDriveInstructionSequence(driveInstructions)
 
-	feed = "<br> <br> Targets recived by server <br> <br> Targets converted to optimum path <br> <br> Optimum path converted to drive instructions <br> <br> Drive instructions sent to rover" + feed
+	feed = "<br> <br> Drive instructions sent to rover <br> <br> Optimum path converted to drive instructions <br> <br> Targets converted to optimum path <br> <br> Targets recived by server " + feed
 
 	return nil
 }

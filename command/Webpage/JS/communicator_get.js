@@ -158,6 +158,7 @@ function getFeed(){
     .then(request => request.json())
     .then(data => {
         if(data != null){
+           // console.log(data)
             printToFeedback(data, 1)
         }
     })
