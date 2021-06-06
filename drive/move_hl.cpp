@@ -24,8 +24,8 @@ bool moveBackwardForTime(unsigned long t, unsigned long currentInstructionTime) 
 }
 
 // Causes the rover to move forward for a distance d [cm] and returns true after moving the given distance
-bool moveForwardForDistance(float d, float currentInstructionY, float totalY) {
-  if (totalY < (currentInstructionY + d)) {
+bool moveForwardForDistance(float d, float initialY, float currentY) {
+  if (currentY < (initialY + d)) {
     forwards();
     return false;
   }
@@ -33,8 +33,8 @@ bool moveForwardForDistance(float d, float currentInstructionY, float totalY) {
 }
 
 // Causes the rover to move backward for a distance d [cm] and returns true after moving the given distance
-bool moveBackwardForDistance(float d, float currentInstructionY, float totalY) {
-  if (totalY > (currentInstructionY - d)) {
+bool moveBackwardForDistance(float d, float initialY, float currentY) {
+  if (currentY > (initialY - d)) {
     backwards();
     return false;
   }
@@ -42,24 +42,19 @@ bool moveBackwardForDistance(float d, float currentInstructionY, float totalY) {
 }
 
 // Rotates clockwise 90 degrees
-bool turnRight(float totalX, float totalY, float currentInstructionX, float currentInstructionY) {
-  const float distanceFromRoverCentreToSensor = 16.2;   // distnce from the center of the rover to the optical flow sensor is 11.5 [cm]
-  float currentHypotenuse = (totalX - currentInstructionX) * (totalX - currentInstructionX) + (totalY - currentInstructionY) * (totalY - currentInstructionY);
+bool turnRight(float currentX, float currentY, float initialX, float initialY) {
+  float currentHypotenuse = (currentX - initialX) * (currentX - initialX) + (currentY - initialY) * (currentY - initialY);
   float desiredHypotenuse = 2 * distanceFromRoverCentreToSensor * distanceFromRoverCentreToSensor;
   if (currentHypotenuse < desiredHypotenuse) {
     anticlockwise();
     return false;
   }
   return true;
-
-  //Kacper's implementation
-  
 }
 
 // Rotates anticlockwise 90 degrees
-bool turnLeft(float totalX, float totalY, float currentInstructionX, float currentInstructionY) {
-  const float distanceFromRoverCentreToSensor = 16.2;   // distnce from the center of the rover to the optical flow sensor is 11.5 [cm]
-  float currentHypotenuse = (totalX - currentInstructionX) * (totalX - currentInstructionX) + (totalY - currentInstructionY) * (totalY - currentInstructionY);
+bool turnLeft(float currentX, float currentY, float initialX, float initialY) {
+  float currentHypotenuse = (currentX - initialX) * (currentX - initialX) + (currentY - initialY) * (currentY - initialY);
   float desiredHypotenuse = 2 * distanceFromRoverCentreToSensor * distanceFromRoverCentreToSensor;
   if (currentHypotenuse < desiredHypotenuse) {
     clockwise();

@@ -6,6 +6,7 @@
 
 #include "smps.h"
 #include "move_hl.h"
+#include "move_ll.h"
 #include "uart.h"
 #include "optical_flow.h"
 
@@ -13,7 +14,7 @@
 float Ts = 0.0008;
 
 // Reference voltage - used for controlling the speed of the rover; likely to be removed once speed controller is fully functional
-float vref = 0.0;
+float vref = 3.0;
 
 // Displacement in each direction, [cm]
 OpticalFlow opticalFlow;
@@ -24,7 +25,7 @@ UART uart;
 
 // The current instruction to be executed
 instructions currentInstruction = doNothing;
-float receivedUARTChars;
+float receivedUARTChars = 0.0;
 bool currentInstructionCompleted = false;
 bool currentInstructionStarted = false;
 unsigned long currentInstructionTime = 0;
@@ -59,14 +60,10 @@ void loop() {
   currentInstruction = uart.getInstruction();
   receivedUARTChars = uart.getReceivedUARTCharts();
 
-  Serial.println(String(receivedUARTChars) + " " + String(currentInstruction));
-
   // Read the current position of the rover
   opticalFlow.read();
   displacementX = opticalFlow.getDisplacementX();
   displacementY = opticalFlow.getDisplacementY();
-  //Serial.println("Displacement X = " + String(displacementX));
-  //Serial.println("Displacement Y = " + String(displacementY));
 
   // Set velocity to the desired value - commented out until velocity is accurately calculated using time
   // setVelocity(1.0);
@@ -74,37 +71,30 @@ void loop() {
   // Buffer through the instructions in order they arrive
   if (currentInstruction != doNothing && currentInstruction != stopAbruptly) {
     if (!currentInstructionStarted) {
-      currentInstructionStarted = true;
-      currentInstructionCompleted = false;
-      currentInstructionTime = millis();
-      vref = 4.0;
-      currentInstructionX = displacementX;
-      currentInstructionY = displacementY;
+      startInstruction();
     } else {
-      // This has room for improving efficiency; could cut down 2(?) cycles
       if (!currentInstructionCompleted) {
         currentInstructionCompleted = callCurrentInstruction();
       } else {
-        currentInstructionStarted = false;
-        currentInstruction = doNothing;
-        uart.nextInstructionReady();
-        uart.setInstruction(doNothing);
+        completeInstruction();
       }
     }
   } else if (currentInstruction == stopAbruptly) {
     currentInstructionStarted = false;
-    currentInstruction = doNothing;
-    //uart.nextInstructionReady();
     uart.setInstruction(doNothing);
     stopMoving();
-        
+
     // Needed to allow the ESP to be flashed again
     delay(100);
-  
-    Serial1.print(String(abs(displacementY-currentInstructionY)) + "S");
+
+    // Return distance moved to ESP
+    Serial1.print(String(abs(displacementY - currentInstructionY)) + "S");
+    
+    // Delay and wait for next instruction
     delay(2000);
     uart.nextInstructionReady();
   } else {
+    uart.setInstruction(doNothing);
     stopMoving();
   }
 
@@ -112,19 +102,18 @@ void loop() {
   delayMicroseconds(800);
 }
 
-// Decides and calls the current instruction based on the mapping below - these numbers are purely for testing; will be replaced with UART data
+// Decides which and calls the given instruction based on the mapping below
 boolean callCurrentInstruction() {
   switch (currentInstruction) {
     case forwardForTime:
       return false;
-    //return moveForwardForTime(10000, currentInstructionTime);
+      //return moveForwardForTime(10000, currentInstructionTime); IMPLEMENTED, NOT USED
     case backwardForTime:
       return false;
-    //return moveBackwardForTime(10000, currentInstructionTime);
+     //return moveBackwardForTime(10000, currentInstructionTime); IMPLEMENTED, NOT USED
     case forwardForDistance:
       return moveForwardForDistance(receivedUARTChars, currentInstructionY, displacementY);
     case backwardForDistance:
-      Serial.println("Moving backwards");
       return moveBackwardForDistance(receivedUARTChars, currentInstructionY, displacementY);
     case turnR:
       return turnRight(displacementX, displacementY, currentInstructionX, currentInstructionY);
@@ -133,6 +122,22 @@ boolean callCurrentInstruction() {
     default:
       return false;
   }
+}
+
+// Starts the current instruction
+void startInstruction() {
+  currentInstructionStarted = true;
+  currentInstructionCompleted = false;
+  currentInstructionTime = millis();
+  currentInstructionX = displacementX;
+  currentInstructionY = displacementY;
+}
+
+// Completes the current instruction and allows starting the next instruction
+void completeInstruction() {
+  currentInstructionStarted = false;
+  uart.setInstruction(doNothing);
+  uart.nextInstructionReady();
 }
 
 /*
@@ -148,12 +153,5 @@ boolean callCurrentInstruction() {
   float velocityCurrent = (currentY - previousY) / (currentTime - previousTime);
   float velocityError = velocityReference - velocityCurrent;
   vref += kvp * velocityError;
-  }*/
-
-// Causes the rover to stop moving
-void stopMoving() {
-  digitalWrite(5, LOW);
-  digitalWrite(9, LOW);
-  uart.setInstruction(doNothing);
-  receivedUARTChars = 0.0;
-}
+  }
+*/

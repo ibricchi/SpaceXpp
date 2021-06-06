@@ -2,11 +2,11 @@
 
 // Defines the pins for the motors and initially sets the motors to move forward
 void motorSetup() {
-  // Right (5) and Left (9) motor & setting their speed to maximum
+  // Right (5) and Left (9) motor & setting their speed to minimum
   pinMode(MR, OUTPUT);
   pinMode(ML, OUTPUT);
-  digitalWrite(MR, HIGH);
-  digitalWrite(ML, HIGH);
+  digitalWrite(MR, LOW);
+  digitalWrite(ML, LOW);
 
   // Direction pins for the motors: Right(21) and Left(20)
   pinMode(DIRR, OUTPUT);
@@ -45,4 +45,10 @@ void anticlockwise() {
   digitalWrite(ML, HIGH);
   digitalWrite(DIRR, LOW);
   digitalWrite(DIRL, LOW);
+}
+
+// Causes the rover to stop moving
+void stopMoving() {
+  digitalWrite(MR, LOW);
+  digitalWrite(ML, LOW);
 }
