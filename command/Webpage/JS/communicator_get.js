@@ -164,3 +164,23 @@ function getFeed(){
     })
 
 }
+
+function getEnergy(){
+    fetch(serverIP + '/energy/values')
+    .then(request => request.json())
+    .then(data => {
+        if(data != null){
+            stateOfCharge.style.width = data.stateOfCharge + '%'
+            stateOfCharge.innerHTML = data.stateOfCharge + '%'
+
+            stateOfHealth.style.width = data.stateOfHealth + '%'
+            stateOfHealth.innerHTML = data.stateOfHealth + '%'
+
+            if (data.errorInCells == 1){
+                alert("Error in cells!");
+
+            }
+            
+        }
+    })
+}

@@ -76,11 +76,17 @@ func mqttConnectHandler(logger *zap.Logger, ctx context.Context, db *SQLiteDB) m
 		}
 		fmt.Println("Subscribed to topic: /test/status")
 
-		// Subscribe to topics
+		// Subscribe to instructions
 		if token := client.Subscribe("/feedback/instruction", 2, instructionFeedPubHandler(logger, ctx, db)); token.Wait() && token.Error() != nil {
 			log.Fatalf("server: mqtt: failed to subscribe to /feedback/instruction: %v", token.Error())
 		}
 		fmt.Println("Subscribed to topic: /feedback/instruction")
+
+		// Subscribe to energy
+		if token := client.Subscribe("/energy/status", 0, instructionEnergyPubHandler(logger)); token.Wait() && token.Error() != nil {
+			log.Fatalf("server: mqtt: failed to subscribe to /energy/status: %v", token.Error())
+		}
+		fmt.Println("Subscribed to topic: /energy/status")
 	}
 }
 
@@ -185,6 +191,26 @@ func instructionFeedPubHandler(logger *zap.Logger, ctx context.Context, db *SQLi
 			// Ignore backwards instruction that are used for distance correction (drive only)
 		} else {
 			fmt.Println("server: mqttGeneral: unknown drive instruction")
+		}
+	}
+}
+
+func instructionEnergyPubHandler(logger *zap.Logger) mqtt.MessageHandler {
+	return func(client mqtt.Client, msg mqtt.Message) {
+		fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
+
+		s := strings.Split(string(msg.Payload()), ":")
+		value := s[1]
+		v, _ := strconv.Atoi(value) // No error checking as this is supposed to fail for stop instructions
+
+		if s[0] == "C" {
+			currentEnergy.StateOfCharge = v
+		} else if s[0] == "H" {
+			currentEnergy.StateOfHealth = v
+		} else if s[0] == "E" {
+			currentEnergy.ErrorInCells = v
+		} else {
+			fmt.Println("server: mqttGeneral: unknown energy information")
 		}
 	}
 }

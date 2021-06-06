@@ -17,6 +17,12 @@ type rover struct {
 	Rotation int `json:"rotation"`
 }
 
+type energy struct {
+	StateOfCharge int `json:"stateOfCharge"`
+	StateOfHealth int `json:"stateOfHealth"`
+	ErrorInCells  int `json:"errorInCells"`
+}
+
 func (h *HttpServer) connect(w http.ResponseWriter, req *http.Request) {
 	status := 1
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -107,4 +113,16 @@ func (h *HttpServer) getFeed(ctx context.Context) http.HandlerFunc {
 
 		w.WriteHeader(http.StatusOK)
 	}
+}
+
+func (h *HttpServer) getStateOfCharge(w http.ResponseWriter, req *http.Request) {
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	if err := json.NewEncoder(w).Encode(currentEnergy); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	w.WriteHeader(http.StatusOK)
+
 }

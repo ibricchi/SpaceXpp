@@ -4,7 +4,8 @@ const drived = document.getElementById("driveD");
 const drivea = document.getElementById("driveA");
 const resetMap = document.getElementById("resetMap");
 const mapSave = document.getElementById("mapSave");
-
+const stateOfCharge = document.getElementById("stateOfCharge")
+const stateOfHealth = document.getElementById("stateOfHealth")
 const feed = document.getElementById("feedback")
 
 
@@ -15,11 +16,13 @@ mapSave.addEventListener('click', saveMap, false )
 document.getElementById("server").innerHTML = "loading"
 document.getElementById("rover").innerHTML = "loading"
 
+
 setInterval(function(){
     status();
     updateMap();
     updateRover();
     getFeed();
+    getEnergy();
 }, 3000);
 
 
@@ -49,4 +52,6 @@ if (line != "") {
         }
     }
 }
+
+ 
   

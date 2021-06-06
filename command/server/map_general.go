@@ -47,6 +47,13 @@ var previousDestinationMode int
 // Used to record feedback
 var feed string
 
+// Used to store current energy readings
+var currentEnergy = energy{
+	StateOfCharge: 0,
+	StateOfHealth: 0,
+	ErrorInCells:  0,
+}
+
 func mapAndDrive(mqtt MQTT, destinationCol int, destinationRow int, mode int) error {
 	mqtt.getLogger().Info("starting map and drive", zap.Int("startRow", Rover.Y), zap.Int("startCol", Rover.X), zap.Int("destinationRow", destinationRow), zap.Int("destinationCol", destinationCol))
 
