@@ -65,6 +65,9 @@ function saveMap(){
 
    var name = document.getElementById("save").value
 
+   var line = "Map saved as: " + name 
+    printToFeedback(line, 1)
+
     const options = {
         method: 'POST',
         headers: {

@@ -73,7 +73,7 @@ func mapAndDrive(mqtt MQTT, destinationCol int, destinationRow int, mode int) er
 
 	mqtt.publishDriveInstructionSequence(driveInstructions)
 
-	feed = feed + "<br> <br> Targets recived by server <br> <br> Targets converted to optimum path <br> <br> Optimum path converted to drive instructions <br> <br> Drive instructions sent to rover"
+	feed = "<br> <br> Targets recived by server <br> <br> Targets converted to optimum path <br> <br> Optimum path converted to drive instructions <br> <br> Drive instructions sent to rover" + feed
 
 	return nil
 }
@@ -108,7 +108,7 @@ var stashedDriveInstruction driveInstruction
 
 func updateMap(driveInstruction driveInstruction, ctx context.Context, db *SQLiteDB) {
 
-	feed = "Instruction : " + driveInstruction.Instruction + ":" + strconv.Itoa(driveInstruction.Value) + " : Sucsessful"
+	feed = "Instruction : " + driveInstruction.Instruction + ":" + strconv.Itoa(driveInstruction.Value) + " : Sucsessful" + feed
 
 	fmt.Println("inserting instructions via update map")
 
@@ -137,7 +137,7 @@ func stop(mqtt MQTT, ctx context.Context, db *SQLiteDB, distance int, obstructio
 	feed = "Obstruction identified"
 
 	if stopAfterTurn {
-		feed = feed + "<br> <br> Obstruction not on path, continuing to move <br> <br> Instruction : " + stashedDriveInstruction.Instruction + ":" + strconv.Itoa(stashedDriveInstruction.Value) + " : Sucsessful"
+		feed = "<br> <br> Obstruction not on path, continuing to move <br> <br> Instruction : " + stashedDriveInstruction.Instruction + ":" + strconv.Itoa(stashedDriveInstruction.Value) + " : Sucsessful" + feed
 
 		// Complete turn
 		driveTocoords(stashedDriveInstruction, tileWidth)
@@ -147,7 +147,7 @@ func stop(mqtt MQTT, ctx context.Context, db *SQLiteDB, distance int, obstructio
 		stashedDriveInstruction.Instruction = "forward"
 		stashedDriveInstruction.Value = distance
 
-		feed = feed + "<br> <br> Obstruction on path, adjusting instruction <br> <br> Adjusted instruction : " + stashedDriveInstruction.Instruction + ":" + strconv.Itoa(stashedDriveInstruction.Value) + " : Sucsessful"
+		feed = "<br> <br> Obstruction on path, adjusting instruction <br> <br> Adjusted instruction : " + stashedDriveInstruction.Instruction + ":" + strconv.Itoa(stashedDriveInstruction.Value) + " : Sucsessful" + feed
 
 		db.storeInstruction(ctx, stashedDriveInstruction.Instruction, stashedDriveInstruction.Value)
 
@@ -164,10 +164,10 @@ func stop(mqtt MQTT, ctx context.Context, db *SQLiteDB, distance int, obstructio
 
 		Map.Tiles[indx] = obstacleToValue(obstructionType)
 
-		feed = feed + "<br> <br> Obstruction identified: " + obstacleToName(obstructionType)
+		feed = "<br> <br> Obstruction identified: " + obstacleToName(obstructionType) + feed
 	}
 
-	feed = feed + "<br> <br> Stopped due to obstruction <br> <br> Computing new shortest path"
+	feed = "<br> <br> Stopped due to obstruction <br> <br> Computing new shortest path" + feed
 	fmt.Println("Stopped due to obstruction. Computing new shortest path.")
 	if err := mapAndDrive(mqtt, previousDestinationRow, previousDestinationCol, previousDestinationMode); err != nil {
 		// Enough to log error => Error is handled manually by clicking again on map

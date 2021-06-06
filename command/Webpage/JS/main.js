@@ -43,7 +43,7 @@ function printToFeedback(line, option){
     if (option == 0) {
         feed.innerHTML = line
     } else if (option == 1){
-    feed.innerHTML = feed.innerHTML + "<br>" + line + "<br>"
+    feed.innerHTML =  feed + "<br>" + feed.innerHTML + "<br>"
     }
 
 }
