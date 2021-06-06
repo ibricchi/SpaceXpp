@@ -75,9 +75,9 @@ func (h *HttpServer) driveA(ctx context.Context) http.HandlerFunc {
 
 		//h.insertInstruction(ctx, instruction[0])
 
-		currentEnergy.StateOfCharge = 50
-		currentEnergy.StateOfHealth = 99
-		currentEnergy.ErrorInCells = 0
+		currentEnergy.StateOfCharge = 12
+		currentEnergy.StateOfHealth = 2
+		currentEnergy.ErrorInCells = 1
 	}
 }
 
