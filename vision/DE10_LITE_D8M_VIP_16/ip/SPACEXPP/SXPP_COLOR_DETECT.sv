@@ -40,7 +40,7 @@ always_ff @(posedge clk) begin
     distance_y <= (pr-255)*(pr-255)+(pg-255)*(pg-255)+pb*pb;
     distance_g <= pr*pr+(pg-255)*(pg-255)+pb*pb;
     distance_b <= pr*pr+pg*pg+(pb-255)*(pb-255);
-    distance_p <= (pr-255)*(pr-255)+pg*pg+(pb-170)*(pb-170);
+    distance_p <= (pr-255)*(pr-255)+pg*pg+(pb-180)*(pb-180);
     distance_u <= pr*pr+pg*pg+pb*pb;
     
     x2 <= x1;
@@ -48,16 +48,16 @@ always_ff @(posedge clk) begin
 end
 
 // compute is_color
-always_comb begin
-    is_red = (distance_r < 30000) & (pr > (pb + pg));
-    is_yellow = (distance_y < 20000) & (pg > pr-50);
-    is_green = (distance_g < 35000) & (pg > pb) & (pg > pr) & (pb-10 > pr);
-    is_blue = (distance_b < 44000) & (pb > pg) & (pg > pr);
-    is_pink = (distance_p < 35000) & (pr > pb) & (pr < (pg+pb));
-    is_unknown = (distance_u < 3000);
+always_ff @(posedge clk) begin
+    is_red     <= (distance_r < 30000) & (pr > pg + pb);
+    is_yellow  <= (distance_y < 20000) & (pg > pr - 50);
+    is_green   <= (distance_g < 35000) & (pg > pb) & (pg > pr) & (pb > pr + 10);
+    is_blue    <= (distance_b < 44000) & (pb > pg) & (pg > pr);
+    is_pink    <= (distance_p < 33000) & (r < g + b + 20);
+    is_unknown <= (distance_u < 2000);
     
-    x_out = x2;
-    y_out = y2;
+    x_out <= x2;
+    y_out <= y2;
 end
 
 endmodule

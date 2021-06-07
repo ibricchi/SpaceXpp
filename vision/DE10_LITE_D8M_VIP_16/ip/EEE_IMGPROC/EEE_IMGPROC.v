@@ -81,8 +81,8 @@ wire         sop, eop, in_valid, out_ready;
 
 // setup blob detector params
 parameter gx_min = 100, gy_min = 40, gx_max = 540, gy_max = 440;
-parameter grids_x = 3;
-parameter grids_y = 3;
+parameter grids_x = 1;
+parameter grids_y = 1;
 parameter grid_w = (gx_max-gx_min)/grids_x, grid_h = (gy_max-gy_min)/grids_y;
 parameter color_count = 6;
 
@@ -235,12 +235,12 @@ assign highlight_color[1] = 24'hffff00;
 assign highlight_color[2] = 24'h00ff00;
 assign highlight_color[3] = 24'h0000ff;
 assign highlight_color[4] = 24'hff00ff;
-assign highlight_color[5] = 24'h000000;
+assign highlight_color[5] = 24'hffffff;
 
 wire [23:0] blob_high;
 wire [23:0] grid_high;
 assign grey = green[7:1] + red[7:2] + blue[7:2]; //Grey = green/2 + red/4 + blue/4
-assign blob_high = bd_valid ? highlight_color[bd_which_c] : {grey, grey, grey};
+assign blob_high = bd_valid ? highlight_color[sw[9]?bd_which_c:sw[4:1]] : {grey, grey, grey};
 assign grid_high = grid_active ? {8'hff, 8'hff, 8'h0} : blob_high;
 
 wire [23:0] bb_color;
@@ -346,7 +346,7 @@ always@(*) begin    //Write words to FIFO as state machine advances
             msg_buf_wr = 1'b1;
         end
         3'b011: begin
-            msg_buf_in = {obs_x[7:0], obs_y[7:0], 5'h5, obs_rad};    //Top left coordinate
+            msg_buf_in = {obs_x[7:0], obs_y[7:0], 5'h5, bd_pix};    //Top left coordinate
             msg_buf_wr = 1'b1;
         end
         3'b100: begin

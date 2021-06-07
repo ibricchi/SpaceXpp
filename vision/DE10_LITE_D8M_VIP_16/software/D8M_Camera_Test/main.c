@@ -257,68 +257,68 @@ int main()
 	  alt_u32 tx_length = 3;
 	  alt_u8 rx_data[tx_length];
 	  alt_u32 rx_length = tx_length;
+	  // data state
+	  char gridx, gridy, color;
+	  int rad;
+      bool sec_worked = FALSE;
       //Read messages from the image processor and print them on the terminal
       int name = 0;
       int count_messages = 0;
+      //Get next word from message buffer
        while ((IORD(0x42000,EEE_IMGPROC_STATUS)>>8) & 0xff) {   //Find out if there are words to read
-    	   unsigned int word = IORD(0x42000,EEE_IMGPROC_MSG);                    //Get next word from message buffer
-           if (word == EEE_IMGPROC_MSG_START){                                  //Newline on message identifi$
+    	   unsigned int word = IORD(0x42000,EEE_IMGPROC_MSG);
+    	   if (word == EEE_IMGPROC_MSG_START){                                  //Newline on message identifi$
                    name = word;
 
            }
            else if(count_messages == 1){
-                   char gridx = word >> 24;
-                   char gridy = word << 8 >> 24;
-                   char color = color_names[word << 16 >> 27];
-                   int rad = word << 21 >> 21;
-                   if(color == last_seen & color != last_sent){
-//                	   printf("Color match %c \n", color);
-                	   bool valid_pos = gridx != -1 & gridy != 1;
-                	   bool valid_rad = rad > 30;
-                	   bool valid_data = valid_pos & valid_rad;
-                	   if(valid_data){
-                		   last_seen_count++;
-//                		   printf("\tValid match, count: %d \n", last_seen_count);
-                	   }
-                	   else{
-//                		   printf("\tInvalid match\n");
-                		   last_seen_count = 0;
-                	   }
-                   }
-                   else if(color != last_seen){
-//                	   printf("Invalid color saw:%c expected: %c\n", color, last_seen);
-                	   last_seen = color;
-                	   last_seen_count = 0;
-                   }
-                   else{
-//                	   printf("Color already matched saw:%c expected: %c\n", color, last_seen);
-                   }
-
-                   if(color != last_sent & last_seen_count > 1){
-                	   tx_data[0] = color;
-                	   tx_data[1] = 'S';
-                	   tx_data[2] = 0;
-                	   printf("\n%s, rad: %u", tx_data, rad);
-				       alt_avalon_spi_command(SPI_0_BASE, 0, tx_length, tx_data, rx_length, rx_data, 0);
-				       last_sent = color;
-                   }
-
-                   if(gridx != -1 & gridy != 1){
-                	   printf("\ncolor: %c, rad: %u",color, rad);
-                   }
+        	   	   sec_worked = TRUE;
+                   gridx = word >> 24;
+                   gridy = word << 8 >> 24;
+                   color = color_names[word << 16 >> 27];
+                   rad = word << 21 >> 21;
            }
            else if(count_messages == 2){
-               char gridx = word >> 24;
-               char gridy = word << 8 >> 24;
-               char color = color_names[word << 16 >> 27];
-               int rad = word << 21 >> 21;
-        	   if(gridx != -1 & gridy != -1){
-            	   tx_data[0] = 'U';
-            	   tx_data[1] = 'S';
-            	   tx_data[2] = 0;
-            	   printf("\n%s, rad:%u", tx_data, rad);
-//			       alt_avalon_spi_command(SPI_0_BASE, 0, tx_length, tx_data, rx_length, rx_data, 0);
+               int pix = word << 21 >> 21;
+        	   if(sec_worked){
+        	       if(color == last_seen & color != last_sent){
+//        		      printf("Color match %c \n", color);
+					  bool valid_pos = gridx != -1 & gridy != 1;
+					  bool valid_rad = rad > 30 & pix > 1000;
+					  bool valid_data = valid_pos & valid_rad;
+					  if(valid_data){
+					      last_seen_count++;
+	//                	  printf("\tValid match, count: %d \n", last_seen_count);
+					  }
+					  else{
+//					      printf("\tInvalid match\n");
+						  last_seen_count = 0;
+					  }
+			   }
+			   else if(color != last_seen){
+//			       printf("Invalid color saw:%c expected: %c\n", color, last_seen);
+				   last_seen = color;
+				   last_seen_count = 0;
+               }
+			   else{
+	//             printf("Color already matched saw:%c expected: %c\n", color, last_seen);
+			   }
+
+					  if(color != last_sent & last_seen_count > 1){
+						   tx_data[0] = color;
+						   tx_data[1] = 'S';
+						   tx_data[2] = 0;
+						   printf("\ncounter: %u", last_seen_count);
+						   printf("\n%s, rad: %u", tx_data, rad);
+						   alt_avalon_spi_command(SPI_0_BASE, 0, tx_length, tx_data, rx_length, rx_data, 0);
+						   last_sent = color;
+					  }
+
+					  if(gridx != -1 & gridy != 1){
+						   printf("\nxcolor: %c, rad: %u, pix: %u",color, rad, pix);
+					  }
         	   }
+        	   sec_worked = FALSE;
            }
            else{
 //			   printf("\n%u", word);
