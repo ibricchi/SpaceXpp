@@ -38,11 +38,18 @@ function sendTargetCoords(x, y){
 
     fetch(serverIP + "/map/targetCoords", options);
 
+    
+    var line = "Target coordinates: " + x + "," + y + ": sent to server "
+    console.log(line)
+       printToFeedback(line, 1)
+
 }
 
 
 function mapReset(){
     
+    var line = "Resetting map & Clearing feed"
+    printToFeedback(line, 0)
     const options = {
         method: 'POST',
         headers: {
@@ -59,6 +66,9 @@ function mapReset(){
 function saveMap(){
 
    var name = document.getElementById("save").value
+
+   var line = "Map saved as: " + name 
+    printToFeedback(line, 1)
 
     const options = {
         method: 'POST',

@@ -48,7 +48,7 @@ func main() {
 
 	// Mosquito
 
-	mqttClient, err := server.InitMQTT(ctx, logger, *mqttBrokerURL, *mqttUsername, *mqttPassword)
+	mqttClient, err := server.InitMQTT(ctx, logger, serverDB, *mqttBrokerURL, *mqttUsername, *mqttPassword)
 	if err != nil {
 		logger.Fatal("server: failed to init MQTT client", zap.Error(err))
 	}

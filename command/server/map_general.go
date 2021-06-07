@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"go.uber.org/zap"
 )
@@ -43,6 +44,16 @@ var previousDestinationRow int
 var previousDestinationCol int
 var previousDestinationMode int
 
+// Used to record feedback
+var feed string
+
+// Used to store current energy readings
+var currentEnergy = energy{
+	StateOfCharge: 0,
+	StateOfHealth: 0,
+	ErrorInCells:  0,
+}
+
 func mapAndDrive(mqtt MQTT, destinationCol int, destinationRow int, mode int) error {
 	mqtt.getLogger().Info("starting map and drive", zap.Int("startRow", Rover.Y), zap.Int("startCol", Rover.X), zap.Int("destinationRow", destinationRow), zap.Int("destinationCol", destinationCol))
 
@@ -68,6 +79,8 @@ func mapAndDrive(mqtt MQTT, destinationCol int, destinationRow int, mode int) er
 	}
 
 	mqtt.publishDriveInstructionSequence(driveInstructions)
+
+	feed = "<br> <br> Drive instructions sent to rover <br> <br> Optimum path converted to drive instructions <br> <br> Targets converted to optimum path <br> <br> Targets recived by server " + feed
 
 	return nil
 }
@@ -100,31 +113,18 @@ func value2Mode(mode int) (traverseMode, error) {
 
 var stashedDriveInstruction driveInstruction
 
-func updateMap(driveInstruction driveInstruction) {
+func updateMap(driveInstruction driveInstruction, ctx context.Context, db *SQLiteDB) {
 
-	h := &HttpServer{}
-	var ctx context.Context
+	feed = " <br> <br> Instruction : " + driveInstruction.Instruction + ":" + strconv.Itoa(driveInstruction.Value) + " : Sucsessful" + feed
 
 	fmt.Println("inserting instructions via update map")
 
-	h.insertInstruction(ctx, driveInstruction)
+	db.storeInstruction(ctx, driveInstruction.Instruction, driveInstruction.Value)
 
 	driveTocoords(stashedDriveInstruction, tileWidth)
 
 	stashedDriveInstruction = driveInstruction
 
-}
-
-func (h *HttpServer) insertInstruction(ctx context.Context, driveInstruction driveInstruction) {
-
-	mapID, err := h.db.getLatestMapID(ctx)
-	if err != nil {
-		fmt.Println("no mapID : ", mapID)
-		fmt.Println("Error: couldnt get latest map ID")
-	}
-
-	fmt.Println("mapID : ", mapID)
-	h.db.storeInstruction(ctx, driveInstruction.Instruction, driveInstruction.Value, (mapID + 1))
 }
 
 // "stop"
@@ -140,22 +140,23 @@ func (h *HttpServer) insertInstruction(ctx context.Context, driveInstruction dri
 * 		- update map with location of obstruction & type of instruction (optionally based on updateMap argument)
  */
 
-func stop(mqtt MQTT, distance int, obstructionType string, stopAfterTurn bool) {
+func stop(mqtt MQTT, ctx context.Context, db *SQLiteDB, distance int, obstructionType string, stopAfterTurn bool) {
+	feed = "Obstruction identified"
+
 	if stopAfterTurn {
+		feed = "<br> <br> Instruction : " + stashedDriveInstruction.Instruction + ":" + strconv.Itoa(stashedDriveInstruction.Value) + " : Sucsessful <br> <br> Obstruction not on path, continuing to move <br> <br>" + feed
+
 		// Complete turn
 		driveTocoords(stashedDriveInstruction, tileWidth)
 	} else {
+
 		// Drive forward distance moved before stopping
 		stashedDriveInstruction.Instruction = "forward"
 		stashedDriveInstruction.Value = distance
 
-		var h *HttpServer
-		var ctx context.Context
-		mapID, err := h.db.getLatestMapID(ctx)
-		if err != nil {
-			fmt.Println("Error: couldnt get latest map ID")
-		}
-		h.db.storeInstruction(ctx, stashedDriveInstruction.Instruction, stashedDriveInstruction.Value, (mapID + 1))
+		feed = "<br> <br> Adjusted instruction : " + stashedDriveInstruction.Instruction + ":" + strconv.Itoa(stashedDriveInstruction.Value) + " : Sucsessful <br> <br> Obstruction on path, adjusting instruction " + feed
+
+		db.storeInstruction(ctx, stashedDriveInstruction.Instruction, stashedDriveInstruction.Value)
 
 		driveTocoords(stashedDriveInstruction, tileWidth)
 	}
@@ -169,8 +170,11 @@ func stop(mqtt MQTT, distance int, obstructionType string, stopAfterTurn bool) {
 		indx := getOneInFront(0)
 
 		Map.Tiles[indx] = obstacleToValue(obstructionType)
+
+		feed = "<br> <br> Obstruction identified: " + obstacleToName(obstructionType) + feed
 	}
 
+	feed = "<br> <br> Stopped due to obstruction <br> <br> Computing new shortest path " + feed
 	fmt.Println("Stopped due to obstruction. Computing new shortest path.")
 	if err := mapAndDrive(mqtt, previousDestinationRow, previousDestinationCol, previousDestinationMode); err != nil {
 		// Enough to log error => Error is handled manually by clicking again on map
@@ -215,6 +219,27 @@ func obstacleToValue(obstacle string) int {
 
 	fmt.Println("server: map_general: obstacleToValue: unknown obstacle, returning default value 5")
 	return 5
+}
+
+func obstacleToName(obstacle string) string {
+	if obstacle == "" { // No obstruction
+		return "No obstruction"
+	} else if obstacle == "U" {
+		return "Unknown obstruction"
+	} else if obstacle == "B" {
+		return "Blue ball"
+	} else if obstacle == "R" {
+		return "Red ball"
+	} else if obstacle == "Y" {
+		return "Yellow ball"
+	} else if obstacle == "T" {
+		return "Teal ball "
+	} else if obstacle == "V" {
+		return "Violet ball"
+	}
+
+	fmt.Println("server: map_general: obstacleToValue: unknown obstacle, returning default value 5")
+	return "Unknown obstruction"
 }
 
 func getOneInFront(changeInRotation int) int {

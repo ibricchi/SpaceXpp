@@ -11,6 +11,7 @@ serverIP = "https://18.117.12.54:3000"
 *       - location: the address of the text section of the HTML website that will be updated with the data from the server
 *       - address: the https address used in combination with the serverIP to send get request and recive corrosponding JSON data 
 */
+
 function getData( location, address ){
     webLocation = document.getElementById(location);
 
@@ -137,7 +138,7 @@ function loadMap(){
             loadedMap.rows = data.rows
             loadedMap.layers[0] = data.layout;
             loadedMap.layers[1][data.roverIndx] = getVal(data.roverRotation);
-            console.log(data.driveinstructions[0].instruction)
+            //console.log(data.driveinstructions[0].instruction)
 
             var i = 0
             while(data.driveinstructions[i].instruction != null)
@@ -150,4 +151,36 @@ function loadMap(){
         }
     })
 
+}
+
+function getFeed(){
+    fetch(serverIP + '/feed')
+    .then(request => request.json())
+    .then(data => {
+        if(data != null){
+           // console.log(data)
+            printToFeedback(data, 1)
+        }
+    })
+
+}
+
+function getEnergy(){
+    fetch(serverIP + '/energy/values')
+    .then(request => request.json())
+    .then(data => {
+        if(data != null){
+            stateOfCharge.style.width = data.stateOfCharge + '%'
+            stateOfCharge.innerHTML = data.stateOfCharge + '%'
+
+            stateOfHealth.style.width = data.stateOfHealth + '%'
+            stateOfHealth.innerHTML = data.stateOfHealth + '%'
+
+            if (data.errorInCells == 1){
+                alert("Error in cells!");
+
+            }
+            
+        }
+    })
 }

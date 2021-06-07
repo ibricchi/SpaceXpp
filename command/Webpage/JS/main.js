@@ -4,7 +4,8 @@ const drived = document.getElementById("driveD");
 const drivea = document.getElementById("driveA");
 const resetMap = document.getElementById("resetMap");
 const mapSave = document.getElementById("mapSave");
-
+const stateOfCharge = document.getElementById("stateOfCharge")
+const stateOfHealth = document.getElementById("stateOfHealth")
 const feed = document.getElementById("feedback")
 
 
@@ -15,10 +16,13 @@ mapSave.addEventListener('click', saveMap, false )
 document.getElementById("server").innerHTML = "loading"
 document.getElementById("rover").innerHTML = "loading"
 
+
 setInterval(function(){
     status();
     updateMap();
     updateRover();
+    getFeed();
+    getEnergy();
 }, 3000);
 
 
@@ -37,3 +41,17 @@ sendData('angle', '/drive/angle');
 }
 
 
+function printToFeedback(line, option){
+if (line != "") {
+
+
+        if (option == 0) {
+            feed.innerHTML = line
+        } else if (option == 1){
+        feed.innerHTML =  line + "<br>" + feed.innerHTML + "<br>"
+        }
+    }
+}
+
+ 
+  

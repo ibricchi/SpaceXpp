@@ -14,7 +14,7 @@ type DB interface {
 	getMapID(ctx context.Context, name string) (int, error)
 	getLatestMapID(ctx context.Context) (int, error)
 	saveRover(ctx context.Context, mapID int, roverIndex int) error
-	storeInstruction(ctx context.Context, instruction string, value int, mapID int) error
+	storeInstruction(ctx context.Context, instruction string, value int) error
 	resetInstructions(ctx context.Context, mapID int) error
 	retriveInstruction(ctx context.Context, mapID int) error
 
@@ -185,13 +185,24 @@ func (s *SQLiteDB) getLatestMapID(ctx context.Context) (int, error) {
 	return id, nil
 }
 
-func (s *SQLiteDB) storeInstruction(ctx context.Context, instruction string, value int, mapID int) error {
+func (s *SQLiteDB) storeInstruction(ctx context.Context, instruction string, value int) error {
+
+	fmt.Println("storing instruction: inside function")
+
+	mapID, err := s.getLatestMapID(ctx)
+	if err != nil {
+		fmt.Println("no mapID : ", mapID)
+		fmt.Println("Error: couldnt get latest map ID")
+	}
+
+	fmt.Println("storing instruction: map id:", mapID)
+
 	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
 		if _, err := tx.ExecContext(ctx, `
 			INSERT INTO instructions (mapID, instruction, value)
 			VALUES (:mapID, :instruction, :value )
 		`,
-			sql.Named("mapID", mapID),
+			sql.Named("mapID", (mapID+1)),
 			sql.Named("instruction", instruction),
 			sql.Named("value", value),
 		); err != nil {
