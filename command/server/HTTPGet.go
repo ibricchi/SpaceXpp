@@ -142,14 +142,14 @@ func (h *HttpServer) getIsAuthorised(creds map[string]string) http.HandlerFunc {
 				Valid: true,
 			}
 		*/
-		var data bool
-
+		data := true
 		fmt.Println("0", data)
 
 		username, password, ok := r.BasicAuth()
 		if !ok {
 			data = false
 		}
+		fmt.Println("password n that")
 
 		fmt.Println("1", data)
 
