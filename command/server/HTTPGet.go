@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
@@ -143,29 +142,22 @@ func (h *HttpServer) getIsAuthorised(creds map[string]string) http.HandlerFunc {
 			}
 		*/
 		data := true
-		fmt.Println("0", data)
 
 		username, password, ok := r.BasicAuth()
 		if !ok {
 			data = false
 		}
-		fmt.Println("password n that")
-
-		fmt.Println("1", data)
 
 		passwordHash, userExists := creds[username]
 		if !userExists {
 			data = false
 		}
 
-		fmt.Println("2", data)
-
 		passwordHashBytes := []byte(passwordHash)
 		passwordBytes := []byte(password)
 		if err := bcrypt.CompareHashAndPassword(passwordHashBytes, passwordBytes); err != nil {
 			data = false
 		}
-		fmt.Println("3", data)
 
 		if err := json.NewEncoder(w).Encode(data); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

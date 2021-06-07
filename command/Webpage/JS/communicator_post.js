@@ -10,6 +10,8 @@ function sendData(location, address){
         },
         body: JSON.stringify(val)
     };
+    options.headers.Authorization = encoded;
+
 
     fetch(serverIP + address, options);
 
@@ -35,6 +37,8 @@ function sendTargetCoords(x, y){
         },
         body: JSON.stringify(coords)
     };
+    options.headers.Authorization = encoded;
+
 
     fetch(serverIP + "/map/targetCoords", options);
 
@@ -57,6 +61,7 @@ function mapReset(){
         },
         body: JSON.stringify(0)
     };
+    options.headers.Authorization = encoded;
 
     fetch(serverIP + "/map/reset", options);
 
@@ -77,6 +82,7 @@ function saveMap(){
         },
         body: JSON.stringify(name)
     };
+    options.headers.Authorization = encoded;
 
     fetch(serverIP + "/map/history/save", options);
 
@@ -91,6 +97,7 @@ function requestMap(mapName){
         },
         body: JSON.stringify(mapName)
     };
+    options.headers.Authorization = encoded;
 
     fetch(serverIP + "/map/history/request", options);
 
