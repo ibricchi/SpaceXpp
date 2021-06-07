@@ -14,7 +14,7 @@ const tileMapUnknownVal = 1
 func getBestNextDestinationCoordinates(tileMap tileMap) (bool, int, int) {
 	// Prefer tile with more unknown neighbors => Can discover all using full discovery traversal mode
 	for i := 4; i >= 0; i-- {
-		if noSuchFieldExists, row, col := getFieldWithMinUnknownNeighborCount(4, tileMap); !noSuchFieldExists {
+		if noSuchFieldExists, row, col := getFieldWithMinUnknownNeighborCount(i, tileMap); !noSuchFieldExists {
 			return false, row, col
 		}
 	}
