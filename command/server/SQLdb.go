@@ -6,21 +6,6 @@ import (
 	"fmt"
 )
 
-type DB interface {
-	saveMapName(ctx context.Context, name string) error
-	insertMap(ctx context.Context, indx int, value int, mapID int) error
-	retriveMap(ctx context.Context, mapID int) error
-	retriveRover(ctx context.Context, mapID int) error
-	getMapID(ctx context.Context, name string) (int, error)
-	getLatestMapID(ctx context.Context) (int, error)
-	saveRover(ctx context.Context, mapID int, roverIndex int) error
-	storeInstruction(ctx context.Context, instruction string, value int) error
-	resetInstructions(ctx context.Context, mapID int) error
-	retriveInstruction(ctx context.Context, mapID int) error
-
-	Close() error
-}
-
 func (s *SQLiteDB) saveMapName(ctx context.Context, name string) error {
 	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
 		if _, err := tx.ExecContext(ctx, `
@@ -285,13 +270,6 @@ func (s *SQLiteDB) resetInstructions(ctx context.Context, mapID int) error {
 
 	return nil
 
-}
-
-func (s *SQLiteDB) Close() error {
-	if err := s.db.Close(); err != nil {
-		return fmt.Errorf("server: sqlite_db_general: failed to close sqlite db: %w", err)
-	}
-	return nil
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -113,7 +113,7 @@ func value2Mode(mode int) (traverseMode, error) {
 
 var stashedDriveInstruction driveInstruction
 
-func updateMap(driveInstruction driveInstruction, ctx context.Context, db *SQLiteDB) {
+func updateMap(driveInstruction driveInstruction, ctx context.Context, db DB) {
 
 	feed = " <br> <br> Instruction : " + driveInstruction.Instruction + ":" + strconv.Itoa(driveInstruction.Value) + " : Sucsessful" + feed
 
@@ -140,7 +140,7 @@ func updateMap(driveInstruction driveInstruction, ctx context.Context, db *SQLit
 * 		- update map with location of obstruction & type of instruction (optionally based on updateMap argument)
  */
 
-func stop(mqtt MQTT, ctx context.Context, db *SQLiteDB, distance int, obstructionType string, stopAfterTurn bool) {
+func stop(mqtt MQTT, ctx context.Context, db DB, distance int, obstructionType string, stopAfterTurn bool) {
 	feed = "Obstruction identified"
 
 	if stopAfterTurn {
