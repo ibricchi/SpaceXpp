@@ -19,7 +19,7 @@ type MQTTClient struct {
 	logger *zap.Logger
 }
 
-func InitMQTT(ctx context.Context, logger *zap.Logger, db *SQLiteDB, mqttBrokerURL string, mqttUsername string, mqttPassword string) (*MQTTClient, error) {
+func InitMQTT(ctx context.Context, logger *zap.Logger, db DB, mqttBrokerURL string, mqttUsername string, mqttPassword string) (*MQTTClient, error) {
 	tlsConfig, err := NewTlsConfig()
 	if err != nil {
 		return &MQTTClient{}, fmt.Errorf("server: mqtt: failed to get TLS config: %w", err)
@@ -66,7 +66,7 @@ var testStatusMessagePubHandler mqtt.MessageHandler = func(client mqtt.Client, m
 	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
 }
 
-func mqttConnectHandler(logger *zap.Logger, ctx context.Context, db *SQLiteDB) mqtt.OnConnectHandler {
+func mqttConnectHandler(logger *zap.Logger, ctx context.Context, db DB) mqtt.OnConnectHandler {
 	return func(client mqtt.Client) {
 		fmt.Println("Connected to MQTT broker successfully")
 
@@ -137,7 +137,7 @@ func (m *MQTTClient) publishDriveInstructionSequence(instructionSequence driveIn
 // Subscribing to instruction feed
 var stopData string
 
-func instructionFeedPubHandler(logger *zap.Logger, ctx context.Context, db *SQLiteDB) mqtt.MessageHandler {
+func instructionFeedPubHandler(logger *zap.Logger, ctx context.Context, db DB) mqtt.MessageHandler {
 	return func(client mqtt.Client, msg mqtt.Message) {
 		fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
 
