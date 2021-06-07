@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
@@ -145,6 +146,8 @@ func (h *HttpServer) getIsAuthorised(creds map[string]string) http.HandlerFunc {
 		if !ok {
 			data.Valid = false
 		}
+
+		fmt.Println("recived data: ", username, password)
 
 		passwordHash, userExists := creds[username]
 		if !userExists {

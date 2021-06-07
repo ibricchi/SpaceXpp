@@ -3,6 +3,33 @@ serverIP = "https://18.117.12.54:3000"
 
 // Get Requests \\
 
+/* Get credentials 
+*/
+
+function checkCredentials(encoded){
+        checkCredRequest = {
+            headers: {
+            "Content-Type": "application/json; charset=UTF-8"
+             },
+            method: "Get"
+            };
+            checkCredRequest.headers.Authorization = encoded;
+
+        fetch(serverIP + '/isAuthorised', checkCredRequest)
+        .then(request => request.json())
+        .then(data => {
+            if(data != null){
+                validCredentuails = data;
+                console.log("recived:", data )
+            }})
+        .catch(err => {
+            console.warn(err);
+            console.warn("Communicator: unable to fetch data from server");
+            webLocation.innerHTML = " Disconnected: Issue between wepage and server";
+        });
+}
+
+
 
 /* getData:
 *   - General get request for reciving and updating a section of the webpage 
