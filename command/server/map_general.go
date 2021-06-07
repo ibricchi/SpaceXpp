@@ -115,7 +115,7 @@ var stashedDriveInstruction driveInstruction
 
 func updateMap(driveInstruction driveInstruction, ctx context.Context, db *SQLiteDB) {
 
-	feed = "Instruction : " + driveInstruction.Instruction + ":" + strconv.Itoa(driveInstruction.Value) + " : Sucsessful" + feed
+	feed = " <br> <br> Instruction : " + driveInstruction.Instruction + ":" + strconv.Itoa(driveInstruction.Value) + " : Sucsessful" + feed
 
 	fmt.Println("inserting instructions via update map")
 
