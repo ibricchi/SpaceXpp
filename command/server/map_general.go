@@ -156,7 +156,9 @@ func stop(mqtt MQTT, ctx context.Context, db DB, distance int, obstructionType s
 
 		feed = "<br> <br> Adjusted instruction : " + stashedDriveInstruction.Instruction + ":" + strconv.Itoa(stashedDriveInstruction.Value) + " : Sucsessful <br> <br> Obstruction on path, adjusting instruction " + feed
 
-		db.storeInstruction(ctx, stashedDriveInstruction.Instruction, stashedDriveInstruction.Value)
+		if err := db.storeInstruction(ctx, stashedDriveInstruction.Instruction, stashedDriveInstruction.Value); err != nil {
+			mqtt.getLogger().Error("server: map_general: stop: failed to store instruction", zap.Error(err))
+		}
 
 		driveTocoords(stashedDriveInstruction, tileWidth)
 	}
