@@ -113,13 +113,15 @@ func value2Mode(mode int) (traverseMode, error) {
 
 var stashedDriveInstruction driveInstruction
 
-func updateMap(driveInstruction driveInstruction, ctx context.Context, db *SQLiteDB) {
+func updateMap(driveInstruction driveInstruction, ctx context.Context, db DB) {
 
 	feed = " <br> <br> Instruction : " + driveInstruction.Instruction + ":" + strconv.Itoa(driveInstruction.Value) + " : Sucsessful" + feed
 
 	fmt.Println("inserting instructions via update map")
 
-	db.storeInstruction(ctx, driveInstruction.Instruction, driveInstruction.Value)
+	if err := db.storeInstruction(ctx, driveInstruction.Instruction, driveInstruction.Value); err != nil {
+		db.getLogger().Error("server: map_general: updateMap: failed to store instruction", zap.Error(err))
+	}
 
 	driveTocoords(stashedDriveInstruction, tileWidth)
 
@@ -140,7 +142,7 @@ func updateMap(driveInstruction driveInstruction, ctx context.Context, db *SQLit
 * 		- update map with location of obstruction & type of instruction (optionally based on updateMap argument)
  */
 
-func stop(mqtt MQTT, ctx context.Context, db *SQLiteDB, distance int, obstructionType string, stopAfterTurn bool) {
+func stop(mqtt MQTT, ctx context.Context, db DB, distance int, obstructionType string, stopAfterTurn bool) {
 	feed = "Obstruction identified"
 
 	if stopAfterTurn {
@@ -156,7 +158,9 @@ func stop(mqtt MQTT, ctx context.Context, db *SQLiteDB, distance int, obstructio
 
 		feed = "<br> <br> Adjusted instruction : " + stashedDriveInstruction.Instruction + ":" + strconv.Itoa(stashedDriveInstruction.Value) + " : Sucsessful <br> <br> Obstruction on path, adjusting instruction " + feed
 
-		db.storeInstruction(ctx, stashedDriveInstruction.Instruction, stashedDriveInstruction.Value)
+		if err := db.storeInstruction(ctx, stashedDriveInstruction.Instruction, stashedDriveInstruction.Value); err != nil {
+			mqtt.getLogger().Error("server: map_general: stop: failed to store instruction", zap.Error(err))
+		}
 
 		driveTocoords(stashedDriveInstruction, tileWidth)
 	}
