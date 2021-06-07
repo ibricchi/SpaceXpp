@@ -100,7 +100,6 @@ func (s *SQLiteDB) migrate(ctx context.Context) error {
 		return fmt.Errorf("server: SQLGeneral: migrate transaction failed: %w", err)
 	}
 
-  
 	return nil
 }
 
@@ -122,11 +121,4 @@ func (s *SQLiteDB) TransactContext(ctx context.Context, f func(ctx context.Conte
 	}()
 
 	return f(ctx, tx)
-}
-
-func (s *SQLiteDB) Close() error {
-	if err := s.db.Close(); err != nil {
-		return fmt.Errorf("server: SQLGeneral: failed to close sqlite db: %w", err)
-	}
-	return nil
 }

@@ -22,10 +22,11 @@ type DB interface {
 	insertCredentials(ctx context.Context, credential credential) error
 	getCredentials(ctx context.Context) (map[string]string, error)
 	Close() error
+	getLogger() *zap.Logger
+}
 
-  func (s *SQLiteDB) getLogger() *zap.Logger {
+func (s *SQLiteDB) getLogger() *zap.Logger {
 	return s.logger
-  }
 }
 
 func (s *SQLiteDB) saveMapName(ctx context.Context, name string) error {
@@ -372,4 +373,3 @@ for rows.Next() {
 }
 /* end of testing area */
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
