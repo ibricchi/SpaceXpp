@@ -131,39 +131,41 @@ func (h *HttpServer) getEnergyStatus(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h *HttpServer) getIsAuthorised(creds map[string]string) http.HandlerFunc {
-	type isAuthorised struct {
+	/*type isAuthorised struct {
 		Valid bool `json:"valid"`
 	}
-
+	*/
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-		data := isAuthorised{
-			Valid: true,
-		}
+		/*	data := isAuthorised{
+				Valid: true,
+			}
+		*/
+		var data bool
 
-		fmt.Println("0", data.Valid)
+		fmt.Println("0", data)
 
 		username, password, ok := r.BasicAuth()
 		if !ok {
-			data.Valid = false
+			data = false
 		}
 
-		fmt.Println("1", data.Valid)
+		fmt.Println("1", data)
 
 		passwordHash, userExists := creds[username]
 		if !userExists {
-			data.Valid = false
+			data = false
 		}
 
-		fmt.Println("2", data.Valid)
+		fmt.Println("2", data)
 
 		passwordHashBytes := []byte(passwordHash)
 		passwordBytes := []byte(password)
 		if err := bcrypt.CompareHashAndPassword(passwordHashBytes, passwordBytes); err != nil {
-			data.Valid = false
+			data = false
 		}
-		fmt.Println("3", data.Valid)
+		fmt.Println("3", data)
 
 		if err := json.NewEncoder(w).Encode(data); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

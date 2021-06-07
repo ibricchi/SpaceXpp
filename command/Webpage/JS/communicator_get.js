@@ -7,25 +7,24 @@ serverIP = "https://18.117.12.54:3000"
 */
 
 function checkCredentials(encoded){
-        checkCredRequest = {
+    console.log("enteredfunction")  
+    checkCredRequest = {
             headers: {
             "Content-Type": "application/json; charset=UTF-8"
              },
-            method: "Get"
+            method: "GET"
             };
             checkCredRequest.headers.Authorization = encoded;
 
-        fetch(serverIP + '/isAuthorised', checkCredRequest)
+         fetch(serverIP + '/isAuthorised', checkCredRequest)
         .then(request => request.json())
-        .then(data => {
-            if(data != null){
-                validCredentuails = data.valid;
-                console.log("recived:", data.valid )
-            }})
+        .then( data => {
+            validCredentials = data
+            console.log("creds :", validCredentials)
+        })
         .catch(err => {
             console.warn(err);
             console.warn("Communicator: unable to fetch data from server");
-            webLocation.innerHTML = " Disconnected: Issue between wepage and server";
         });
 }
 
