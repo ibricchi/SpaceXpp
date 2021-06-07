@@ -102,3 +102,17 @@ function requestMap(mapName){
     fetch(serverIP + "/map/history/request", options);
 
 }
+
+function stopAutonomous(){
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(true)
+    };
+    options.headers.Authorization = encoded;
+
+    fetch(serverIP + "/map/stopAutonomous", options);
+
+}

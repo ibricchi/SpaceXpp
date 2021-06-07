@@ -7,12 +7,15 @@ const mapSave = document.getElementById("mapSave");
 const stateOfCharge = document.getElementById("stateOfCharge")
 const stateOfHealth = document.getElementById("stateOfHealth")
 const feed = document.getElementById("feedback")
-
+//const stopAutonom = document.getElementById("stopAutonomous")
 
 drived.addEventListener('click', driveD , false);
 drivea.addEventListener('click', driveA , false);
 resetMap.addEventListener('click', mapReset, false);
 mapSave.addEventListener('click', saveMap, false )
+//stopAutonom.addEventListener('click', stopAutonomous, false )
+
+
 document.getElementById("server").innerHTML = "loading"
 document.getElementById("rover").innerHTML = "loading"
 

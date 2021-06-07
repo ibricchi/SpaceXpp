@@ -47,6 +47,9 @@ var previousDestinationMode int
 // Used to record feedback
 var feed string
 
+// Used to stop autonomous
+var stopAutonomous bool = true
+
 // Used to store current energy readings
 var currentEnergy = energy{
 	StateOfCharge: 0,
@@ -83,6 +86,14 @@ func mapAndDrive(mqtt MQTT, destinationCol int, destinationRow int, mode int) er
 	feed = "<br> <br> Drive instructions sent to rover <br> <br> Optimum path converted to drive instructions <br> <br> Targets converted to optimum path <br> <br> Targets recived by server " + feed
 
 	return nil
+}
+
+func autonomousDrive(mqtt MQTT) {
+	available, x, y := getBestNextDestinationCoordinates(Map)
+	if available == false || stopAutonomous == false {
+		mapAndDrive(mqtt, x, y, 1)
+	}
+
 }
 
 func angle2Direction(angle int) (direction, error) {

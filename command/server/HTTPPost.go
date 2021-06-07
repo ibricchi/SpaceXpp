@@ -93,7 +93,11 @@ func (h *HttpServer) targetCoords(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-
+	if targetCoords.Mode == 3 {
+		feed = "<br> <br> Rover is in autonomous mode, exploring the area" + feed
+		stopAutonomous = false
+		autonomousDrive(h.mqtt)
+	}
 	previousDestinationRow = targetCoords.X
 	previousDestinationCol = targetCoords.Y
 	previousDestinationMode = targetCoords.Mode
@@ -101,6 +105,19 @@ func (h *HttpServer) targetCoords(w http.ResponseWriter, r *http.Request) {
 	if err := mapAndDrive(h.mqtt, targetCoords.X, targetCoords.Y, targetCoords.Mode); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
+}
+func (h *HttpServer) stopAutonom(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	defer r.Body.Close()
+
+	if err := decoder.Decode(&stopAutonomous); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+
+	feed = "<br> <br> Exiting autonomous mode" + feed
+
+	w.WriteHeader(http.StatusOK)
+
 }
 
 func Abs(x int) int {

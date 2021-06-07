@@ -187,6 +187,12 @@ cursor.prototype.select = function(entr) {
     }
 }
 
+cursor.prototype.exitAuton = function(entr) {
+    if (entr > 0) {
+       stopAutonomous()
+    }
+}
+
 
 Game.load = function () {
     return [
@@ -218,8 +224,11 @@ Game.update = function (delta) {
     else if (Keyboard.isDown(Keyboard.UP)) {Keyboard.resetKeys(Keyboard.UP); diry = -1;  }
     else if (Keyboard.isDown(Keyboard.DOWN)) {Keyboard.resetKeys(Keyboard.DOWN); diry = 1;  }
     else if (Keyboard.isDown(Keyboard.ENTER)) {Keyboard.resetKeys(Keyboard.ENTER); entr = 1; }
+    else if (Keyboard.isDown(Keyboard.C)) {Keyboard.resetKeys(Keyboard.C); c = 1; }
+
     this.cursor.move(delta, dirx, diry);
     this.cursor.select(entr);
+    this.cursor.exitAuton(c)
     this.camera.update();
 };
 
