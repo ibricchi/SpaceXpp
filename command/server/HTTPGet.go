@@ -142,22 +142,28 @@ func (h *HttpServer) getIsAuthorised(creds map[string]string) http.HandlerFunc {
 			Valid: true,
 		}
 
+		fmt.Println("0", data.Valid)
+
 		username, password, ok := r.BasicAuth()
 		if !ok {
 			data.Valid = false
 		}
+
+		fmt.Println("1", data.Valid)
 
 		passwordHash, userExists := creds[username]
 		if !userExists {
 			data.Valid = false
 		}
 
+		fmt.Println("2", data.Valid)
+
 		passwordHashBytes := []byte(passwordHash)
 		passwordBytes := []byte(password)
 		if err := bcrypt.CompareHashAndPassword(passwordHashBytes, passwordBytes); err != nil {
 			data.Valid = false
 		}
-		fmt.Println(data.Valid)
+		fmt.Println("3", data.Valid)
 
 		if err := json.NewEncoder(w).Encode(data); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
