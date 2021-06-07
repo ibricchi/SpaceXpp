@@ -85,12 +85,23 @@ func (s *SQLiteDB) migrate(ctx context.Context) error {
 			return fmt.Errorf("sqlite failed to create tiles table: %w", err)
 		}
 		return nil
+    
+		if _, err := tx.ExecContext(ctx, `
+			CREATE TABLE IF NOT EXISTS credentials (
+				id INTEGER NOT NULL PRIMARY KEY,
+				username TEXT NOT NULL,
+				password TEXT NOT NULL
+			)
+		`); err != nil {
+			return fmt.Errorf("sqlite failed to create creds table: %w", err)
+		}
 
+		return nil
 	}); err != nil {
-		return fmt.Errorf("buna: sqlite_db_general: transaction failed: %w", err)
+		return fmt.Errorf("server: SQLGeneral: migrate transaction failed: %w", err)
 	}
-	return nil
 
+	return nil
 }
 
 func (s *SQLiteDB) TransactContext(ctx context.Context, f func(ctx context.Context, tx *sql.Tx) error) (err error) {
