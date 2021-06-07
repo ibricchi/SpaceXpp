@@ -174,7 +174,7 @@ func stop(mqtt MQTT, ctx context.Context, db *SQLiteDB, distance int, obstructio
 		feed = "<br> <br> Obstruction identified: " + obstacleToName(obstructionType) + feed
 	}
 
-	feed = "<br> <br> Stopped due to obstruction <br> <br> Computing new shortest path" + feed
+	feed = "<br> <br>  Computing new shortest path <br> <br> Stopped due to obstruction " + feed
 	fmt.Println("Stopped due to obstruction. Computing new shortest path.")
 	if err := mapAndDrive(mqtt, previousDestinationRow, previousDestinationCol, previousDestinationMode); err != nil {
 		// Enough to log error => Error is handled manually by clicking again on map
