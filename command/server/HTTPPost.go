@@ -31,9 +31,7 @@ func (h *HttpServer) driveD(w http.ResponseWriter, r *http.Request) {
 		Value:       t,
 	})
 
-	//h.mqtt.publishDriveInstructionSequence(instruction)
-
-	//updateMap(instruction[0])
+	h.mqtt.publishDriveInstructionSequence(instruction)
 
 }
 func (h *HttpServer) driveA(ctx context.Context) http.HandlerFunc {
@@ -50,9 +48,6 @@ func (h *HttpServer) driveA(ctx context.Context) http.HandlerFunc {
 
 		w.WriteHeader(http.StatusOK)
 
-		fmt.Println("Recived drive angle: ", t)
-		// Send data to hardware
-
 		c := "turnRight"
 		if t < 0 {
 			c = "turnLeft"
@@ -65,21 +60,8 @@ func (h *HttpServer) driveA(ctx context.Context) http.HandlerFunc {
 			Value:       Abs(t),
 		})
 
-		//	h.mqtt.publishDriveInstructionSequence(instruction)
+		h.mqtt.publishDriveInstructionSequence(instruction)
 
-		fmt.Println("updating map & inserting instructions ")
-
-		//updateMap(instruction[0], ctx)
-
-		//fmt.Println("attempting to store in db")
-
-		//h.insertInstruction(ctx, instruction[0])
-
-		/*
-			currentEnergy.StateOfCharge = 12
-			currentEnergy.StateOfHealth = 2
-			currentEnergy.ErrorInCells = 1
-		*/
 	}
 }
 
