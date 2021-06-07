@@ -1,7 +1,59 @@
 
 serverIP = "https://18.117.12.54:3000"
 
+var validCredentials = false;
+var encoded 
+
+async function LogIn(){
+    while(validCredentials == false){
+
+        var userName=prompt("Username","");
+        var pass =  prompt("Password","")
+
+        encoded = 'Basic ' + btoa(userName + ":" + pass );
+        
+        validCredentials = await checkCredentials(encoded)
+        console.log(validCredentials)
+        }
+
+        var line = "Welcome to mars " + userName + "!"
+        printToFeedback(line, 0)
+}
+
+LogIn()
+
+
 // Get Requests \\
+
+/* Get credentials 
+*/
+
+async function checkCredentials(encoded){
+    console.log("entered function")  
+    checkCredRequest = {
+            headers: {
+            "Content-Type": "application/json; charset=UTF-8"
+             },
+            method: "GET"
+            };
+            checkCredRequest.headers.Authorization = encoded;
+
+        return fetch(serverIP + '/isAuthorised', checkCredRequest)
+        .then(request => request.json())
+        .then( data => {return data}) 
+        .catch(err => {
+            console.warn(err);
+            console.warn("Communicator: unable to fetch data from server");
+            return false 
+        });
+}
+
+
+// Private requests 
+
+
+
+
 
 
 /* getData:
@@ -13,9 +65,17 @@ serverIP = "https://18.117.12.54:3000"
 */
 
 function getData( location, address ){
+    privateRequest = {
+        headers: {
+        "Content-Type": "application/json; charset=UTF-8"
+         },
+        method: "GET"
+        };
+        privateRequest.headers.Authorization = encoded;
+    
     webLocation = document.getElementById(location);
 
-    fetch(serverIP + address)
+    fetch(serverIP + address, privateRequest)
         .then(request => request.json())
         .then(data => {
             if(data != null){
@@ -32,10 +92,18 @@ function getData( location, address ){
 
 
 function status(){
+
+    privateRequest = {
+        headers: {
+        "Content-Type": "application/json; charset=UTF-8"
+         },
+        method: "GET"
+        };
+        privateRequest.headers.Authorization = encoded;
     server = document.getElementById("server")
     rover = document.getElementById("rover")
 
-    fetch(serverIP + '/connect')
+    fetch(serverIP + '/connect', privateRequest)
         .then(request => request.json())
         .then(data => {
             if(data != null){
@@ -62,8 +130,14 @@ function status(){
 
 
 function updateMap() {
-
-    fetch(serverIP + '/map/getMap')
+    privateRequest = {
+        headers: {
+        "Content-Type": "application/json; charset=UTF-8"
+         },
+        method: "GET"
+        };
+    privateRequest.headers.Authorization = encoded;
+    fetch(serverIP + '/map/getMap', privateRequest)
         .then(request => request.json())
         .then(data => {
             if(data != null){
@@ -89,7 +163,14 @@ function getVal(angle){
 }
 
 function updateRover(){
-    fetch(serverIP + '/map/getRover')
+    privateRequest = {
+        headers: {
+        "Content-Type": "application/json; charset=UTF-8"
+         },
+        method: "GET"
+        };
+        privateRequest.headers.Authorization = encoded;
+    fetch(serverIP + '/map/getRover', privateRequest)
         .then(request => request.json())
         .then(data => {
             if(data != null){
@@ -115,8 +196,15 @@ function updateRover(){
 
 
 function check(){
+    privateRequest = {
+        headers: {
+        "Content-Type": "application/json; charset=UTF-8"
+         },
+        method: "GET"
+        };
+        privateRequest.headers.Authorization = encoded;
 
-    fetch(serverIP + '/check')
+    fetch(serverIP + '/check', privateRequest)
         .then(request => request.json())
         .then(data => {
             if(data != null){
@@ -130,7 +218,16 @@ function check(){
 
 
 function loadMap(){
-    fetch(serverIP + '/map/history/load')
+
+    privateRequest = {
+        headers: {
+        "Content-Type": "application/json; charset=UTF-8"
+         },
+        method: "GET"
+        };
+        privateRequest.headers.Authorization = encoded;
+
+    fetch(serverIP + '/map/history/load', privateRequest)
     .then(request => request.json())
     .then(data => {
         if(data != null){
@@ -154,7 +251,16 @@ function loadMap(){
 }
 
 function getFeed(){
-    fetch(serverIP + '/feed')
+
+    privateRequest = {
+        headers: {
+        "Content-Type": "application/json; charset=UTF-8"
+         },
+        method: "GET"
+        };
+        privateRequest.headers.Authorization = encoded;
+
+    fetch(serverIP + '/feed', privateRequest)
     .then(request => request.json())
     .then(data => {
         if(data != null){
@@ -166,7 +272,16 @@ function getFeed(){
 }
 
 function getEnergy(){
-    fetch(serverIP + '/energy/values')
+
+    privateRequest = {
+        headers: {
+        "Content-Type": "application/json; charset=UTF-8"
+         },
+        method: "GET"
+        };
+        privateRequest.headers.Authorization = encoded;
+
+    fetch(serverIP + '/energy/values', privateRequest)
     .then(request => request.json())
     .then(data => {
         if(data != null){

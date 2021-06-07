@@ -8,8 +8,24 @@ import (
 	"go.uber.org/zap"
 )
 
-func (s *SQLiteDB) getLogger() *zap.Logger {
+type DB interface {
+	saveMapName(ctx context.Context, name string) error
+	insertMap(ctx context.Context, indx int, value int, mapID int) error
+	retriveMap(ctx context.Context, mapID int) error
+	retriveRover(ctx context.Context, mapID int) error
+	getMapID(ctx context.Context, name string) (int, error)
+	getLatestMapID(ctx context.Context) (int, error)
+	saveRover(ctx context.Context, mapID int, roverIndex int) error
+	storeInstruction(ctx context.Context, instruction string, value int) error
+	resetInstructions(ctx context.Context, mapID int) error
+	retriveInstruction(ctx context.Context, mapID int) error
+	insertCredentials(ctx context.Context, credential credential) error
+	getCredentials(ctx context.Context) (map[string]string, error)
+	Close() error
+
+  func (s *SQLiteDB) getLogger() *zap.Logger {
 	return s.logger
+  }
 }
 
 func (s *SQLiteDB) saveMapName(ctx context.Context, name string) error {
@@ -276,3 +292,84 @@ func (s *SQLiteDB) resetInstructions(ctx context.Context, mapID int) error {
 	return nil
 
 }
+
+func (s *SQLiteDB) insertCredentials(ctx context.Context, credential credential) error {
+	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
+		if _, err := tx.ExecContext(ctx, `
+			INSERT INTO credentials (username, password)
+			VALUES (:username, :password)
+		`,
+			sql.Named("username", credential.username),
+			sql.Named("password", credential.password),
+		); err != nil {
+			return fmt.Errorf("server: SQLdb: failed to insert credential into db: %w", err)
+		}
+
+		return nil
+	}); err != nil {
+		return fmt.Errorf("server: SQLdb: insertCredentials transaction failed: %w", err)
+	}
+	return nil
+}
+
+func (s *SQLiteDB) getCredentials(ctx context.Context) (map[string]string, error) {
+	credentials := map[string]string{}
+	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
+		rows, err := tx.QueryContext(ctx, `
+			SELECT username, password
+			FROM credentials
+		`)
+		if err != nil {
+			return fmt.Errorf("server: SQLdb: failed to retrieve credential rows: %w", err)
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var username, password string
+			if err := rows.Scan(
+				&username,
+				&password,
+			); err != nil {
+				return fmt.Errorf("server: SQLdb: failed to scan credential row: %w", err)
+			}
+
+			credentials[username] = password
+		}
+
+		if err := rows.Err(); err != nil {
+			return fmt.Errorf("server: SQLdb: failed to scan last credential row: %w", err)
+		}
+
+		return nil
+	}); err != nil {
+		return nil, fmt.Errorf("server: SQLdb: getCredentials transaction failed: %w", err)
+	}
+
+	return credentials, nil
+}
+
+func (s *SQLiteDB) Close() error {
+	if err := s.db.Close(); err != nil {
+		return fmt.Errorf("server: SQLdb: failed to close sqlite db: %w", err)
+	}
+	return nil
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/* DATABASE Testing Area /
+fmt.Println("Stating db tests")
+statement, _ := db.Prepare("CREATE TABLE IF NOT EXISTS people (id INTEGER PRIMARY KEY, name TEXT)")
+statement.Exec()
+statement, _ = db.Prepare("INSERT INTO people (name) VALUES (?)")
+statement.Exec("Brad")
+fmt.Println("data in db, now querying")
+rows, _ := db.Query("SELECT id, name FROM people")
+var id int
+var name string
+for rows.Next() {
+	rows.Scan(&id, &name)
+	fmt.Println(strconv.Itoa(id) + ": " + name)
+}
+/* end of testing area */
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+

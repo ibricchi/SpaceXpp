@@ -84,11 +84,23 @@ func (s *SQLiteDB) migrate(ctx context.Context) error {
 				`); err != nil {
 			return fmt.Errorf("sqlite failed to create instruction table: %w", err)
 		}
-		return nil
 
+		if _, err := tx.ExecContext(ctx, `
+			CREATE TABLE IF NOT EXISTS credentials (
+				id INTEGER NOT NULL PRIMARY KEY,
+				username TEXT NOT NULL,
+				password TEXT NOT NULL
+			)
+		`); err != nil {
+			return fmt.Errorf("sqlite failed to create creds table: %w", err)
+		}
+
+		return nil
 	}); err != nil {
 		return fmt.Errorf("server: SQLGeneral: migrate transaction failed: %w", err)
 	}
+
+  
 	return nil
 }
 

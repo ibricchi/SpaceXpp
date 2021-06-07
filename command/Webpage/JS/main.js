@@ -16,14 +16,15 @@ mapSave.addEventListener('click', saveMap, false )
 document.getElementById("server").innerHTML = "loading"
 document.getElementById("rover").innerHTML = "loading"
 
-
-setInterval(function(){
-    status();
-    updateMap();
-    updateRover();
-    getFeed();
-    getEnergy();
-}, 3000);
+    setInterval(function(){
+        if (validCredentials == true){
+            status();
+            updateMap();
+            updateRover();
+            getFeed();
+            getEnergy();
+        }
+    }, 3000);
 
 
 
