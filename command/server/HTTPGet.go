@@ -26,7 +26,7 @@ type energy struct {
 }
 
 func (h *HttpServer) connect(w http.ResponseWriter, req *http.Request) {
-	status := true //h.mqtt.client.IsConnected()
+	status := h.mqtt.getIsConnected()
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	if err := json.NewEncoder(w).Encode(status); err != nil {

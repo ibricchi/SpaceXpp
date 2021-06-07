@@ -189,7 +189,8 @@ cursor.prototype.select = function(entr) {
 
 cursor.prototype.exitAuton = function(entr) {
     if (entr > 0) {
-       stopAutonomous()
+        stopAutonomous()
+        console.log("stoppinggg")
     }
 }
 

@@ -226,3 +226,7 @@ func instructionEnergyPubHandler(logger *zap.Logger) mqtt.MessageHandler {
 		}
 	}
 }
+
+func (m *MQTTClient) getIsConnected() bool {
+	return m.client.IsConnected()
+}
