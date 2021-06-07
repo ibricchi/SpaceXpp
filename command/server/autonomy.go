@@ -67,38 +67,11 @@ type rectangle struct {
 }
 
 /*
-	Return values: isFullyDiscovered bool, destinationRow int, destinationCol int
-	isFullyDiscovered is true if there are no more "unknown" tiles on the map (tile value 1).
-*/
-// func getBestNextDestinationCoordinates(tileMap tileMap) (bool, int, int) {
-// 	undiscoveredRectanglesInMap := getUndiscoveredRectangles(tileMap)
-
-// 	var biggestRectangle rectangle
-// 	biggestSize := 0
-
-// 	for _, rectangle := range undiscoveredRectanglesInMap {
-// 		currentSize := (rectangle.right - rectangle.left + 1) * (rectangle.bottom - rectangle.top + 1)
-// 		if currentSize > biggestSize {
-// 			biggestSize = currentSize
-// 			biggestRectangle = rectangle
-// 		}
-// 	}
-
-// 	// Map already fully discovered
-// 	if biggestSize == 0 {
-// 		return true, -1, -1
-// 	}
-
-// 	centreRow, centreCol := getRectangleCentreCoordinates(biggestRectangle)
-
-// 	return false, destinationRow, destinationCol
-// }
-
-/*
 	Expects no rectangles that are touching the map edges as all map edges should be filled by an obstruction.
 
 	More work is needed for this to produce an exact solution when rectangles are touching.
 	This algorithm should not be used for automation until improvements are added.
+	However, this algorithm could potentially provide a more elegant solution than the current automation one.
 */
 func getUndiscoveredRectangles(tileMap tileMap) []rectangle {
 	finishedRectangles := make([]rectangle, 0)

@@ -106,12 +106,6 @@ func TestGetUndiscoveredRectangles(t *testing.T) {
 		// 		},
 		// 	},
 		// 	expectedRectangles: []rectangle{
-		// 		{
-		// 			left:   10,
-		// 			right:  13,
-		// 			top:    1,
-		// 			bottom: 5,
-		// 		},
 		// 	},
 		// },
 	}

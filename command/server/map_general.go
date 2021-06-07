@@ -57,10 +57,6 @@ var currentEnergy = energy{
 func mapAndDrive(mqtt MQTT, destinationCol int, destinationRow int, mode int) error {
 	mqtt.getLogger().Info("starting map and drive", zap.Int("startRow", Rover.Y), zap.Int("startCol", Rover.X), zap.Int("destinationRow", destinationRow), zap.Int("destinationCol", destinationCol))
 
-	// testing only
-	isFullyDiscovered, destinationRow, destinationCol := getBestNextDestinationCoordinates(Map)
-	fmt.Printf("isFullyDiscovered: %v, destinationRow: %v, destinationCol: %v\n", isFullyDiscovered, destinationRow, destinationCol)
-
 	// Getting optimum path
 	path, err := getShortedPathFromStartToDestination(Rover.Y, Rover.X, destinationRow, destinationCol, Map)
 	if err != nil {
