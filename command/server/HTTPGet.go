@@ -147,8 +147,6 @@ func (h *HttpServer) getIsAuthorised(creds map[string]string) http.HandlerFunc {
 			data.Valid = false
 		}
 
-		fmt.Println("recived data: ", username, password)
-
 		passwordHash, userExists := creds[username]
 		if !userExists {
 			data.Valid = false
@@ -159,6 +157,7 @@ func (h *HttpServer) getIsAuthorised(creds map[string]string) http.HandlerFunc {
 		if err := bcrypt.CompareHashAndPassword(passwordHashBytes, passwordBytes); err != nil {
 			data.Valid = false
 		}
+		fmt.Println(data.Valid)
 
 		if err := json.NewEncoder(w).Encode(data); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -19,8 +19,8 @@ function checkCredentials(encoded){
         .then(request => request.json())
         .then(data => {
             if(data != null){
-                validCredentuails = data;
-                console.log("recived:", data )
+                validCredentuails = data.valid;
+                console.log("recived:", data.valid )
             }})
         .catch(err => {
             console.warn(err);
