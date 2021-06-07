@@ -219,6 +219,7 @@ Game.update = function (delta) {
     var dirx = 0;
     var diry = 0;
     var entr = 0;
+    var c = 0;
     if (Keyboard.isDown(Keyboard.LEFT)) {Keyboard.resetKeys(Keyboard.LEFT); dirx = -1;  }
     else if (Keyboard.isDown(Keyboard.RIGHT)) {Keyboard.resetKeys(Keyboard.RIGHT); dirx = 1;  }
     else if (Keyboard.isDown(Keyboard.UP)) {Keyboard.resetKeys(Keyboard.UP); diry = -1;  }

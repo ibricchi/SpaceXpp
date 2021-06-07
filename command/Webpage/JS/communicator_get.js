@@ -108,7 +108,7 @@ function status(){
         .then(data => {
             if(data != null){
                 server.innerHTML = "Connected";
-                if(data == 0){
+                if(data == true){
                     rover.innerHTML =  "Connected";
                 } else {
                     rover.innerHTML =  "Disconnected";
