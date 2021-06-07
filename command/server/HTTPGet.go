@@ -117,8 +117,7 @@ func (h *HttpServer) getFeed(ctx context.Context) http.HandlerFunc {
 	}
 }
 
-
-func (h *HttpServer) getStateOfCharge(w http.ResponseWriter, req *http.Request) {
+func (h *HttpServer) getEnergyStatus(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
@@ -129,7 +128,6 @@ func (h *HttpServer) getStateOfCharge(w http.ResponseWriter, req *http.Request) 
 	w.WriteHeader(http.StatusOK)
 
 }
-
 
 func (h *HttpServer) getIsAuthorised(creds map[string]string) http.HandlerFunc {
 	type isAuthorised struct {
