@@ -40,26 +40,52 @@ func OpenSQLiteDB(ctx context.Context, logger *zap.Logger, dsn string) (*SQLiteD
 
 func (s *SQLiteDB) migrate(ctx context.Context) error {
 	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
-		if _, err := s.db.ExecContext(ctx, `
-			CREATE TABLE IF NOT EXISTS maps (
-				mapID INTEGER NOT NULL PRIMARY KEY,
-				name STRING	
-			)
-		`); err != nil {
+
+		if _, err := tx.ExecContext(ctx, `
+				CREATE TABLE IF NOT EXISTS maps (
+					mapID INTEGER NOT NULL PRIMARY KEY,
+					name STRING	
+				)
+			`); err != nil {
 			return fmt.Errorf("sqlite failed to create maps table: %w", err)
 		}
 
-		if _, err := s.db.ExecContext(ctx, `
+		if _, err := tx.ExecContext(ctx, `
 			CREATE TABLE IF NOT EXISTS tiles (
 				tileID INTEGER NOT NULL PRIMARY KEY,
+				indx INTEGER NOT NULL,
 				mapID INTEGER NOT NULL,
-				value INTEGER NOT NULL,
-				FOREIGN KEY(mapID) REFERENCES Departments(maps)
+				value INTEGER,
+				FOREIGN KEY(mapID) REFERENCES maps(mapID)	
 			)
-		`); err != nil {
+				`); err != nil {
 			return fmt.Errorf("sqlite failed to create tiles table: %w", err)
 		}
 
+		if _, err := tx.ExecContext(ctx, `
+			CREATE TABLE IF NOT EXISTS rover (
+				mapID INTEGER NOT NULL,
+				indx INTEGER NOT NULL,
+				rotation INTEGER,
+				FOREIGN KEY(mapID) REFERENCES maps(mapID)		
+			)
+				`); err != nil {
+			return fmt.Errorf("sqlite failed to create tiles table: %w", err)
+		}
+
+		if _, err := tx.ExecContext(ctx, `
+			CREATE TABLE IF NOT EXISTS instructions (
+				instructionID INTEGER NOT NULL PRIMARY KEY,
+				mapID INTEGER NOT NULL,
+				instruction STRING NOT NULL,
+				value INTEGER,
+				FOREIGN KEY(mapID) REFERENCES maps(mapID)	
+			)
+				`); err != nil {
+			return fmt.Errorf("sqlite failed to create tiles table: %w", err)
+		}
+		return nil
+    
 		if _, err := tx.ExecContext(ctx, `
 			CREATE TABLE IF NOT EXISTS credentials (
 				id INTEGER NOT NULL PRIMARY KEY,

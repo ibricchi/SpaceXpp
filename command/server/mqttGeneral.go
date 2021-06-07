@@ -19,7 +19,7 @@ type MQTTClient struct {
 	logger *zap.Logger
 }
 
-func InitMQTT(ctx context.Context, logger *zap.Logger, mqttBrokerURL string, mqttUsername string, mqttPassword string) (*MQTTClient, error) {
+func InitMQTT(ctx context.Context, logger *zap.Logger, db *SQLiteDB, mqttBrokerURL string, mqttUsername string, mqttPassword string) (*MQTTClient, error) {
 	tlsConfig, err := NewTlsConfig()
 	if err != nil {
 		return &MQTTClient{}, fmt.Errorf("server: mqtt: failed to get TLS config: %w", err)
@@ -35,13 +35,14 @@ func InitMQTT(ctx context.Context, logger *zap.Logger, mqttBrokerURL string, mqt
 	opts.SetCleanSession(true)
 	opts.SetConnectRetry(true)
 
-	opts.OnConnect = mqttConnectHandler(logger)
+	opts.OnConnect = mqttConnectHandler(logger, ctx, db)
 	opts.OnConnectionLost = mqttConnectLostHandler
 
 	return &MQTTClient{
 		client: mqtt.NewClient(opts),
 		logger: logger,
 	}, nil
+
 }
 
 func (m *MQTTClient) getLogger() *zap.Logger {
@@ -65,7 +66,7 @@ var testStatusMessagePubHandler mqtt.MessageHandler = func(client mqtt.Client, m
 	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
 }
 
-func mqttConnectHandler(logger *zap.Logger) mqtt.OnConnectHandler {
+func mqttConnectHandler(logger *zap.Logger, ctx context.Context, db *SQLiteDB) mqtt.OnConnectHandler {
 	return func(client mqtt.Client) {
 		fmt.Println("Connected to MQTT broker successfully")
 
@@ -75,11 +76,17 @@ func mqttConnectHandler(logger *zap.Logger) mqtt.OnConnectHandler {
 		}
 		fmt.Println("Subscribed to topic: /test/status")
 
-		// Subscribe to topics
-		if token := client.Subscribe("/feedback/instruction", 2, instructionFeedPubHandler(logger)); token.Wait() && token.Error() != nil {
+		// Subscribe to instructions
+		if token := client.Subscribe("/feedback/instruction", 2, instructionFeedPubHandler(logger, ctx, db)); token.Wait() && token.Error() != nil {
 			log.Fatalf("server: mqtt: failed to subscribe to /feedback/instruction: %v", token.Error())
 		}
 		fmt.Println("Subscribed to topic: /feedback/instruction")
+
+		// Subscribe to energy
+		if token := client.Subscribe("/energy/status", 0, instructionEnergyPubHandler(logger)); token.Wait() && token.Error() != nil {
+			log.Fatalf("server: mqtt: failed to subscribe to /energy/status: %v", token.Error())
+		}
+		fmt.Println("Subscribed to topic: /energy/status")
 	}
 }
 
@@ -118,7 +125,7 @@ func (m *MQTTClient) publishDriveInstructionSequence(instructionSequence driveIn
 	var qos byte = 2 // Guarantee delivery
 
 	for _, instruction := range instructionSequence {
-		encodedInstruction := fmt.Sprintf("%s%s%d", instruction.instruction, driveInstructionDelimiter, instruction.value)
+		encodedInstruction := fmt.Sprintf("%s%s%d", instruction.Instruction, driveInstructionDelimiter, instruction.Value)
 		m.publish(topic, encodedInstruction, qos)
 	}
 
@@ -130,7 +137,7 @@ func (m *MQTTClient) publishDriveInstructionSequence(instructionSequence driveIn
 // Subscribing to instruction feed
 var stopData string
 
-func instructionFeedPubHandler(logger *zap.Logger) mqtt.MessageHandler {
+func instructionFeedPubHandler(logger *zap.Logger, ctx context.Context, db *SQLiteDB) mqtt.MessageHandler {
 	return func(client mqtt.Client, msg mqtt.Message) {
 		fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
 
@@ -140,23 +147,31 @@ func instructionFeedPubHandler(logger *zap.Logger) mqtt.MessageHandler {
 
 		var instruction driveInstruction
 		if s[0] == "F" {
-			instruction.instruction = "forward"
-			instruction.value = v
-			updateMap(instruction)
+			instruction.Instruction = "forward"
+			instruction.Value = v
+			fmt.Println("storing instruction: updating map: calling function")
+			updateMap(instruction, ctx, db)
 		} else if s[0] == "R" {
-			instruction.instruction = "turnRight"
-			instruction.value = v
-			updateMap(instruction)
+			instruction.Instruction = "turnRight"
+			instruction.Value = v
+			fmt.Println("storing instruction: updating map: calling function")
+			updateMapWithObstructionWhileTurning("")
+			updateMap(instruction, ctx, db)
 		} else if s[0] == "L" {
-			instruction.instruction = "turnLeft"
-			instruction.value = v
-			updateMap(instruction)
+			instruction.Instruction = "turnLeft"
+			instruction.Value = v
+			fmt.Println("storing instruction: updating map: calling function")
+			updateMapWithObstructionWhileTurning("")
+			updateMap(instruction, ctx, db)
 		} else if s[0] == "X" {
-			instruction.instruction = "nil"
-			instruction.value = 0
-			updateMap(instruction)
+			instruction.Instruction = "nil"
+			instruction.Value = 0
+			updateMap(instruction, ctx, db)
+
+			feed = feed + "<br> <br> Rover has reached its destination"
+
 		} else if s[0] == "S" {
-			if stashedDriveInstruction.instruction == "forward" { // wait for second part of stop instruction to update map and stop
+			if stashedDriveInstruction.Instruction == "forward" { // wait for second part of stop instruction to update map and stop
 				stopData = value
 			} else { // turning => update map without stopping
 				updateMapWithObstructionWhileTurning(value)
@@ -169,9 +184,9 @@ func instructionFeedPubHandler(logger *zap.Logger) mqtt.MessageHandler {
 			}
 
 			if v == -1 { // stopping after turn (map already updated with obstruction)
-				stop(mqttClient, 0, stopData, true)
+				stop(mqttClient, ctx, db, 0, stopData, true)
 			} else { // stopping after forward (map not yet updated with obstruction)
-				stop(mqttClient, v, stopData, false)
+				stop(mqttClient, ctx, db, v, stopData, false)
 			}
 
 			stopData = ""
@@ -179,6 +194,26 @@ func instructionFeedPubHandler(logger *zap.Logger) mqtt.MessageHandler {
 			// Ignore backwards instruction that are used for distance correction (drive only)
 		} else {
 			fmt.Println("server: mqttGeneral: unknown drive instruction")
+		}
+	}
+}
+
+func instructionEnergyPubHandler(logger *zap.Logger) mqtt.MessageHandler {
+	return func(client mqtt.Client, msg mqtt.Message) {
+		fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
+
+		s := strings.Split(string(msg.Payload()), ":")
+		value := s[1]
+		v, _ := strconv.Atoi(value) // No error checking as this is supposed to fail for stop instructions
+
+		if s[0] == "C" {
+			currentEnergy.StateOfCharge = v
+		} else if s[0] == "H" {
+			currentEnergy.StateOfHealth = v
+		} else if s[0] == "E" {
+			currentEnergy.ErrorInCells = v
+		} else {
+			fmt.Println("server: mqttGeneral: unknown energy information")
 		}
 	}
 }

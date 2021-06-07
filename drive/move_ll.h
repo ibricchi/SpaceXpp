@@ -23,4 +23,7 @@ void clockwise();
 // Rover rotates anticlockwise
 void anticlockwise();
 
+// Causes the rover to stop moving
+void stopMoving();
+
 #endif

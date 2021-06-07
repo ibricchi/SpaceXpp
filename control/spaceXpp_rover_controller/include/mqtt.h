@@ -2,6 +2,7 @@
 #include "mqtt_client.h"
 
 #include "drive.h"
+#include "energy.h"
 
 #ifndef MQTT_H
 #define MQTT_H
@@ -21,6 +22,8 @@ void subscribe_to_mqtt_topics();
 void handle_mqtt_event_data(esp_mqtt_event_handle_t event);
 
 void publish_drive_instruction_to_server(const char* instruction, const char* data);
+
+void publish_energy_status_to_server(const char* encoding, const char* data);
 
 // Used to send status to server
 void mqtt_task(void *arg);

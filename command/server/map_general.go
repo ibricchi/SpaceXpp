@@ -1,13 +1,15 @@
 package server
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"go.uber.org/zap"
 )
 
-var tileWidth = 85
+var tileWidth = 30
 
 // Initilising starting map: unknown (1) with boarders (3)
 
@@ -42,6 +44,16 @@ var previousDestinationRow int
 var previousDestinationCol int
 var previousDestinationMode int
 
+// Used to record feedback
+var feed string
+
+// Used to store current energy readings
+var currentEnergy = energy{
+	StateOfCharge: 0,
+	StateOfHealth: 0,
+	ErrorInCells:  0,
+}
+
 func mapAndDrive(mqtt MQTT, destinationCol int, destinationRow int, mode int) error {
 	mqtt.getLogger().Info("starting map and drive", zap.Int("startRow", Rover.Y), zap.Int("startCol", Rover.X), zap.Int("destinationRow", destinationRow), zap.Int("destinationCol", destinationCol))
 
@@ -67,6 +79,8 @@ func mapAndDrive(mqtt MQTT, destinationCol int, destinationRow int, mode int) er
 	}
 
 	mqtt.publishDriveInstructionSequence(driveInstructions)
+
+	feed = "<br> <br> Drive instructions sent to rover <br> <br> Optimum path converted to drive instructions <br> <br> Targets converted to optimum path <br> <br> Targets recived by server " + feed
 
 	return nil
 }
@@ -99,7 +113,14 @@ func value2Mode(mode int) (traverseMode, error) {
 
 var stashedDriveInstruction driveInstruction
 
-func updateMap(driveInstruction driveInstruction) {
+func updateMap(driveInstruction driveInstruction, ctx context.Context, db *SQLiteDB) {
+
+	feed = " <br> <br> Instruction : " + driveInstruction.Instruction + ":" + strconv.Itoa(driveInstruction.Value) + " : Sucsessful" + feed
+
+	fmt.Println("inserting instructions via update map")
+
+	db.storeInstruction(ctx, driveInstruction.Instruction, driveInstruction.Value)
+
 	driveTocoords(stashedDriveInstruction, tileWidth)
 
 	stashedDriveInstruction = driveInstruction
@@ -119,28 +140,41 @@ func updateMap(driveInstruction driveInstruction) {
 * 		- update map with location of obstruction & type of instruction (optionally based on updateMap argument)
  */
 
-func stop(mqtt MQTT, distance int, obstructionType string, stopAfterTurn bool) {
+func stop(mqtt MQTT, ctx context.Context, db *SQLiteDB, distance int, obstructionType string, stopAfterTurn bool) {
+	feed = "Obstruction identified"
+
 	if stopAfterTurn {
+		feed = "<br> <br> Instruction : " + stashedDriveInstruction.Instruction + ":" + strconv.Itoa(stashedDriveInstruction.Value) + " : Sucsessful <br> <br> Obstruction not on path, continuing to move <br> <br>" + feed
+
 		// Complete turn
 		driveTocoords(stashedDriveInstruction, tileWidth)
 	} else {
+
 		// Drive forward distance moved before stopping
-		stashedDriveInstruction.instruction = "forward"
-		stashedDriveInstruction.value = distance
+		stashedDriveInstruction.Instruction = "forward"
+		stashedDriveInstruction.Value = distance
+
+		feed = "<br> <br> Adjusted instruction : " + stashedDriveInstruction.Instruction + ":" + strconv.Itoa(stashedDriveInstruction.Value) + " : Sucsessful <br> <br> Obstruction on path, adjusting instruction " + feed
+
+		db.storeInstruction(ctx, stashedDriveInstruction.Instruction, stashedDriveInstruction.Value)
+
 		driveTocoords(stashedDriveInstruction, tileWidth)
 	}
 
 	// Store nil instruction in stash
-	stashedDriveInstruction.instruction = "forward"
-	stashedDriveInstruction.value = 0
+	stashedDriveInstruction.Instruction = "forward"
+	stashedDriveInstruction.Value = 0
 
 	if !stopAfterTurn { // map already updated when stopping after turn
 		// Assuming obstruction will only ever be in box in front (when stop after forward instruction)
 		indx := getOneInFront(0)
 
 		Map.Tiles[indx] = obstacleToValue(obstructionType)
+
+		feed = "<br> <br> Obstruction identified: " + obstacleToName(obstructionType) + feed
 	}
 
+	feed = "<br> <br> Stopped due to obstruction <br> <br> Computing new shortest path " + feed
 	fmt.Println("Stopped due to obstruction. Computing new shortest path.")
 	if err := mapAndDrive(mqtt, previousDestinationRow, previousDestinationCol, previousDestinationMode); err != nil {
 		// Enough to log error => Error is handled manually by clicking again on map
@@ -149,16 +183,16 @@ func stop(mqtt MQTT, distance int, obstructionType string, stopAfterTurn bool) {
 }
 
 func updateMapWithObstructionWhileTurning(obstructionType string) {
-	if stashedDriveInstruction.instruction != "turnRight" && stashedDriveInstruction.instruction != "turnLeft" {
+	if stashedDriveInstruction.Instruction != "turnRight" && stashedDriveInstruction.Instruction != "turnLeft" {
 		fmt.Println("server: map_general: updateMapWithObstructionWhileTurning fail, not currently turning")
 		return
 	}
 
 	var changeInRotation int
-	if stashedDriveInstruction.instruction == "turnLeft" {
-		changeInRotation = -stashedDriveInstruction.value
+	if stashedDriveInstruction.Instruction == "turnLeft" {
+		changeInRotation = -stashedDriveInstruction.Value
 	} else {
-		changeInRotation = stashedDriveInstruction.value
+		changeInRotation = stashedDriveInstruction.Value
 	}
 
 	indx := getOneInFront(changeInRotation)
@@ -167,7 +201,9 @@ func updateMapWithObstructionWhileTurning(obstructionType string) {
 }
 
 func obstacleToValue(obstacle string) int {
-	if obstacle == "U" {
+	if obstacle == "" { // No obstruction
+		return 2
+	} else if obstacle == "U" {
 		return 5
 	} else if obstacle == "B" {
 		return 6
@@ -183,6 +219,27 @@ func obstacleToValue(obstacle string) int {
 
 	fmt.Println("server: map_general: obstacleToValue: unknown obstacle, returning default value 5")
 	return 5
+}
+
+func obstacleToName(obstacle string) string {
+	if obstacle == "" { // No obstruction
+		return "No obstruction"
+	} else if obstacle == "U" {
+		return "Unknown obstruction"
+	} else if obstacle == "B" {
+		return "Blue ball"
+	} else if obstacle == "R" {
+		return "Red ball"
+	} else if obstacle == "Y" {
+		return "Yellow ball"
+	} else if obstacle == "T" {
+		return "Teal ball "
+	} else if obstacle == "V" {
+		return "Violet ball"
+	}
+
+	fmt.Println("server: map_general: obstacleToValue: unknown obstacle, returning default value 5")
+	return "Unknown obstruction"
 }
 
 func getOneInFront(changeInRotation int) int {
