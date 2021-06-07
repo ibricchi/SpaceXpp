@@ -8,77 +8,56 @@ import (
 const tileMapUnknownVal = 1
 
 /*
-	Used for discovering a map without user input.
-	A "worst-fit" approach is used to determine where the rover should move next.
-
 	Return values: isFullyDiscovered bool, destinationRow int, destinationCol int
 	isFullyDiscovered is true if there are no more "unknown" tiles on the map (tile value 1).
 */
-// func getBestNextDestinationCoordinates(tileMap tileMap) (bool, int, int) {
-// 	// Traverse graph to find size of biggest connected 1s. Store size of current biggest with one of its coordinates (update if find new biggest)
-// 	// At end: Use saved coordinate to traverse biggest again and find its centre. This centre is the desired destination
-// 	maxSize := 0
-// 	currentRow := -1
-// 	currentCol := -1
+func getBestNextDestinationCoordinates(tileMap tileMap) (bool, int, int) {
+	// Prefer tile with more unknown neighbors => Can discover all using full discovery traversal mode
+	for i := 4; i >= 0; i-- {
+		if noSuchFieldExists, row, col := getFieldWithMinUnknownNeighborCount(4, tileMap); !noSuchFieldExists {
+			return false, row, col
+		}
+	}
 
-// 	visited := make([][]bool, tileMap.Rows)
-// 	for i := range visited {
-// 		visited[i] = make([]bool, tileMap.Cols)
-// 	}
+	// The whole map is already discovered
+	return true, -1, -1
+}
 
-// 	for row := 0; row < tileMap.Rows; row++ {
-// 		for col := 0; col < tileMap.Cols; col++ {
-// 			if tileMap.getTile(row, col) != tileMapUnknownVal || visited[row][col] {
-// 				continue
-// 			}
+// Return values: noSuchFieldExists, Row, Col
+func getFieldWithMinUnknownNeighborCount(minUnknownNeighborCount int, tileMap tileMap) (bool, int, int) {
+	for row := 0; row < tileMap.Rows; row++ {
+		for col := 0; col < tileMap.Cols; col++ {
+			if tileMap.getTile(row, col) != tileMapUnknownVal {
+				continue
+			}
 
-// 			currentSize := getSizeOfUnknownField(row, col, tileMap, visited)
-// 			if currentSize > maxSize {
-// 				currentRow, currentCol = row, col
-// 			}
-// 		}
-// 	}
+			if getUnknownNeighborCount(row, col, tileMap) >= minUnknownNeighborCount {
+				return false, row, col
+			}
+		}
+	}
 
-// 	// The whole map is already discovered
-// 	if maxSize == 0 {
-// 		return true, -1, -1
-// 	}
+	return true, -1, -1
+}
 
-// 	destinationRow, destinationCol := getUnknownMapFieldCentreCoordinates(currentRow, currentCol, tileMap)
-// 	return false, destinationRow, destinationCol
-// }
+func getUnknownNeighborCount(row int, col int, tileMap tileMap) int {
+	unknownNeighborCount := 0
 
-// // Depth first traversal
-// func getSizeOfUnknownField(row int, col int, tileMap tileMap, visited [][]bool) int {
-// 	if tileMap.getTile(row, col) != tileMapUnknownVal || row < 0 || col < 0 || row >= tileMap.Rows || col >= tileMap.Cols || visited[row][col] {
-// 		return 0
-// 	}
+	if tileMap.getTile(row+1, col) == tileMapUnknownVal {
+		unknownNeighborCount++
+	}
+	if tileMap.getTile(row-1, col) == tileMapUnknownVal {
+		unknownNeighborCount++
+	}
+	if tileMap.getTile(row, col+1) == tileMapUnknownVal {
+		unknownNeighborCount++
+	}
+	if tileMap.getTile(row, col-1) == tileMapUnknownVal {
+		unknownNeighborCount++
+	}
 
-// 	visited[row][col] = true
-
-// 	return 1 +
-// 		getSizeOfUnknownField(row+1, col, tileMap, visited) +
-// 		getSizeOfUnknownField(row-1, col, tileMap, visited) +
-// 		getSizeOfUnknownField(row, col+1, tileMap, visited) +
-// 		getSizeOfUnknownField(row, col-1, tileMap, visited)
-// }
-
-// // Assumes that field has a rectangular shape and returns the centre coordinate of this rectangular shape
-// func getUnknownMapFieldCentreCoordinates(row int, col int, tileMap tileMap) (int, int) {
-// 	// Find edges of rectangle
-// 	leftRow, leftCol, rightRow, rightCol := row, col, row, col
-
-// 	visited := make([][]bool, tileMap.Rows)
-// 	for i := range visited {
-// 		visited[i] = make([]bool, tileMap.Cols)
-// 	}
-
-// }
-
-// // Return values: leftRow, leftCol, rightRow, rightCol
-// func getEdgeCoordinatesOfUnknownField(row int, col int, tileMap tileMap, visited [][]bool, leftRow int, leftCol int, rightRow int, rightCol int) (int, int, int, int) {
-
-// }
+	return unknownNeighborCount
+}
 
 type rectangle struct {
 	left   int
@@ -91,34 +70,35 @@ type rectangle struct {
 	Return values: isFullyDiscovered bool, destinationRow int, destinationCol int
 	isFullyDiscovered is true if there are no more "unknown" tiles on the map (tile value 1).
 */
-func getBestNextDestinationCoordinates(tileMap tileMap) (bool, int, int) {
-	undiscoveredRectanglesInMap := getUndiscoveredRectangles(tileMap)
+// func getBestNextDestinationCoordinates(tileMap tileMap) (bool, int, int) {
+// 	undiscoveredRectanglesInMap := getUndiscoveredRectangles(tileMap)
 
-	var biggestRectangle rectangle
-	biggestSize := 0
+// 	var biggestRectangle rectangle
+// 	biggestSize := 0
 
-	for _, rectangle := range undiscoveredRectanglesInMap {
-		currentSize := (rectangle.right - rectangle.left + 1) * (rectangle.bottom - rectangle.top + 1)
-		if currentSize > biggestSize {
-			biggestSize = currentSize
-			biggestRectangle = rectangle
-		}
-	}
+// 	for _, rectangle := range undiscoveredRectanglesInMap {
+// 		currentSize := (rectangle.right - rectangle.left + 1) * (rectangle.bottom - rectangle.top + 1)
+// 		if currentSize > biggestSize {
+// 			biggestSize = currentSize
+// 			biggestRectangle = rectangle
+// 		}
+// 	}
 
-	// Map already fully discovered
-	if biggestSize == 0 {
-		return true, -1, -1
-	}
+// 	// Map already fully discovered
+// 	if biggestSize == 0 {
+// 		return true, -1, -1
+// 	}
 
-	destinationRow, destinationCol := getRectangleCentreCoordinates(biggestRectangle)
+// 	centreRow, centreCol := getRectangleCentreCoordinates(biggestRectangle)
 
-	return false, destinationRow, destinationCol
-}
+// 	return false, destinationRow, destinationCol
+// }
 
 /*
 	Expects no rectangles that are touching the map edges as all map edges should be filled by an obstruction.
 
-	More work is needed for this to produce an exact solution when rectangles are touching. However, the current accuracy is probably enough to use it in automation.
+	More work is needed for this to produce an exact solution when rectangles are touching.
+	This algorithm should not be used for automation until improvements are added.
 */
 func getUndiscoveredRectangles(tileMap tileMap) []rectangle {
 	finishedRectangles := make([]rectangle, 0)
