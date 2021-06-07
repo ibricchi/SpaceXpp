@@ -187,11 +187,15 @@ func (s *SQLiteDB) getLatestMapID(ctx context.Context) (int, error) {
 
 func (s *SQLiteDB) storeInstruction(ctx context.Context, instruction string, value int) error {
 
+	fmt.Println("storing instruction: inside function")
+
 	mapID, err := s.getLatestMapID(ctx)
 	if err != nil {
 		fmt.Println("no mapID : ", mapID)
 		fmt.Println("Error: couldnt get latest map ID")
 	}
+
+	fmt.Println("storing instruction: map id:", mapID)
 
 	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
 		if _, err := tx.ExecContext(ctx, `

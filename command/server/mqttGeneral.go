@@ -149,15 +149,18 @@ func instructionFeedPubHandler(logger *zap.Logger, ctx context.Context, db *SQLi
 		if s[0] == "F" {
 			instruction.Instruction = "forward"
 			instruction.Value = v
+			fmt.Println("storing instruction: updating map: calling function")
 			updateMap(instruction, ctx, db)
 		} else if s[0] == "R" {
 			instruction.Instruction = "turnRight"
 			instruction.Value = v
+			fmt.Println("storing instruction: updating map: calling function")
 			updateMapWithObstructionWhileTurning("")
 			updateMap(instruction, ctx, db)
 		} else if s[0] == "L" {
 			instruction.Instruction = "turnLeft"
 			instruction.Value = v
+			fmt.Println("storing instruction: updating map: calling function")
 			updateMapWithObstructionWhileTurning("")
 			updateMap(instruction, ctx, db)
 		} else if s[0] == "X" {
