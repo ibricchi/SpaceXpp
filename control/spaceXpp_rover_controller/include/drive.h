@@ -7,7 +7,7 @@
 #define DRIVE_H
 
 // tile with in cm
-#define MAP_TILE_WIDTH (10)
+#define MAP_TILE_WIDTH (30)
 
 #define MAX_DRIVE_INSTRUCTION_SEQUENCE_LENGTH (50)
 #define DRIVE_INSTRUCTION_DELIMITER ":"
@@ -19,6 +19,8 @@ typedef struct DriveEncoding{
     const char* turnRight;
     const char* turnLeft;
     const char* stop;
+    const char* stopFromForward;
+    const char* stopFromTurn;
 } DriveEncoding;
 
 void drive_init();

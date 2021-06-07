@@ -4,7 +4,7 @@
 #include "Arduino.h"
 
 // List of all the possible instructions
-enum instructions {doNothing, forwardForTime, backwardForTime, forwardForDistance, backwardForDistance, turnR, turnL};
+enum instructions {doNothing, forwardForTime, backwardForTime, forwardForDistance, backwardForDistance, turnR, turnL, stopAbruptly};
 
 class UART{
   private:

@@ -20,6 +20,8 @@ func main() {
 	var httpServerTLSKeyFileName = flag.String("httpServerTLSKeyFileName", "cert/server.key", "File path of TLS HTTP server key")
 	var serverDBFilePath = flag.String("db", "serverDB.db", "SQLite DB file path")
 	var mqttBrokerURL = flag.String("mqttBrokerURL", "ssl://18.130.239.157:8883", "URL of MQTT Broker")
+	var mqttUsername = flag.String("mqttUsername", "", "MQTT Username")
+	var mqttPassword = flag.String("mqttPassword", "", "MQTT Password")
 	flag.Parse()
 
 	serverDBDSN := "db/" + *serverDBFilePath
@@ -46,7 +48,7 @@ func main() {
 
 	// Mosquito
 
-	mqttClient, err := server.InitMQTT(ctx, logger, *mqttBrokerURL)
+	mqttClient, err := server.InitMQTT(ctx, logger, serverDB, *mqttBrokerURL, *mqttUsername, *mqttPassword)
 	if err != nil {
 		logger.Fatal("server: failed to init MQTT client", zap.Error(err))
 	}

@@ -8,7 +8,7 @@ extern QueueHandle_t driveInstructionQueue;
 
 void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
-    ESP_LOGD(MQTT_tag, "Event dispatched from event loop base=%s, event_id=%d", base, event_id);
+    // ESP_LOGI(MQTT_tag, "Event dispatched from event loop base=%s, event_id=%d", base, event_id);
 
     esp_mqtt_event_handle_t event = event_data;
 
@@ -26,22 +26,22 @@ void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event
         break;
 
     case MQTT_EVENT_SUBSCRIBED:
-        ESP_LOGI(MQTT_tag, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
+        // ESP_LOGI(MQTT_tag, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
 
         break;
 
     case MQTT_EVENT_UNSUBSCRIBED:
-        ESP_LOGI(MQTT_tag, "MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
+        // ESP_LOGI(MQTT_tag, "MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
         
         break;
 
     case MQTT_EVENT_PUBLISHED:
-        ESP_LOGI(MQTT_tag, "MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
+        // ESP_LOGI(MQTT_tag, "MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
         
         break;
 
     case MQTT_EVENT_DATA:
-        ESP_LOGI(MQTT_tag, "MQTT_EVENT_DATA");
+        // ESP_LOGI(MQTT_tag, "MQTT_EVENT_DATA");
 
         handle_mqtt_event_data(event);
 
@@ -65,6 +65,8 @@ void mqtt_init()
         .uri = MQTT_BROKER_URI,
         .cert_pem = (const char*)mqtt_cert, // Used for TLS/SSL
         .skip_cert_common_name_check = true, // Required as esp32 seems to use common name instead of SANs, even though this was depreciated in 2000
+        .username = (const char*)MQTT_USERNAME,
+        .password = (const char*)MQTT_PASSWORD,
     };
     mqttClient = esp_mqtt_client_init(&mqtt_cfg);
 
@@ -96,11 +98,19 @@ void handle_mqtt_event_data(esp_mqtt_event_handle_t event) {
 }
 
 void publish_drive_instruction_to_server(const char* instruction, const char* data) {
-    char stopMsg[32];
-    sprintf(stopMsg, "%s%s%s", instruction, DRIVE_INSTRUCTION_DELIMITER, data);
+    char message[32];
+    sprintf(message, "%s%s%s", instruction, DRIVE_INSTRUCTION_DELIMITER, data);
 
-    int msg_id = esp_mqtt_client_publish(mqttClient, "/feedback/instruction", stopMsg, 0, 2, 0);
-    ESP_LOGI(MQTT_tag, "publish drive instruction to server successful, msg_id=%d, data=%s", msg_id, stopMsg);
+    int msg_id = esp_mqtt_client_publish(mqttClient, "/feedback/instruction", message, 0, 2, 0);
+    ESP_LOGI(MQTT_tag, "publish drive instruction to server successful, msg_id=%d, data=%s", msg_id, message);
+}
+
+void publish_energy_status_to_server(const char* encoding, const char* data) {
+    char message[32];
+    sprintf(message, "%s%s%s", encoding, ENERGY_INSTRUCTION_DELIMITER, data);
+
+    int msg_id = esp_mqtt_client_publish(mqttClient, "/energy/status", message, 0, 0, 0);
+    ESP_LOGI(MQTT_tag, "publish energy status to server successful, msg_id=%d, data=%s", msg_id, message);
 }
 
 // Used to send status to server e.g battery percentage remaining

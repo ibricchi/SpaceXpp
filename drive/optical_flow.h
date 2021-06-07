@@ -2,6 +2,7 @@
 #define OPTICAL_FLOW_H
 
 #include "SPI.h"
+#include "Arduino.h"
 
 // Pin definitions for the optical flow sensor (Arduino Uno)
 #define PIN_SS        10

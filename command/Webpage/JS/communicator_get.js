@@ -1,6 +1,16 @@
 
 serverIP = "https://18.117.12.54:3000"
 
+// Get Requests \\
+
+
+/* getData:
+*   - General get request for reciving and updating a section of the webpage 
+*   - Used for testing 
+*   - Arguments:
+*       - location: the address of the text section of the HTML website that will be updated with the data from the server
+*       - address: the https address used in combination with the serverIP to send get request and recive corrosponding JSON data 
+*/
 
 function getData( location, address ){
     webLocation = document.getElementById(location);
@@ -117,76 +127,60 @@ function check(){
 }
 
 
-function sendData(location, address){
-    webLocation = document.getElementById(location);
-    val = parseInt(webLocation.value)
-    
-    const options = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(val)
-    };
-
-    fetch(serverIP + address, options);
-
-}
 
 
-function speedSend(){
-    var output = document.getElementById("speedVal");
-    var val = parseInt(output.innerHTML)
+function loadMap(){
+    fetch(serverIP + '/map/history/load')
+    .then(request => request.json())
+    .then(data => {
+        if(data != null){
+            loadedMap.cols = data.cols;
+            loadedMap.rows = data.rows
+            loadedMap.layers[0] = data.layout;
+            loadedMap.layers[1][data.roverIndx] = getVal(data.roverRotation);
+            //console.log(data.driveinstructions[0].instruction)
 
-    const options = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(val)
-    };
-
-    fetch(serverIP + "/speed", options);
-
+            var i = 0
+            while(data.driveinstructions[i].instruction != null)
+            {
+                var line = data.driveinstructions[i].instruction + ":" + data.driveinstructions[i].value
+                printToInstructionFeed(line)
+                i++
+            }
+           
+        }
+    })
 
 }
 
-
-
-function sendTargetCoords(x, y){
-
-    mode = parseInt(document.getElementById("mode").value);
-    
-    
-   var coords = {
-        x: x, 
-        y: y,
-        mode: mode,
-    };
-    
-    const options = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(coords)
-    };
-
-    fetch(serverIP + "/map/targetCoords", options);
+function getFeed(){
+    fetch(serverIP + '/feed')
+    .then(request => request.json())
+    .then(data => {
+        if(data != null){
+           // console.log(data)
+            printToFeedback(data, 1)
+        }
+    })
 
 }
 
+function getEnergy(){
+    fetch(serverIP + '/energy/values')
+    .then(request => request.json())
+    .then(data => {
+        if(data != null){
+            stateOfCharge.style.width = data.stateOfCharge + '%'
+            stateOfCharge.innerHTML = data.stateOfCharge + '%'
 
-function mapReset(){
-    
-    const options = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(0)
-    };
+            stateOfHealth.style.width = data.stateOfHealth + '%'
+            stateOfHealth.innerHTML = data.stateOfHealth + '%'
 
-    fetch(serverIP + "/map/reset", options);
+            if (data.errorInCells == 1){
+                alert("Error in cells!");
 
+            }
+            
+        }
+    })
 }

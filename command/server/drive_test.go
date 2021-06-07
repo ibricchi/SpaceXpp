@@ -25,8 +25,8 @@ func TestPathToDriveInstructions(t *testing.T) {
 			traverseMode:     simple,
 			expectedInstructions: []driveInstruction{
 				{
-					instruction: "forward",
-					value:       10,
+					Instruction: "forward",
+					Value:       10,
 				},
 			},
 		},
@@ -40,12 +40,74 @@ func TestPathToDriveInstructions(t *testing.T) {
 			traverseMode:     simple,
 			expectedInstructions: []driveInstruction{
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "forward",
-					value:       10,
+					Instruction: "forward",
+					Value:       10,
+				},
+			},
+		},
+		{
+			path: [][]int{
+				{0, 1},
+				{0, 2},
+			},
+			tileWidth:        10,
+			initialDirection: east,
+			traverseMode:     destinationDiscovery,
+			expectedInstructions: []driveInstruction{
+				{
+					Instruction: "forward",
+					Value:       10,
+				},
+				{
+					Instruction: "turnRight",
+					Value:       90,
+				},
+				{
+					Instruction: "turnRight",
+					Value:       90,
+				},
+				{
+					Instruction: "turnLeft",
+					Value:       90,
+				},
+				{
+					Instruction: "turnRight",
+					Value:       90,
+				},
+			},
+		},
+		{
+			path: [][]int{
+				{0, 1},
+				{0, 2},
+			},
+			tileWidth:        10,
+			initialDirection: east,
+			traverseMode:     fullDiscovery,
+			expectedInstructions: []driveInstruction{
+				{
+					Instruction: "forward",
+					Value:       10,
+				},
+				{
+					Instruction: "turnRight",
+					Value:       90,
+				},
+				{
+					Instruction: "turnRight",
+					Value:       90,
+				},
+				{
+					Instruction: "turnLeft",
+					Value:       90,
+				},
+				{
+					Instruction: "turnRight",
+					Value:       90,
 				},
 			},
 		},
@@ -67,44 +129,48 @@ func TestPathToDriveInstructions(t *testing.T) {
 			traverseMode:     simple,
 			expectedInstructions: []driveInstruction{
 				{
-					instruction: "turnRight",
-					value:       180,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "forward",
-					value:       10,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnLeft",
-					value:       90,
+					Instruction: "forward",
+					Value:       10,
 				},
 				{
-					instruction: "forward",
-					value:       20,
+					Instruction: "turnLeft",
+					Value:       90,
 				},
 				{
-					instruction: "turnLeft",
-					value:       90,
+					Instruction: "forward",
+					Value:       20,
 				},
 				{
-					instruction: "forward",
-					value:       10,
+					Instruction: "turnLeft",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "forward",
+					Value:       10,
 				},
 				{
-					instruction: "forward",
-					value:       20,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnLeft",
-					value:       90,
+					Instruction: "forward",
+					Value:       20,
 				},
 				{
-					instruction: "forward",
-					value:       30,
+					Instruction: "turnLeft",
+					Value:       90,
+				},
+				{
+					Instruction: "forward",
+					Value:       30,
 				},
 			},
 		},
@@ -129,40 +195,40 @@ func TestPathToDriveInstructions(t *testing.T) {
 			traverseMode:     simple,
 			expectedInstructions: []driveInstruction{
 				{
-					instruction: "forward",
-					value:       10,
+					Instruction: "forward",
+					Value:       10,
 				},
 				{
-					instruction: "turnLeft",
-					value:       90,
+					Instruction: "turnLeft",
+					Value:       90,
 				},
 				{
-					instruction: "forward",
-					value:       20,
+					Instruction: "forward",
+					Value:       20,
 				},
 				{
-					instruction: "turnLeft",
-					value:       90,
+					Instruction: "turnLeft",
+					Value:       90,
 				},
 				{
-					instruction: "forward",
-					value:       10,
+					Instruction: "forward",
+					Value:       10,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "forward",
-					value:       20,
+					Instruction: "forward",
+					Value:       20,
 				},
 				{
-					instruction: "turnLeft",
-					value:       90,
+					Instruction: "turnLeft",
+					Value:       90,
 				},
 				{
-					instruction: "forward",
-					value:       60,
+					Instruction: "forward",
+					Value:       60,
 				},
 			},
 		},
@@ -184,204 +250,208 @@ func TestPathToDriveInstructions(t *testing.T) {
 			traverseMode:     fullDiscovery,
 			expectedInstructions: []driveInstruction{
 				{
-					instruction: "turnRight",
-					value:       180,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "forward",
-					value:       10,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "forward",
+					Value:       10,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnLeft",
+					Value:       90,
 				},
 				{
-					instruction: "turnLeft",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "forward",
-					value:       10,
+					Instruction: "turnLeft",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "forward",
+					Value:       10,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnLeft",
+					Value:       90,
 				},
 				{
-					instruction: "forward",
-					value:       10,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "forward",
+					Value:       10,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnLeft",
+					Value:       90,
 				},
 				{
-					instruction: "forward",
-					value:       10,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "forward",
+					Value:       10,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnLeft",
+					Value:       90,
 				},
 				{
-					instruction: "turnLeft",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "forward",
-					value:       10,
+					Instruction: "turnLeft",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "forward",
+					Value:       10,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnLeft",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "forward",
-					value:       10,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "forward",
+					Value:       10,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnLeft",
+					Value:       90,
 				},
 				{
-					instruction: "forward",
-					value:       10,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "forward",
+					Value:       10,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnLeft",
+					Value:       90,
 				},
 				{
-					instruction: "turnLeft",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "forward",
-					value:       10,
+					Instruction: "turnLeft",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "forward",
+					Value:       10,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnLeft",
+					Value:       90,
 				},
 				{
-					instruction: "forward",
-					value:       10,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "forward",
+					Value:       10,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnLeft",
+					Value:       90,
+				},
+				{
+					Instruction: "turnRight",
+					Value:       90,
 				},
 			},
 		},
@@ -403,72 +473,77 @@ func TestPathToDriveInstructions(t *testing.T) {
 			traverseMode:     destinationDiscovery,
 			expectedInstructions: []driveInstruction{
 				{
-					instruction: "turnRight",
-					value:       180,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "forward",
-					value:       10,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnLeft",
-					value:       90,
+					Instruction: "forward",
+					Value:       10,
 				},
 				{
-					instruction: "forward",
-					value:       20,
+					Instruction: "turnLeft",
+					Value:       90,
 				},
 				{
-					instruction: "turnLeft",
-					value:       90,
+					Instruction: "forward",
+					Value:       20,
 				},
 				{
-					instruction: "forward",
-					value:       10,
+					Instruction: "turnLeft",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "forward",
+					Value:       10,
 				},
 				{
-					instruction: "forward",
-					value:       20,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnLeft",
-					value:       90,
+					Instruction: "forward",
+					Value:       20,
 				},
 				{
-					instruction: "forward",
-					value:       30,
+					Instruction: "turnLeft",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "forward",
+					Value:       30,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+					Instruction: "turnRight",
+					Value:       90,
 				},
 				{
-					instruction: "turnRight",
-					value:       90,
+
+					Instruction: "turnLeft",
+					Value:       90,
+				},
+				{
+					Instruction: "turnRight",
+					Value:       90,
 				},
 			},
 		},
 	}
 
 	for _, test := range tests {
-		instructions, err := pathToDriveInstructions(test.path, test.tileWidth, test.initialDirection, test.traverseMode)
+		Instructions, err := pathToDriveInstructions(test.path, test.tileWidth, test.initialDirection, test.traverseMode)
 		if err != nil {
 			t.Errorf("pathToDriveInstructions returned error: %w", err)
 		}
-		if !reflect.DeepEqual(instructions, test.expectedInstructions) {
-			t.Errorf("Instructions not equal to expected instructions.\nOutput instructions: %v\nExpected instructions: %v", instructions, test.expectedInstructions)
+		if !reflect.DeepEqual(Instructions, test.expectedInstructions) {
+			t.Errorf("Instructions not equal to expected Instructions.\nOutput Instructions: %v\nExpected Instructions: %v", Instructions, test.expectedInstructions)
 		}
 	}
 }
