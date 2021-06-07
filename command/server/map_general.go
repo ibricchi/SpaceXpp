@@ -119,7 +119,9 @@ func updateMap(driveInstruction driveInstruction, ctx context.Context, db DB) {
 
 	fmt.Println("inserting instructions via update map")
 
-	db.storeInstruction(ctx, driveInstruction.Instruction, driveInstruction.Value)
+	if err := db.storeInstruction(ctx, driveInstruction.Instruction, driveInstruction.Value); err != nil {
+		db.getLogger().Error("server: map_general: updateMap: failed to store instruction", zap.Error(err))
+	}
 
 	driveTocoords(stashedDriveInstruction, tileWidth)
 

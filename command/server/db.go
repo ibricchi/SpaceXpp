@@ -3,6 +3,8 @@ package server
 import (
 	"context"
 	"database/sql"
+
+	"go.uber.org/zap"
 )
 
 type DB interface {
@@ -17,6 +19,9 @@ type DB interface {
 	resetInstructions(ctx context.Context, mapID int) error
 	retriveInstruction(ctx context.Context, mapID int) error
 
+	getLogger() *zap.Logger
+
+	migrate(ctx context.Context) error
 	TransactContext(ctx context.Context, f func(ctx context.Context, tx *sql.Tx) error) error
 	Close() error
 }

@@ -4,7 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+
+	"go.uber.org/zap"
 )
+
+func (s *SQLiteDB) getLogger() *zap.Logger {
+	return s.logger
+}
 
 func (s *SQLiteDB) saveMapName(ctx context.Context, name string) error {
 	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
