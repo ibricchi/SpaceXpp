@@ -84,8 +84,7 @@ func (s *SQLiteDB) migrate(ctx context.Context) error {
 				`); err != nil {
 			return fmt.Errorf("sqlite failed to create tiles table: %w", err)
 		}
-		return nil
-    
+
 		if _, err := tx.ExecContext(ctx, `
 			CREATE TABLE IF NOT EXISTS credentials (
 				id INTEGER NOT NULL PRIMARY KEY,
