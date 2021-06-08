@@ -40,7 +40,7 @@ Keyboard.RIGHT = 39;
 Keyboard.UP = 38;
 Keyboard.DOWN = 40;
 Keyboard.ENTER = 13;
-Keyboard.C = 67;
+Keyboard.SPACE = 32;
 
 Keyboard._keys = {};
 

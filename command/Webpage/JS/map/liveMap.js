@@ -189,8 +189,8 @@ cursor.prototype.select = function(entr) {
 
 cursor.prototype.exitAuton = function(entr) {
     if (entr > 0) {
-        stopAutonomous()
-        console.log("stoppinggg")
+        stopAutonomous();
+        console.log("stoppinggg");
     }
 }
 
@@ -205,7 +205,7 @@ Game.load = function () {
 
 Game.init = function () {
     Keyboard.listenForEvents(
-        [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN, Keyboard.ENTER]);
+        [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN, Keyboard.ENTER, Keyboard.SPACE]);
     this.tileAtlas = Loader.getImage('tiles');
     this.roverAtlas = Loader.getImage('rover')
 
@@ -220,17 +220,17 @@ Game.update = function (delta) {
     var dirx = 0;
     var diry = 0;
     var entr = 0;
-    var c = 0;
+    var space = 0;
     if (Keyboard.isDown(Keyboard.LEFT)) {Keyboard.resetKeys(Keyboard.LEFT); dirx = -1;  }
     else if (Keyboard.isDown(Keyboard.RIGHT)) {Keyboard.resetKeys(Keyboard.RIGHT); dirx = 1;  }
     else if (Keyboard.isDown(Keyboard.UP)) {Keyboard.resetKeys(Keyboard.UP); diry = -1;  }
     else if (Keyboard.isDown(Keyboard.DOWN)) {Keyboard.resetKeys(Keyboard.DOWN); diry = 1;  }
     else if (Keyboard.isDown(Keyboard.ENTER)) {Keyboard.resetKeys(Keyboard.ENTER); entr = 1; }
-    else if (Keyboard.isDown(Keyboard.C)) {Keyboard.resetKeys(Keyboard.C); c = 1; }
+    else if (Keyboard.isDown(Keyboard.SPACE)) {Keyboard.resetKeys(Keyboard.SPACE); space = 1; }
 
     this.cursor.move(delta, dirx, diry);
     this.cursor.select(entr);
-    this.cursor.exitAuton(c)
+    this.cursor.exitAuton(space);
     this.camera.update();
 };
 

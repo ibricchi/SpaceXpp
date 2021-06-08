@@ -1,8 +1,28 @@
 
+/*
+*   File: communiator_get.js
+*   Author: Bradley Stanley-Clamp
+*   Description: 
+*               Contains all HTTPS GET requests for webpage functionality and test functions. 
+                Correct authentication is required for sucsessful communication with server 
+*/
+
+
+// Defining variables \\
+
 serverIP = "https://18.117.12.54:3000"
 
 var validCredentials = false;
 var encoded 
+
+// LogIn function \\
+
+/* 
+*  Used to create popups
+*  Recive username and password
+*  Call GET request to check if credentials are valid
+*  Then loop if not valid credentials
+*/
 
 async function LogIn(){
     while(validCredentials == false){
@@ -23,9 +43,11 @@ async function LogIn(){
 LogIn()
 
 
-// Get Requests \\
+//  GET Requests \\
 
-/* Get credentials 
+/* 
+*   Checks if credentials are valid
+*   reutns bool true if valid and false if no  
 */
 
 async function checkCredentials(encoded){
