@@ -68,6 +68,7 @@
                     <option value=0>Simple</option>
                     <option value=1>Full Discovery</option>
                     <option value=2>Destination Discovery</option>
+                    <option value=3>Fully Autonomous Explore</option>
                 </select>
             </div>
           
@@ -111,7 +112,15 @@
                     <div class="controlls">
                         <p> Arrow Keys: Control cursor</p>
                         <p> Enter Key: Sends rover to location of cursor</p>
-                        <p> Each square is 10cm by 10cm</p>
+                        <p> Each square is 30cm by 30cm</p>
+                        <p> Space Key: Cancel autonomous driving </p>
+                    </div>
+                    <h4> Driving Modes </h4>
+                    <div class = "controlls">
+                        <p>Simple: Rover will reach target coordinates via simplest path</p>
+                        <p>Full Discovery: For each square rover will scan all adjacent blocks for obstacles</p>
+                        <p>Destination Discovery: Rover will do Simple mode until it reaches target coordinates where it will scan all adjacent blocks for obstacles</p>
+                        <p>Fully Autonomous Explore: Rover will explore the full map with no extra controls from user, location of cursor does not matter for this mode</p>
                     </div>
                 </div>
             </div>

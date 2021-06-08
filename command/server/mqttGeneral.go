@@ -168,7 +168,16 @@ func instructionFeedPubHandler(logger *zap.Logger, ctx context.Context, db DB) m
 			instruction.Value = 0
 			updateMap(instruction, ctx, db)
 
-			feed = feed + "<br> <br> Rover has reached its destination"
+			mqttClient := &MQTTClient{
+				client: client,
+				logger: logger,
+			}
+
+			if stopAutonomous == false {
+				autonomousDrive(mqttClient)
+			} else {
+				feed = "<br> <br> Rover has reached its destination" + feed
+			}
 
 		} else if s[0] == "S" {
 			if stashedDriveInstruction.Instruction == "forward" { // wait for second part of stop instruction to update map and stop
@@ -216,4 +225,8 @@ func instructionEnergyPubHandler(logger *zap.Logger) mqtt.MessageHandler {
 			fmt.Println("server: mqttGeneral: unknown energy information")
 		}
 	}
+}
+
+func (m *MQTTClient) getIsConnected() bool {
+	return m.client.IsConnected()
 }

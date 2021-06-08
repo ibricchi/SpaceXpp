@@ -8,4 +8,5 @@ type MQTT interface {
 	Disconnect()
 	publish(topic string, data string, qos byte)
 	publishDriveInstructionSequence(instructionSequence driveInstructions)
+	getIsConnected() bool
 }

@@ -53,6 +53,8 @@ func (h *HttpServer) routes(ctx context.Context) error {
 		r.Post("/map/reset", h.resetMap(ctx))
 		r.Post("/map/history/request", h.requestMap(ctx))
 		r.Post("/map/history/save", h.save(ctx))
+		r.Post("/map/stopAutonomous", h.stopAutonom)
+
 	})
 
 	return nil
