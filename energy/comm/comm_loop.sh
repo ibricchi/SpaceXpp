@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source env/bin/activate
+
 coproc esp { python ./test.py ;}
 
 while :
