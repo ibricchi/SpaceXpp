@@ -12,7 +12,7 @@ type DB interface {
 
 	saveMapName(ctx context.Context, name string) error
 	saveRover(ctx context.Context, mapID int, roverIndex int) error
-	insertMap(ctx context.Context, indx int, value int, mapID int) error
+	insertMap(ctx context.Context, tiles []int, mapID int) error
 	retriveMap(ctx context.Context, mapID int) error
 	retriveRover(ctx context.Context, mapID int) error
 	getMapID(ctx context.Context, name string) (int, error)
