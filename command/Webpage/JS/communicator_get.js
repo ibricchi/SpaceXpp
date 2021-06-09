@@ -314,6 +314,19 @@ function getEnergy() {
                 stateOfHealth.style.width = data.stateOfHealth + '%'
                 stateOfHealth.innerHTML = data.stateOfHealth + '%'
 
+                let rc = 255 - (255 * (data.stateOfCharge / 100))
+                let gc = 255 * (data.stateOfCharge / 100)
+                let bc = 0
+
+                let rh = 255 - (255 * (data.stateOfHealth / 100))
+                let gh = 255 * (data.stateOfHealth / 100)
+                let bh = 0
+
+                stateOfCharge.style.cssText += "background-color: rgb(" + rc + "," + gc + "," + bc + ") !important";
+                stateOfHealth.style.cssText += "background-color: rgb(" + rh + "," + gh + "," + bh + ") !important";
+
+                console.log(stateOfCharge);
+
                 if (data.errorInCells == 1) {
                     alert("Error in cells!");
 

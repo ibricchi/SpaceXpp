@@ -53,13 +53,15 @@ func (h *HttpServer) driveA(ctx context.Context) http.HandlerFunc {
 			c = "turnLeft"
 		}
 
+		n := Abs(t) / tileWidth
+
 		instruction := []driveInstruction{}
-
-		instruction = append(instruction, driveInstruction{
-			Instruction: c,
-			Value:       Abs(t),
-		})
-
+		for i := 0; i < n; i++ {
+			instruction = append(instruction, driveInstruction{
+				Instruction: c,
+				Value:       90,
+			})
+		}
 		h.mqtt.publishDriveInstructionSequence(instruction)
 
 	}

@@ -50,6 +50,15 @@ var feed string
 // Used to stop autonomous
 var stopAutonomous bool = true
 
+// Used to identify if all balls have been found
+var ballCount = balls{
+	red:    false,
+	yellow: false,
+	violet: false,
+	blue:   false,
+	teal:   false,
+}
+
 // Used to store current energy readings
 var currentEnergy = energy{
 	StateOfCharge: 0,
@@ -90,7 +99,8 @@ func mapAndDrive(mqtt MQTT, destinationCol int, destinationRow int, mode int) er
 
 func autonomousDrive(mqtt MQTT) {
 	available, x, y := getBestNextDestinationCoordinates(Map)
-	if available == false || stopAutonomous == false {
+	allFound := checkBalls()
+	if available == false && stopAutonomous == false && allFound == false {
 		mapAndDrive(mqtt, x, y, 1)
 	}
 
@@ -280,4 +290,15 @@ func getOneInFront(changeInRotation int) int {
 		return Rover.X + ((Rover.Y - 1) * Map.Cols)
 	}
 	return 0
+}
+
+func checkBalls() bool {
+	if ballCount.blue == true && ballCount.red == true && ballCount.teal == true && ballCount.violet == true && ballCount.yellow == true {
+		feed = "<br> <br> All balls found, stopping rover" + feed
+
+		return true
+	} else {
+		return false
+	}
+
 }
