@@ -192,7 +192,7 @@ func instructionFeedPubHandler(logger *zap.Logger, ctx context.Context, db DB) m
 				logger: logger,
 			}
 
-			ballIsFound(stopData)
+			ballIsFound(value)
 
 			if v == -1 { // stopping after turn (map already updated with obstruction)
 				stop(mqttClient, ctx, db, 0, stopData, true)
