@@ -61,7 +61,7 @@ body {
 
 .infoBox {
     color: black;
-    background-color: #ffffffbf;
+    background-color: #ffffffdf;
     text-align: center;
     margin: auto;
     display: flex;
@@ -127,12 +127,11 @@ button {
     /* Green */
     border: none;
     color: white;
-    padding: 16px 32px;
+    padding: 5px 16px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
     font-size: 16px;
-    margin: 4px 2px;
     transition-duration: 0.4s;
     cursor: pointer;
     background-color: white;
