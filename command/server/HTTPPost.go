@@ -53,7 +53,7 @@ func (h *HttpServer) driveA(ctx context.Context) http.HandlerFunc {
 			c = "turnLeft"
 		}
 
-		n := Abs(t) / tileWidth
+		n := Abs(t) / 90
 
 		instruction := []driveInstruction{}
 		for i := 0; i < n; i++ {
