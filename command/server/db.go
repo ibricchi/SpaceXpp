@@ -12,7 +12,7 @@ type DB interface {
 
 	saveMapName(ctx context.Context, name string) error
 	saveRover(ctx context.Context, mapID int, roverIndex int) error
-	insertMap(ctx context.Context, indx int, value int, mapID int) error
+	insertMap(ctx context.Context, tiles []int, mapID int) error
 	retriveMap(ctx context.Context, mapID int) error
 	retriveRover(ctx context.Context, mapID int) error
 	getMapID(ctx context.Context, name string) (int, error)
@@ -20,6 +20,8 @@ type DB interface {
 	storeInstruction(ctx context.Context, instruction string, value int) error
 	retriveInstruction(ctx context.Context, mapID int) error
 	resetInstructions(ctx context.Context, mapID int) error
+	insertCredentials(ctx context.Context, credential credential) error
+	getCredentials(ctx context.Context) (map[string]string, error)
 
 	migrate(ctx context.Context) error
 	TransactContext(ctx context.Context, f func(ctx context.Context, tx *sql.Tx) error) (err error)

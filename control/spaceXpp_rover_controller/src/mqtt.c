@@ -112,21 +112,3 @@ void publish_energy_status_to_server(const char* encoding, const char* data) {
     int msg_id = esp_mqtt_client_publish(mqttClient, "/energy/status", message, 0, 0, 0);
     ESP_LOGI(MQTT_tag, "publish energy status to server successful, msg_id=%d, data=%s", msg_id, message);
 }
-
-// Used to send status to server e.g battery percentage remaining
-void mqtt_task(void *arg)
-{
-    int counter = 0;
-    int msg_id;
-    while (1) {
-        char statusData[20];
-
-        // sprintf(statusData, "Counter is %d", counter);
-        // msg_id = esp_mqtt_client_publish(mqttClient, "/test/status", statusData, 0, 0, 0); // qos of 0 is enough for status
-        // ESP_LOGI(MQTT_tag, "sent publish successful, msg_id=%d, data=%s", msg_id, statusData);
-
-        ++counter;
-
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-    }
-}

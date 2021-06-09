@@ -25,7 +25,4 @@ void publish_drive_instruction_to_server(const char* instruction, const char* da
 
 void publish_energy_status_to_server(const char* encoding, const char* data);
 
-// Used to send status to server
-void mqtt_task(void *arg);
-
 #endif
