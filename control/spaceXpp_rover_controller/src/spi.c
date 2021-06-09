@@ -33,7 +33,6 @@ void vision_spi_init() {
 }
 
 void vision_spi_task(void *arg) {
-    WORD_ALIGNED_ATTR char tx_buff[VISION_BUFFER_SIZE]="";
     WORD_ALIGNED_ATTR char rx_buff[VISION_BUFFER_SIZE]="";
     memset(rx_buff, 0, VISION_BUFFER_SIZE);
 
@@ -43,12 +42,9 @@ void vision_spi_task(void *arg) {
     while (1) {
         // Clear rx_buff
         memset(rx_buff, 0, VISION_BUFFER_SIZE);
-        // Set tx_buff
-        sprintf(tx_buff, "Message from ESP32");
 
-        // Set up a transaction of 128 bytes to send/receive
+        // Set up a transaction of 128 bytes to receive (not sending any data)
         t.length=128*8;
-        t.tx_buffer=tx_buff;
         t.rx_buffer=rx_buff;
 
         // Blocking operations until data received
@@ -75,8 +71,6 @@ void vision_spi_task(void *arg) {
                 ESP_LOGE(SPI_tag, "Invalid key from vision data: %d", key);
                 break;
         }
-
-        printf("\nReceived from FPGA: %s\n", rx_buff); // testing only
     }
 }
 
