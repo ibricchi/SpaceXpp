@@ -228,7 +228,11 @@ func updateMapWithObstructionWhileTurning(obstructionType string) {
 
 	indx := getOneInFront(changeInRotation)
 
-	Map.Tiles[indx] = obstacleToValue(obstructionType)
+	if !(Map.Tiles[indx] == 1 || Map.Tiles[indx] == 2) && obstructionType == "" {
+		// Don't update to prevent removing just detected obstructions
+	} else {
+		Map.Tiles[indx] = obstacleToValue(obstructionType)
+	}
 }
 
 func obstacleToValue(obstacle string) int {
