@@ -30,10 +30,10 @@ body {
 
 .main-wrapper {
     float: left;
-    margin-left: 3%;
     padding: 60px 5px;
-    width: 57%;
+    width: 60%;
     text-align: center;
+    padding-left: 110px;
 }
 
 .right {

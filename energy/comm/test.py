@@ -9,5 +9,5 @@ while True:
     print(f'{int(energy_level)}C')
     print("<data>")
     print(f'{int(energy_health)}H')
-    energy_level -= 0.2
-    energy_health -= 0.04
+    energy_level -= 0.05
+    energy_health -= 0.01
