@@ -63,10 +63,13 @@ void vision_spi_task(void *arg) {
                 ESP_LOGI(SPI_tag, "Stop instruction from vision: %s", rx_buff);
                 break;
             case 'I': // Image data
+                 ESP_LOGE(SPI_tag, "Image data not implemented.");
                 break;
             case 'B': // Begin new image
+                ESP_LOGE(SPI_tag, "Begin new image not implemented.");
                 break;
             case 'E': // End current image
+                ESP_LOGE(SPI_tag, "End current image not implemented.");
                 break;
             default:
                 ESP_LOGE(SPI_tag, "Invalid key from vision data: %d", key);
@@ -118,10 +121,13 @@ void vision_spi_task_simulated(void *arg) {
                 handle_vision_stop_instruction(rx_buff);
                 break;
             case 'I': // Image data
+                ESP_LOGE(SPI_tag, "Vision simulation: Image data not implemented.");
                 break;
             case 'B': // Begin new image
+                ESP_LOGE(SPI_tag, "Vision simulation: Begin new image not implemented.");
                 break;
             case 'E': // End current image
+                ESP_LOGE(SPI_tag, "Vision simulation: End current image not implemented.");
                 break;
             default:
                 ESP_LOGE(SPI_tag, "Vision simulation: Invalid key from vision data.");
