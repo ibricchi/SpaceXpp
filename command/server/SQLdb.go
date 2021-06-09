@@ -50,20 +50,25 @@ func (s *SQLiteDB) saveRover(ctx context.Context, mapID int, roverIndex int) err
 	return nil
 }
 
-func (s *SQLiteDB) insertMap(ctx context.Context, indx int, value int, mapID int) error {
+func (s *SQLiteDB) insertMap(ctx context.Context, tiles []int, mapID int) error {
 	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
-		if _, err := tx.ExecContext(ctx, `
+
+		for i := 0; i < 144; i++ {
+
+			if _, err := tx.ExecContext(ctx, `
 			INSERT INTO tiles (indx, mapID, value)
 			VALUES (:indx, :mapID, :value )
 		`,
-			sql.Named("indx", indx),
-			sql.Named("mapID", mapID),
-			sql.Named("value", value),
-		); err != nil {
-			fmt.Println("not inserted:", indx, value, mapID)
-			return fmt.Errorf("server: SQLdb: failed to insert map into db: %w", err)
+				sql.Named("indx", i),
+				sql.Named("mapID", mapID),
+				sql.Named("value", tiles[i]),
+			); err != nil {
+				fmt.Println("not inserted:", i, tiles[i], mapID)
+				return fmt.Errorf("server: SQLdb: failed to insert map into db: %w", err)
+			}
 		}
 		return nil
+
 	}); err != nil {
 		return fmt.Errorf("server: SQLdb: insertMap transaction failed: %w", err)
 	}

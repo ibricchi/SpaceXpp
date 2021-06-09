@@ -61,11 +61,11 @@ body {
 
 .infoBox {
     color: black;
-    background-color: #ffffffbf;
+    background-color: #ffffffdf;
     text-align: center;
     margin: auto;
     display: flex;
-    height: 30vh;
+    height: 60vh;
     width: 80%;
 }
 
@@ -127,12 +127,11 @@ button {
     /* Green */
     border: none;
     color: white;
-    padding: 16px 32px;
+    padding: 5px 16px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
     font-size: 16px;
-    margin: 4px 2px;
     transition-duration: 0.4s;
     cursor: pointer;
     background-color: white;
@@ -147,6 +146,12 @@ button:hover {
 
 input {
     border-radius: 8px;
+}
+
+#stateOfHealth,
+#stateOfCharge {
+    color: black !important;
+    padding: 0;
 }
 
 @media screen and (max-width: 900px) {
