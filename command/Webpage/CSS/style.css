@@ -148,6 +148,12 @@ input {
     border-radius: 8px;
 }
 
+#stateOfHealth,
+#stateOfCharge {
+    color: black !important;
+    padding: 0;
+}
+
 @media screen and (max-width: 900px) {
     .container {
         width: 80vw;
