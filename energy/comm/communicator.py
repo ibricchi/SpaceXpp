@@ -17,7 +17,7 @@ client = mqtt.Client()
 # client.on_message=on_message
 # client.on_log=on_log
 
-client.username_pw_set("<username>", "<pass>")
+client.username_pw_set("spaceXpp_energy", "mqtt")
 client.tls_set("../../control/spaceXpp_rover_controller/src/ca_cert.pem", tls_version=ssl.PROTOCOL_TLSv1_2)
 client.tls_insecure_set(True)
 
@@ -38,5 +38,5 @@ for line in stdin:
     v = i[:-2]
     m = f'{t}:{v}'
     print(m)
-    # client.publish("testing/hello", "Hello World from paho-mqtt!", 0)
+    client.publish("/energy/status", m, 0)
 
