@@ -23,6 +23,8 @@ type DB interface {
 	insertCredentials(ctx context.Context, credential credential) error
 	getCredentials(ctx context.Context) (map[string]string, error)
 
+	loadMapNames(ctx context.Context) ([]string, error)
+
 	migrate(ctx context.Context) error
 	TransactContext(ctx context.Context, f func(ctx context.Context, tx *sql.Tx) error) (err error)
 	Close() error

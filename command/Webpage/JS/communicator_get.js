@@ -335,3 +335,24 @@ function getEnergy() {
             }
         })
 }
+
+function getMapNames(){
+    
+    privateRequest = {
+        headers: {
+            "Content-Type": "application/json; charset=UTF-8"
+        },
+        method: "GET"
+    };
+    privateRequest.headers.Authorization = encoded;
+
+    fetch(serverIP + '/map/history/names', privateRequest)
+        .then(request => request.json())
+        .then(data => {
+            if (data != null) {
+               return data
+                }
+
+            })
+
+}

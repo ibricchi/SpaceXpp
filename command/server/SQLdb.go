@@ -337,6 +337,44 @@ func (s *SQLiteDB) getCredentials(ctx context.Context) (map[string]string, error
 	return credentials, nil
 }
 
+func (s *SQLiteDB) loadMapNames(ctx context.Context, mapID int) ([]string, error) {
+
+	var name string
+	var names []string
+	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
+		rows, err := tx.QueryContext(ctx, `
+			SELECT name
+			FROM maps
+			ORDER BY instructionID 
+			`,
+		)
+		if err != nil {
+			fmt.Println("did not work extracting mao name ")
+			return fmt.Errorf("server: SQLdb: failed to retrieve data from maps rows: %w", err)
+		}
+		defer rows.Close()
+		for rows.Next() {
+			if err := rows.Scan(
+				&name,
+			); err != nil {
+				return fmt.Errorf("server: SQLdb: failed to scan maps row: %w", err)
+			}
+
+			names = append(names, name)
+
+		}
+		if err := rows.Err(); err != nil {
+			return fmt.Errorf("server: SQLdb: failed to scan last map name row: %w", err)
+		}
+
+		return nil
+	}); err != nil {
+		return nil, fmt.Errorf("server: SQLdb: retriveInstruction transaction failed: %w", err)
+	}
+
+	return names, nil
+}
+
 func (s *SQLiteDB) Close() error {
 	if err := s.db.Close(); err != nil {
 		return fmt.Errorf("server: SQLdb: failed to close sqlite db: %w", err)

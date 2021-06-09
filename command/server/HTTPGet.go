@@ -167,3 +167,16 @@ func (h *HttpServer) getIsAuthorised(creds map[string]string) http.HandlerFunc {
 		w.WriteHeader(http.StatusOK)
 	}
 }
+
+func (h *HttpServer) getMapNames(ctx context.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+		data, _ := h.db.loadMapNames(ctx)
+
+		if err := json.NewEncoder(w).Encode(data); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		w.WriteHeader(http.StatusOK)
+	}
+}

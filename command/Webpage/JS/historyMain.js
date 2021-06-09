@@ -2,6 +2,47 @@ document.getElementById("mapOpen").addEventListener('click', getNameAndLoad, fal
 
 instructions = document.getElementById("instructionLog")
 
+var openOptions = document.getElementById('openOptions');
+
+getMapNamesAndLoad()
+
+
+
+function getMapNamesAndLoad() {
+  var names = getMapNames()
+
+  var options =
+  [
+    {
+      "text"  : "Select map name ",
+      "value" : "Value 1"
+    }
+  ];
+  
+  var i = 0
+  
+  while (names[i] != null){
+    console.log( names[i] )
+    var intermediate = {
+      "text"  : names[i],
+      "value" : names[i]
+    };
+    
+    options.push(intermediate);
+  
+    i += 1; 
+  }
+  
+  
+  
+  for(var i = 0, l = options.length; i < l; i++){
+    var option = options[i];
+    openOptions.options.add( new Option(option.text, option.value, option.selected) );
+  }
+
+}
+
+
 
 function getNameAndLoad(){
   
@@ -52,3 +93,5 @@ function cleanMap(){
 
     instructions.innerHTML = "" 
 }
+
+
