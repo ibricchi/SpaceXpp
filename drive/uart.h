@@ -14,7 +14,6 @@ class UART{
     char receivedUARTChars[numUARTChars];
     bool newUARTDataAvailable;
 
-
   public:
     // Default constructor
     UART();

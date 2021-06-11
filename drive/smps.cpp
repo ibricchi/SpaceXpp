@@ -10,6 +10,7 @@ float duty_cycle;
 float vout, iL;
 
 // Constants
+const float Ts = 0.0008; // [s]
 const float kpv = 0.05024, kiv = 15.78, kdv = 0;
 const float uv_max = 4, uv_min = 0;
 const float kpi = 0.02512, kii = 39.4, kdi = 0;
@@ -43,7 +44,7 @@ void pwm_modulate(float pwm_input) {
 }
 
 // Voltage PID controller
-float pidv(float pid_input, float Ts) {
+float pidv(float pid_input) {
   float e_integration;
   e0v = pid_input;
   e_integration = e0v;
@@ -62,7 +63,7 @@ float pidv(float pid_input, float Ts) {
 }
 
 // Current PID Controller
-float pidi(float pid_input, float Ts) {
+float pidi(float pid_input) {
   float e_integration;
   e0i = pid_input;
   e_integration = e0i;
@@ -100,7 +101,7 @@ void SMPSSetup() {
 }
 
 // A function for controlling the SMPS duty cycle to achieve the desired reference voltage
-void SMPSControl(float vref, float Ts) {
+void SMPSControl(float vref) {
   /*
     The closed loop path has a voltage controller cascaded with a current controller. The voltage controller
     creates a current demand based upon the voltage error. This demand is saturated to give current limiting.
@@ -109,10 +110,10 @@ void SMPSControl(float vref, float Ts) {
   */
   sampling();
   float ev = vref - vout;
-  float cv = pidv(ev, Ts);
+  float cv = pidv(ev);
   cv = saturation(cv, current_limit, 0);
   float ei = cv - iL;
-  duty_cycle = pidi(ei, Ts);
+  duty_cycle = pidi(ei);
   duty_cycle = saturation(duty_cycle, 0.99, 0.01);
   pwm_modulate(duty_cycle);
 }
