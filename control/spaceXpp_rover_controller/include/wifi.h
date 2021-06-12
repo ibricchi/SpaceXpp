@@ -1,3 +1,7 @@
+/*
+    Written by Nicholas Pfaff (nicholas.pfaff19@imperial.ac.uk), 2021 - SpaceX++ EEE/EIE 2nd year group project, Imperial College London
+*/
+
 #include "esp_wifi.h"
 #include "esp_system.h"
 #include "esp_log.h"
