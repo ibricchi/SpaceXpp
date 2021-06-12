@@ -18,3 +18,11 @@ type mapDB struct {
 func (m *tileMap) getTile(row int, col int) int {
 	return m.Tiles[row*m.Cols+col]
 }
+
+type balls struct {
+	red    bool
+	yellow bool
+	violet bool
+	blue   bool
+	teal   bool
+}

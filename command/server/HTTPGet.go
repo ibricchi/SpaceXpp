@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type staticTestData struct {
@@ -24,7 +26,7 @@ type energy struct {
 }
 
 func (h *HttpServer) connect(w http.ResponseWriter, req *http.Request) {
-	status := 1
+	status := h.mqtt.getIsConnected()
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	if err := json.NewEncoder(w).Encode(status); err != nil {
@@ -115,7 +117,7 @@ func (h *HttpServer) getFeed(ctx context.Context) http.HandlerFunc {
 	}
 }
 
-func (h *HttpServer) getStateOfCharge(w http.ResponseWriter, req *http.Request) {
+func (h *HttpServer) getEnergyStatus(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
@@ -125,4 +127,43 @@ func (h *HttpServer) getStateOfCharge(w http.ResponseWriter, req *http.Request) 
 
 	w.WriteHeader(http.StatusOK)
 
+}
+
+func (h *HttpServer) getIsAuthorised(creds map[string]string) http.HandlerFunc {
+	/*type isAuthorised struct {
+		Valid bool `json:"valid"`
+	}
+	*/
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+		/*	data := isAuthorised{
+				Valid: true,
+			}
+		*/
+		data := true
+
+		username, password, ok := r.BasicAuth()
+		if !ok {
+			data = false
+		}
+
+		passwordHash, userExists := creds[username]
+		if !userExists {
+			data = false
+		}
+
+		passwordHashBytes := []byte(passwordHash)
+		passwordBytes := []byte(password)
+		if err := bcrypt.CompareHashAndPassword(passwordHashBytes, passwordBytes); err != nil {
+			data = false
+		}
+
+		if err := json.NewEncoder(w).Encode(data); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+	}
 }

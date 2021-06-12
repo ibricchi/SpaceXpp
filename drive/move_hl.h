@@ -4,6 +4,11 @@
 #include "move_ll.h"
 #include "Arduino.h"
 
+struct movement{
+  float e;
+  bool done;  
+};
+
 // Distance from the center of motion (wheels) to the optical flow sensor is 16.2 [cm]
 const float distanceFromRoverCentreToSensor = 16.2;
 
@@ -17,15 +22,15 @@ bool moveForwardForTime(unsigned long t, unsigned long currentInstructionTime);
 bool moveBackwardForTime(unsigned long t, unsigned long currentInstructionTime);
 
 // Causes the rover to move forward for a distance d [cm] and returns true after moving the given distance
-bool moveForwardForDistance(float d, float initialY, float currentY);
+movement moveForwardForDistance(float d, float initialY, float currentY);
 
 // Causes the rover to move backward for a distance d [cm] and returns true after moving the given distance
-bool moveBackwardForDistance(float d, float initialY, float currentY);
+movement moveBackwardForDistance(float d, float initialY, float currentY);
 
 // Rotates clockwise 90 degrees
-bool turnRight(float currentX, float currentY, float initialX, float initialY);
+movement turnRight(float currentX, float currentY, float initialX, float initialY);
 
 // Rotates anticlockwise 90 degrees
-bool turnLeft(float currentX, float currentY, float initialX, float initialY);
+movement turnLeft(float currentX, float currentY, float initialX, float initialY);
 
 #endif

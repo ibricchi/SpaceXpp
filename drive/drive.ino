@@ -9,12 +9,10 @@
 #include "move_ll.h"
 #include "uart.h"
 #include "optical_flow.h"
+#include "speed.h"
 
 // Control frequency (integer multiple of switching frequency, 62.5kHz)
-float Ts = 0.0008;
-
-// Reference voltage - used for controlling the speed of the rover; likely to be removed once speed controller is fully functional
-float vref = 3.0;
+static const float Tus = 800;  // [us]
 
 // Displacement in each direction, [cm]
 OpticalFlow opticalFlow;
@@ -23,21 +21,18 @@ float displacementX = 0.0, displacementY = 0.0;
 // UART
 UART uart;
 
+// Speed and voltage control
+SpeedController sc;
+
 // The current instruction to be executed
 instructions currentInstruction = doNothing;
 float receivedUARTChars = 0.0;
+movement data;
 bool currentInstructionCompleted = false;
 bool currentInstructionStarted = false;
 unsigned long currentInstructionTime = 0;
 float currentInstructionX = 0.0;
 float currentInstructionY = 0.0;
-
-// For velocity control, iterative proportional controller - to be fully implemented
-float kvp = 0.1;   // TO BE TUNED
-float currentY = 0.0;
-float previousY = 0.0;
-float currentTime = 0.0;
-float previousTime = 0.0;
 
 void setup() {
   Serial.begin(38400);
@@ -48,11 +43,13 @@ void setup() {
   }
   uart.setup();
   uart.nextInstructionReady();
+  data.e = 0.0;
+  data.done = true;
 }
 
 void loop() {
   //Used for controlling the duty cycle of the SMPS to achieve the required reference voltage, which, in turn, controls the speed of the rover
-  SMPSControl(vref, Ts);
+  SMPSControl(sc.calculateVoltageReference(data.e));
 
   // Received and decode current instruction
   uart.recvUARTWithStartEndMarkers();
@@ -64,9 +61,6 @@ void loop() {
   opticalFlow.read();
   displacementX = opticalFlow.getDisplacementX();
   displacementY = opticalFlow.getDisplacementY();
-
-  // Set velocity to the desired value - commented out until velocity is accurately calculated using time
-  // setVelocity(1.0);
 
   // Buffer through the instructions in order they arrive
   if (currentInstruction != doNothing && currentInstruction != stopAbruptly) {
@@ -80,6 +74,11 @@ void loop() {
       }
     }
   } else if (currentInstruction == stopAbruptly) {
+    // No error, so no need to control speed
+    data.done = true;
+    data.e = 0.0;
+
+    // Reset the current instruction
     currentInstructionStarted = false;
     uart.setInstruction(doNothing);
     stopMoving();
@@ -89,17 +88,20 @@ void loop() {
 
     // Return distance moved to ESP
     Serial1.print(String(abs(displacementY - currentInstructionY)) + "S");
-    
+
     // Delay and wait for next instruction
     delay(2000);
     uart.nextInstructionReady();
   } else {
+    // No error, so no need to control speed
+    data.done = true;
+    data.e = 0.0;
     uart.setInstruction(doNothing);
     stopMoving();
   }
 
   // Control circuit frequency (SMPS)
-  delayMicroseconds(800);
+  delayMicroseconds(Tus);
 }
 
 // Decides which and calls the given instruction based on the mapping below
@@ -107,18 +109,22 @@ boolean callCurrentInstruction() {
   switch (currentInstruction) {
     case forwardForTime:
       return false;
-      //return moveForwardForTime(10000, currentInstructionTime); IMPLEMENTED, NOT USED
+      //return moveForwardForTime(10000, currentInstructionTime);  IMPLEMENTED, NOT USED
     case backwardForTime:
       return false;
-     //return moveBackwardForTime(10000, currentInstructionTime); IMPLEMENTED, NOT USED
-    case forwardForDistance:
-      return moveForwardForDistance(receivedUARTChars, currentInstructionY, displacementY);
+    //return moveBackwardForTime(10000, currentInstructionTime); IMPLEMENTED, NOT USED
+    case forwardForDistance: 
+      data = moveForwardForDistance(receivedUARTChars, currentInstructionY, displacementY);
+      return data.done;
     case backwardForDistance:
-      return moveBackwardForDistance(receivedUARTChars, currentInstructionY, displacementY);
+      data = moveBackwardForDistance(receivedUARTChars, currentInstructionY, displacementY);
+      return data.done;
     case turnR:
-      return turnRight(displacementX, displacementY, currentInstructionX, currentInstructionY);
+      data = turnRight(displacementX, displacementY, currentInstructionX, currentInstructionY);
+      return data.done;
     case turnL:
-      return turnLeft(displacementX, displacementY, currentInstructionX, currentInstructionY);
+      data = turnLeft(displacementX, displacementY, currentInstructionX, currentInstructionY);
+      return data.done;
     default:
       return false;
   }
@@ -139,19 +145,3 @@ void completeInstruction() {
   uart.setInstruction(doNothing);
   uart.nextInstructionReady();
 }
-
-/*
-   Velocity control functions - to be implemented
-*/
-/*
-  // Sets the speed of the rover
-  void setVelocity(float velocityReference) {
-  previousY = currentY;
-  currentY = displacementY;
-  previousTime = currentTime;
-  currentTime = millis();
-  float velocityCurrent = (currentY - previousY) / (currentTime - previousTime);
-  float velocityError = velocityReference - velocityCurrent;
-  vref += kvp * velocityError;
-  }
-*/

@@ -47,6 +47,18 @@ var previousDestinationMode int
 // Used to record feedback
 var feed string
 
+// Used to stop autonomous
+var stopAutonomous bool = true
+
+// Used to identify if all balls have been found
+var ballCount = balls{
+	red:    false,
+	yellow: false,
+	violet: false,
+	blue:   false,
+	teal:   false,
+}
+
 // Used to store current energy readings
 var currentEnergy = energy{
 	StateOfCharge: 0,
@@ -83,6 +95,15 @@ func mapAndDrive(mqtt MQTT, destinationCol int, destinationRow int, mode int) er
 	feed = "<br> <br> Drive instructions sent to rover <br> <br> Optimum path converted to drive instructions <br> <br> Targets converted to optimum path <br> <br> Targets recived by server " + feed
 
 	return nil
+}
+
+func autonomousDrive(mqtt MQTT) {
+	available, x, y := getBestNextDestinationCoordinates(Map)
+	allFound := checkBalls()
+	if available == false && stopAutonomous == false && allFound == false {
+		mapAndDrive(mqtt, x, y, 1)
+	}
+
 }
 
 func angle2Direction(angle int) (direction, error) {
@@ -180,9 +201,15 @@ func stop(mqtt MQTT, ctx context.Context, db DB, distance int, obstructionType s
 
 	feed = "<br> <br> Stopped due to obstruction <br> <br> Computing new shortest path " + feed
 	fmt.Println("Stopped due to obstruction. Computing new shortest path.")
-	if err := mapAndDrive(mqtt, previousDestinationRow, previousDestinationCol, previousDestinationMode); err != nil {
-		// Enough to log error => Error is handled manually by clicking again on map
-		mqtt.getLogger().Error("server: map_general: stop: failed to compute new shortest path")
+
+	if stopAutonomous == false {
+		autonomousDrive(mqtt)
+	} else {
+
+		if err := mapAndDrive(mqtt, previousDestinationRow, previousDestinationCol, previousDestinationMode); err != nil {
+			// Enough to log error => Error is handled manually by clicking again on map
+			mqtt.getLogger().Error("server: map_general: stop: failed to compute new shortest path")
+		}
 	}
 }
 
@@ -201,7 +228,11 @@ func updateMapWithObstructionWhileTurning(obstructionType string) {
 
 	indx := getOneInFront(changeInRotation)
 
-	Map.Tiles[indx] = obstacleToValue(obstructionType)
+	if !(Map.Tiles[indx] == 1 || Map.Tiles[indx] == 2) && obstructionType == "" {
+		// Don't update to prevent removing just detected obstructions
+	} else {
+		Map.Tiles[indx] = obstacleToValue(obstructionType)
+	}
 }
 
 func obstacleToValue(obstacle string) int {
@@ -259,4 +290,15 @@ func getOneInFront(changeInRotation int) int {
 		return Rover.X + ((Rover.Y - 1) * Map.Cols)
 	}
 	return 0
+}
+
+func checkBalls() bool {
+	if ballCount.blue == true && ballCount.red == true && ballCount.teal == true && ballCount.violet == true && ballCount.yellow == true {
+		feed = "<br> <br> All balls found, stopping rover" + feed
+
+		return true
+	} else {
+		return false
+	}
+
 }

@@ -35,8 +35,6 @@ void app_main()
 
     vision_spi_init();
 
-    xTaskCreate(mqtt_task, "mqtt_task", 2048, NULL, 10, NULL);
-
     xTaskCreate(drive_uart_task, "drive_uart_task", 2048, NULL, 10, NULL);
     // xTaskCreate(drive_uart_task_simulated, "drive_uart_task_simulated", 2048, NULL, 10, NULL);
 

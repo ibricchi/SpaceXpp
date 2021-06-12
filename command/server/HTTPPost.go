@@ -31,9 +31,7 @@ func (h *HttpServer) driveD(w http.ResponseWriter, r *http.Request) {
 		Value:       t,
 	})
 
-	//h.mqtt.publishDriveInstructionSequence(instruction)
-
-	//updateMap(instruction[0])
+	h.mqtt.publishDriveInstructionSequence(instruction)
 
 }
 func (h *HttpServer) driveA(ctx context.Context) http.HandlerFunc {
@@ -50,36 +48,22 @@ func (h *HttpServer) driveA(ctx context.Context) http.HandlerFunc {
 
 		w.WriteHeader(http.StatusOK)
 
-		fmt.Println("Recived drive angle: ", t)
-		// Send data to hardware
-
 		c := "turnRight"
 		if t < 0 {
 			c = "turnLeft"
 		}
 
+		n := Abs(t) / 90
+
 		instruction := []driveInstruction{}
+		for i := 0; i < n; i++ {
+			instruction = append(instruction, driveInstruction{
+				Instruction: c,
+				Value:       90,
+			})
+		}
+		h.mqtt.publishDriveInstructionSequence(instruction)
 
-		instruction = append(instruction, driveInstruction{
-			Instruction: c,
-			Value:       Abs(t),
-		})
-
-		//	h.mqtt.publishDriveInstructionSequence(instruction)
-
-		fmt.Println("updating map & inserting instructions ")
-
-		//updateMap(instruction[0], ctx)
-
-		//fmt.Println("attempting to store in db")
-
-		//h.insertInstruction(ctx, instruction[0])
-
-		/*
-			currentEnergy.StateOfCharge = 12
-			currentEnergy.StateOfHealth = 2
-			currentEnergy.ErrorInCells = 1
-		*/
 	}
 }
 
@@ -93,7 +77,11 @@ func (h *HttpServer) targetCoords(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-
+	if targetCoords.Mode == 3 {
+		feed = "<br> <br> Rover is in autonomous mode, exploring the area" + feed
+		stopAutonomous = false
+		autonomousDrive(h.mqtt)
+	}
 	previousDestinationRow = targetCoords.X
 	previousDestinationCol = targetCoords.Y
 	previousDestinationMode = targetCoords.Mode
@@ -101,6 +89,19 @@ func (h *HttpServer) targetCoords(w http.ResponseWriter, r *http.Request) {
 	if err := mapAndDrive(h.mqtt, targetCoords.X, targetCoords.Y, targetCoords.Mode); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
+}
+func (h *HttpServer) stopAutonom(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	defer r.Body.Close()
+
+	if err := decoder.Decode(&stopAutonomous); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+
+	feed = "<br> <br> Exiting autonomous mode" + feed
+
+	w.WriteHeader(http.StatusOK)
+
 }
 
 func Abs(x int) int {

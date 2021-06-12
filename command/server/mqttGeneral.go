@@ -168,7 +168,16 @@ func instructionFeedPubHandler(logger *zap.Logger, ctx context.Context, db DB) m
 			instruction.Value = 0
 			updateMap(instruction, ctx, db)
 
-			feed = feed + "<br> <br> Rover has reached its destination"
+			mqttClient := &MQTTClient{
+				client: client,
+				logger: logger,
+			}
+
+			if stopAutonomous == false {
+				autonomousDrive(mqttClient)
+			} else {
+				feed = "<br> <br> Rover has reached its destination" + feed
+			}
 
 		} else if s[0] == "S" {
 			if stashedDriveInstruction.Instruction == "forward" { // wait for second part of stop instruction to update map and stop
@@ -182,6 +191,8 @@ func instructionFeedPubHandler(logger *zap.Logger, ctx context.Context, db DB) m
 				client: client,
 				logger: logger,
 			}
+
+			ballIsFound(value)
 
 			if v == -1 { // stopping after turn (map already updated with obstruction)
 				stop(mqttClient, ctx, db, 0, stopData, true)
@@ -216,4 +227,32 @@ func instructionEnergyPubHandler(logger *zap.Logger) mqtt.MessageHandler {
 			fmt.Println("server: mqttGeneral: unknown energy information")
 		}
 	}
+}
+
+func (m *MQTTClient) getIsConnected() bool {
+	return m.client.IsConnected()
+}
+
+func ballIsFound(data string) {
+	var name string
+	if data == "B" {
+		ballCount.blue = true
+		name = "blue"
+	} else if data == "R" {
+		ballCount.red = true
+		name = "red"
+	} else if data == "Y" {
+		ballCount.yellow = true
+		name = "yellow"
+	} else if data == "T" {
+		ballCount.teal = true
+		name = "teal"
+	} else if data == "V" {
+		ballCount.violet = true
+		name = "violet"
+	} else {
+		name = "unknown"
+	}
+
+	feed = "<br> <br> Obstacle identified as: " + name + feed
 }

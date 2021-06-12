@@ -23,10 +23,10 @@ void UART::recvUARTWithStartEndMarkers() {
   const char startMarker = '<';
   const char endMarker = '>';
   char received;
-  
+
   while (Serial1.available() && !newUARTDataAvailable) {
     received = Serial1.read();
-    
+
     if (recvInProgress) {
       if (received != endMarker) {
         receivedUARTChars[idx++] = received;
@@ -53,7 +53,7 @@ void UART::processNewUARTData() {
     // Read and pop instruction key
     const char instructionKey = receivedUARTChars[strlen(receivedUARTChars) - 1];
     receivedUARTChars[strlen(receivedUARTChars) - 1] = '\0';
-    
+
     switch (instructionKey) {
       case 'F':
         instruction = forwardForDistance;
@@ -74,7 +74,6 @@ void UART::processNewUARTData() {
         Serial.print("INVALID INSTRUCTION KEY\n");
         break;
     }
-
     newUARTDataAvailable = false;
   }
 }
