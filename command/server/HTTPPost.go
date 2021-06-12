@@ -1,3 +1,7 @@
+/*
+   Written by Bradley Stanley-Clamp (bradley.stanley-clamp19@imperial.ac.uk), 2021 - SpaceX++ EEE/EIE 2nd year group project, Imperial College London
+*/
+
 package server
 
 import (
@@ -45,7 +49,6 @@ func (h *HttpServer) driveA(ctx context.Context) http.HandlerFunc {
 		}
 
 		// Check for correct format
-
 		w.WriteHeader(http.StatusOK)
 
 		c := "turnRight"
@@ -148,7 +151,6 @@ func (h *HttpServer) requestMap(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		// Aquiring map name
-
 		decoder := json.NewDecoder(r.Body)
 		defer r.Body.Close()
 
@@ -162,7 +164,6 @@ func (h *HttpServer) requestMap(ctx context.Context) http.HandlerFunc {
 		fmt.Println("map name:", name)
 
 		// map is quered using name to get id
-
 		mapID, err := h.db.getMapID(ctx, name)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -177,7 +178,6 @@ func (h *HttpServer) requestMap(ctx context.Context) http.HandlerFunc {
 		h.db.retriveRover(ctx, mapID)
 
 		// Instructions Built and stored in dbmap
-
 		h.db.retriveInstruction(ctx, mapID)
 
 	}

@@ -1,3 +1,7 @@
+/*
+   Written by Bradley Stanley-Clamp (bradley.stanley-clamp19@imperial.ac.uk) and Nicholas Pfaff (nicholas.pfaff19@imperial.ac.uk), 2021 - SpaceX++ EEE/EIE 2nd year group project, Imperial College London
+*/
+
 package server
 
 import (
@@ -343,21 +347,3 @@ func (s *SQLiteDB) Close() error {
 	}
 	return nil
 }
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-/* DATABASE Testing Area /
-fmt.Println("Stating db tests")
-statement, _ := db.Prepare("CREATE TABLE IF NOT EXISTS people (id INTEGER PRIMARY KEY, name TEXT)")
-statement.Exec()
-statement, _ = db.Prepare("INSERT INTO people (name) VALUES (?)")
-statement.Exec("Brad")
-fmt.Println("data in db, now querying")
-rows, _ := db.Query("SELECT id, name FROM people")
-var id int
-var name string
-for rows.Next() {
-	rows.Scan(&id, &name)
-	fmt.Println(strconv.Itoa(id) + ": " + name)
-}
-/* end of testing area */
-//////////////////////////////////////////////////////////////////////////////////////////////////////////

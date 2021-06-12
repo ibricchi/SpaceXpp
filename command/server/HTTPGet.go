@@ -1,3 +1,7 @@
+/*
+   Written by Bradley Stanley-Clamp (bradley.stanley-clamp19@imperial.ac.uk) and Nicholas Pfaff (nicholas.pfaff19@imperial.ac.uk), 2021 - SpaceX++ EEE/EIE 2nd year group project, Imperial College London
+*/
+
 package server
 
 import (
@@ -130,17 +134,9 @@ func (h *HttpServer) getEnergyStatus(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h *HttpServer) getIsAuthorised(creds map[string]string) http.HandlerFunc {
-	/*type isAuthorised struct {
-		Valid bool `json:"valid"`
-	}
-	*/
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-		/*	data := isAuthorised{
-				Valid: true,
-			}
-		*/
 		data := true
 
 		username, password, ok := r.BasicAuth()

@@ -1,3 +1,7 @@
+/*
+   Written by Nicholas Pfaff (nicholas.pfaff19@imperial.ac.uk) and Bradley Stanley-Clamp (bradley.stanley-clamp19@imperial.ac.uk), 2021 - SpaceX++ EEE/EIE 2nd year group project, Imperial College London
+*/
+
 package main
 
 import (
