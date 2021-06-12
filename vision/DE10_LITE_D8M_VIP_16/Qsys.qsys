@@ -29,31 +29,31 @@
    {
       datum _originalDeviceFamily
       {
-         value = "Cyclone V";
-         type = "String";
-      }
-   }
-   element Qsys
-   {
-      datum _originalDeviceFamily
-      {
-         value = "Cyclone V";
-         type = "String";
-      }
-   }
-   element Qsys
-   {
-      datum _originalDeviceFamily
-      {
-         value = "Cyclone V";
-         type = "String";
-      }
-   }
-   element Qsys
-   {
-      datum _originalDeviceFamily
-      {
          value = "MAX 10";
+         type = "String";
+      }
+   }
+   element Qsys
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element Qsys
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element Qsys
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
          type = "String";
       }
    }
@@ -1040,7 +1040,7 @@
   <parameter name="masterSPI" value="true" />
   <parameter name="numberOfSlaves" value="1" />
   <parameter name="syncRegDepth" value="2" />
-  <parameter name="targetClockRate" value="5000000" />
+  <parameter name="targetClockRate" value="8400000" />
   <parameter name="targetSlaveSelectToSClkDelay" value="0.0" />
  </module>
  <module name="sw" kind="altera_avalon_pio" version="16.0" enabled="1">
