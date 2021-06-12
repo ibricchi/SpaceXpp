@@ -26,7 +26,7 @@ parameter X_POS=0,
           MAXX_INIT = 100,
           MINY_INIT = 0,
           MAXY_INIT = 100,
-          min_dist = 128;
+          min_dist = 8;
 
 // inputs
 input logic clk;
@@ -63,6 +63,9 @@ always_comb begin
     bw = maxx - minx; // box height
     bh = maxy - miny; // box width
     br = (bw+bh)>>2; // average box radius
+end
+always_comb begin
+    valid = ivc2 & (is_valid_pos | is_valid_init);
 end
 
 // check current pixels distance
@@ -128,7 +131,6 @@ end
 // adjust blob at each clock edge with new data
 always_ff @(posedge clk) begin
     if(!reset_n | reset) begin
-        valid <= 0;
         just_reset <= 1;
         pixel_count <= 0;
 
@@ -140,7 +142,6 @@ always_ff @(posedge clk) begin
     end
     else if(ivc2) begin
         if (is_valid_init) begin
-            valid <= 1;
             just_reset <= 0;
             pixel_count <= 1;
             minx <= x2;
@@ -150,7 +151,6 @@ always_ff @(posedge clk) begin
             rad <= br;
         end
         else if(is_valid_pos) begin
-            valid <= 1;
             pixel_count <= pixel_count + 1;
             minx <= new_minx;
             maxx <= new_maxx;
@@ -158,12 +158,6 @@ always_ff @(posedge clk) begin
             maxy <= new_maxy;
             rad <= br;
         end
-        else begin
-            valid <= 0;
-        end
-    end
-    else begin
-        valid <= 0;
     end
 end
 
