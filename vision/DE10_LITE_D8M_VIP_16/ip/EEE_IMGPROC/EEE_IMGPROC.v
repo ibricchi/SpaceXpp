@@ -181,7 +181,7 @@ always @(posedge clk) begin
         for(d = 0; d < color_count-1; d = d + 1) begin
             for(k = 0; k < grids_x; k = k + 1) begin
                 for(l = 0; l < grids_y; l = l + 1) begin
-                    if(bd_pix < bds_pix[d][k][l]) begin
+                    if(bds_rad[d][k][l] << 4 < bds_pix[d][k][l] & bd_pix < bds_pix[d][k][l]) begin
                         bd_which_c <= d;
                         bd_which_x <= k;
                         bd_which_y <= l;

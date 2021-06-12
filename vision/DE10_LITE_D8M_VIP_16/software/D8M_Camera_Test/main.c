@@ -199,7 +199,8 @@ int main()
         char last_sent;
 
         char last_seen;
-        int last_seen_count;
+        int last_seen_count = 0;
+        int obs_last_seen_count = 0;
 
 	while(1){
 
@@ -320,26 +321,27 @@ int main()
 				   int pix = word;
 				   if(sec_worked){
 					   bool valid_pos = gridx != -1 & gridy != 1;
-					   bool valid_rad = rad > 70 & pix > 5000;
+					   bool valid_rad = rad > 200;
 					   bool valid_data = valid_pos & valid_rad;
 					   if(valid_data){
-						   last_seen_count++;
+						   obs_last_seen_count++;
 					   }
 					   else{
-						   last_seen_count = 0;
+						   obs_last_seen_count = 0;
 					   }
 
-					   if(color != last_sent & last_seen_count > 5){
+					   if(last_sent != 'U' & obs_last_seen_count > 5){
 						   tx_data[0] = 'U';
 						   tx_data[1] = 'S';
 						   tx_data[2] = 0;
 						   printf("\n%s, rad: %u", tx_data, rad);
 						   alt_avalon_spi_command(SPI_0_BASE, 0, tx_length, tx_data, rx_length, rx_data, 0);
-						   last_sent = color;
+						   last_sent = 'U';
+						   obs_last_seen_count = 0;
 					   }
 
 					   if(gridx != -1 & gridy != 1){
-						   printf("\nxcolor: U, rad: %u, pix: %u", rad, pix);
+						   printf("\nxcolor: U, rad: %u, pix: %u, count: %u", rad, pix, obs_last_seen_count);
 					   }
 				   }
 				   sec_worked = FALSE;
@@ -356,7 +358,6 @@ int main()
 
        //Process input commands
        int in = getchar();
-       char* nvm;
        switch (in) {
        	   case 'e': {
        		   exposureTime += EXPOSURE_STEP;
