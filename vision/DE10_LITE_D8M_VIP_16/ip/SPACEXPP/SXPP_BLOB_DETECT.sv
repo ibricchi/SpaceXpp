@@ -1,3 +1,5 @@
+// Written by Ignacio Bricchi, 2021 - SpaceX++ EEE/EIE 2nd year group project, Imperial College London
+
 module SXPP_BLOB_DETECT (
     // global clock & reset
     clk,

@@ -1,3 +1,5 @@
+// Adapted from https://github.com/edstott/EEE2Rover by Ignacio Bricchi, 2021 - SpaceX++ EEE/EIE 2nd year group project, Imperial College London
+
 module EEE_IMGPROC(
     // global clock & reset
     clk,
