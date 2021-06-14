@@ -1,3 +1,9 @@
+/*
+*   Cod from: https://github.com/mozdevs/gamedev-js-tiles
+*   Developed by Bradley Stanley-Clamp (bradley.stanley-clamp19@imperial.ac.uk), 2021 - SpaceX++ EEE/EIE 2nd year group project, Imperial College London
+*/
+
+
 var map = {
     cols: 12,
     rows: 12,

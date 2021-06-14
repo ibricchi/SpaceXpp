@@ -1,10 +1,7 @@
 /*
-*   File: communiator_get.js
-*   Author: Bradley Stanley-Clamp
-*   Description: 
-*               Contains all HTTPS GET requests for webpage functionality and test functions. 
-                Correct authentication is required for sucsessful communication with server 
+*   Developed by Bradley Stanley-Clamp (bradley.stanley-clamp19@imperial.ac.uk), 2021 - SpaceX++ EEE/EIE 2nd year group project, Imperial College London
 */
+
 
 
 // Defining variables \\

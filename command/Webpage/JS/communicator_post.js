@@ -1,3 +1,7 @@
+/*
+*   Developed by Bradley Stanley-Clamp (bradley.stanley-clamp19@imperial.ac.uk), 2021 - SpaceX++ EEE/EIE 2nd year group project, Imperial College London
+*/
+
 
 function sendData(location, address){
     webLocation = document.getElementById(location);
