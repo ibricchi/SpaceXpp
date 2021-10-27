@@ -12,7 +12,7 @@ The rover was broken up into six broad modules to aid the design process - Energ
 
 A video demonstration of the final project can be found at [youtube.com](https://youtu.be/T8w77XG1Lxw)
 
-A report will be linked too as soon as the project has been fully marked and moderated [N/A](#)
+The full report can be foudn at [github.com](https://github.com/IBricchi/SpaceXpp/blob/master/report.pdf)
 
 ## Final Rover assembled
 
